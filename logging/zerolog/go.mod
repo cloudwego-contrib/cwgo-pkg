@@ -1,4 +1,4 @@
-module github.com/kitex-contrib/obs-opentelemetry/logging/zerolog
+module github.com/cloudwego-contrib/obs-opentelemetry/logging/zerolog
 
 go 1.21
 

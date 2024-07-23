@@ -17,7 +17,7 @@ package slog
 import (
 	"bytes"
 	"context"
-	"github.com/kitex-contrib/obs-opentelemetry/logging"
+	"github.com/cloudwego-contrib/obs-opentelemetry/logging"
 	"log/slog"
 	"os"
 	"strings"

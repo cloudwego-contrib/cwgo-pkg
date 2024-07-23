@@ -16,10 +16,10 @@ package logrus_test
 
 import (
 	"context"
-	"github.com/kitex-contrib/obs-opentelemetry/logging"
+	"github.com/cloudwego-contrib/obs-opentelemetry/logging"
 	"testing"
 
-	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
+	kitexlogrus "github.com/cloudwego-contrib/obs-opentelemetry/logging/logrus"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"

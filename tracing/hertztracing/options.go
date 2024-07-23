@@ -16,7 +16,6 @@ package tracing
 
 import (
 	"context"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"go.opentelemetry.io/otel"

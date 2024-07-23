@@ -16,7 +16,9 @@ package tracing
 
 import (
 	"context"
-	"github.com/kitex-contrib/obs-opentelemetry/tracing/internal"
+	"github.com/cloudwego-contrib/obs-opentelemetry/tracing"
+	"github.com/cloudwego-contrib/obs-opentelemetry/tracing/internal"
+
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
@@ -43,7 +45,7 @@ type serverTracer struct {
 }
 
 func NewServerTracer(opts ...Option) (serverconfig.Option, *Config) {
-	cfg := newConfig(opts)
+	cfg := tracing.newConfig(opts)
 	st := &serverTracer{
 		config:            cfg,
 		counters:          make(map[string]metric.Int64Counter),

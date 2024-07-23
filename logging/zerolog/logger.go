@@ -17,7 +17,7 @@ package zerolog
 import (
 	"context"
 	"fmt"
-	"github.com/kitex-contrib/obs-opentelemetry/logging"
+	"github.com/cloudwego-contrib/obs-opentelemetry/logging"
 	"io"
 	"os"
 

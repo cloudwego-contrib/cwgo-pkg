@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/kitex-contrib/obs-opentelemetry/logging"
+	"github.com/cloudwego-contrib/obs-opentelemetry/logging"
 	"strings"
 	"testing"
 

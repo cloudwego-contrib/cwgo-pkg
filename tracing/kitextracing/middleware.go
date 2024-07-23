@@ -17,10 +17,10 @@ package kitextracing
 import (
 	"context"
 	"github.com/bytedance/gopkg/cloud/metainfo"
+	"github.com/cloudwego-contrib/obs-opentelemetry/tracing/internal"
 	"github.com/cloudwego/kitex/pkg/endpoint"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
-	"github.com/kitex-contrib/obs-opentelemetry/tracing/internal"
 
 	"go.opentelemetry.io/otel/baggage"
 	"go.opentelemetry.io/otel/sdk/trace"

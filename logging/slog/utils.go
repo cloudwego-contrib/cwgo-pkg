@@ -16,7 +16,7 @@ package slog
 
 import (
 	"fmt"
-	"github.com/kitex-contrib/obs-opentelemetry/logging"
+	"github.com/cloudwego-contrib/obs-opentelemetry/logging"
 	"log/slog"
 	"strings"
 )

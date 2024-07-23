@@ -1,4 +1,4 @@
-module github.com/kitex-contrib/obs-opentelemetry/logging/slog
+module github.com/cloudwego-contrib/obs-opentelemetry/logging/slog
 
 go 1.21
 

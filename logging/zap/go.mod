@@ -1,4 +1,4 @@
-module github.com/kitex-contrib/obs-opentelemetry/logging/zap
+module github.com/cloudwego-contrib/obs-opentelemetry/logging/zap
 
 go 1.21
 

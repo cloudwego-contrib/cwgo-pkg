@@ -1,4 +1,4 @@
-module github.com/kitex-contrib/obs-opentelemetry
+module github.com/cloudwego-contrib/obs-opentelemetry
 
 go 1.21
 

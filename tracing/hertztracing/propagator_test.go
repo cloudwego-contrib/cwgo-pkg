@@ -16,6 +16,7 @@ package tracing
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/obs-opentelemetry/tracing"
 	"reflect"
 	"testing"
 
@@ -53,7 +54,7 @@ func TestExtract(t *testing.T) {
 			name: "extract successful",
 			args: args{
 				ctx:      ctx,
-				c:        defaultConfig(),
+				c:        tracing.defaultConfig(),
 				metadata: headers,
 			},
 			want:  bags,
@@ -74,7 +75,7 @@ func TestExtract(t *testing.T) {
 }
 
 func TestInject(t *testing.T) {
-	cfg := newConfig([]Option{WithTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+	cfg := tracing.newConfig([]Option{WithTextMapPropagator(propagation.NewCompositeTextMapPropagator(
 		b3.New(),
 		ot.OT{},
 		propagation.Baggage{},

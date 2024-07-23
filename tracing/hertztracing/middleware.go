@@ -16,7 +16,7 @@ package tracing
 
 import (
 	"context"
-	"github.com/kitex-contrib/obs-opentelemetry/tracing/internal"
+	"github.com/cloudwego-contrib/obs-opentelemetry/tracing/internal"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
