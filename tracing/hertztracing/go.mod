@@ -1,4 +1,4 @@
-module github.com/hertz-contrib/obs-opentelemetry/tracing
+module github.com/cloudwego-contrib/obs-opentelemetry/tracing
 
 go 1.21
 

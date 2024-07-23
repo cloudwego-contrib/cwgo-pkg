@@ -50,7 +50,7 @@ func OtelTestProvider() (*sdktrace.TracerProvider, otelmetric.MeterProvider, *pr
 	return tracerProvider, meterProvider, registry
 }
 
-// GatherAndCompare compare metrics with registry
+// GatherAndCompare compare cwmetrics with registry
 func GatherAndCompare(registry *prometheus.Registry, expectedFilePath string, metricName ...string) error {
 	file, err := os.Open(expectedFilePath)
 	if err != nil {

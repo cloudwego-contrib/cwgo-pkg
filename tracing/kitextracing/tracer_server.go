@@ -16,6 +16,7 @@ package kitextracing
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/obs-opentelemetry/cwmetrics"
 	"github.com/cloudwego-contrib/obs-opentelemetry/tracing/internal"
 
 	"time"
@@ -48,11 +49,11 @@ func newServerOption(opts ...Option) (server.Option, *config) {
 }
 
 func (s *serverTracer) createMeasures() {
-	serverDurationMeasure, err := s.config.meter.Float64Histogram(ServerDuration)
+	serverDurationMeasure, err := s.config.meter.Float64Histogram(cwmetrics.ServerDuration)
 	handleErr(err)
 
 	s.histogramRecorder = map[string]metric.Float64Histogram{
-		ServerDuration: serverDurationMeasure,
+		cwmetrics.ServerDuration: serverDurationMeasure,
 	}
 }
 
@@ -113,6 +114,6 @@ func (s *serverTracer) Finish(ctx context.Context) {
 
 	span.End(oteltrace.WithTimestamp(getEndTimeOrNow(ri)))
 
-	metricsAttributes := extractMetricsAttributesFromSpan(span)
-	s.histogramRecorder[ServerDuration].Record(ctx, elapsedTime, metric.WithAttributes(metricsAttributes...))
+	metricsAttributes := cwmetrics.ExtractMetricsAttributesFromSpan(span)
+	s.histogramRecorder[cwmetrics.ServerDuration].Record(ctx, elapsedTime, metric.WithAttributes(metricsAttributes...))
 }

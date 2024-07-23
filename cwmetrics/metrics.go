@@ -12,22 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tracing
+package cwmetrics
 
 import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
-// Server HTTP metrics
+// RPC Server cwmetrics
+// ref to https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/metrics/semantic_conventions/rpc.md#rpc-server
+const (
+	ServerDuration        = "rpc.server.duration"          // measures duration of inbound RPC
+	ServerRequestSize     = "rpc.server.request.size"      // measures size of RPC request messages (uncompressed)
+	ServerResponseSize    = "rpc.server.response.size"     // measures size of RPC response messages (uncompressed)
+	ServerRequestsPerRPC  = "rpc.server.requests_per_rpc"  // measures the number of messages received per RPC. Should be 1 for all non-streaming RPCs
+	ServerResponsesPerRPC = "rpc.server.responses_per_rpc" // measures the number of messages sent per RPC. Should be 1 for all non-streaming RPCs
+)
+
+// RPC Client cwmetrics
+// ref to https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/metrics/semantic_conventions/rpc.md#rpc-client
+const (
+	ClientDuration        = "rpc.client.duration"          // measures duration of outbound RPC
+	ClientRequestSize     = "rpc.client.request.size"      // measures size of RPC request messages (uncompressed)
+	ClientResponseSize    = "rpc.client.response.size"     // measures size of RPC response messages (uncompressed)
+	ClientRequestsPerRPC  = "rpc.client.requests_per_rpc"  // measures the number of messages received per RPC. Should be 1 for all non-streaming RPCs
+	ClientResponsesPerRPC = "rpc.client.responses_per_rpc" // measures the number of messages sent per RPC. Should be 1 for all non-streaming RPCs
+)
+
+// Server HTTP cwmetrics
 const (
 	ServerRequestCount = "http.server.request_count" // measures the incoming request count total
 	ServerLatency      = "http.server.duration"      // measures th incoming end to end duration
 )
 
-// Client HTTP metrics.
+// Client HTTP cwmetrics.
 const (
 	ClientRequestCount = "http.client.request_count" // measures the client request count total
 	ClientLatency      = "http.client.duration"      // measures the duration outbound HTTP requests
@@ -40,12 +60,22 @@ var (
 		semconv.HTTPMethodKey,
 		semconv.HTTPStatusCodeKey,
 	}
+	// RPCMetricsAttributes rpc cwmetrics attributes
+	// ref to https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/metrics/semantic_conventions/rpc.md#attributes
+	RPCMetricsAttributes = []attribute.Key{
+		semconv.RPCServiceKey,
+		semconv.RPCSystemKey,
+		semconv.RPCMethodKey,
+		semconv.NetPeerNameKey,
+		semconv.NetTransportKey,
+	}
 
 	PeerMetricsAttributes = []attribute.Key{
 		semconv.PeerServiceKey,
 		PeerServiceNamespaceKey,
 		PeerDeploymentEnvironmentKey,
 		RequestProtocolKey,
+		SourceOperationKey,
 	}
 
 	// MetricResourceAttributes resource attributes
@@ -63,7 +93,7 @@ var (
 	}
 )
 
-func extractMetricsAttributesFromSpan(span oteltrace.Span) []attribute.KeyValue {
+func ExtractMetricsAttributesFromSpan(span oteltrace.Span) []attribute.KeyValue {
 	var attrs []attribute.KeyValue
 	readOnlySpan, ok := span.(trace.ReadOnlySpan)
 	if !ok {
@@ -72,6 +102,9 @@ func extractMetricsAttributesFromSpan(span oteltrace.Span) []attribute.KeyValue 
 
 	// span attributes
 	for _, attr := range readOnlySpan.Attributes() {
+		if matchAttributeKey(attr.Key, RPCMetricsAttributes) {
+			attrs = append(attrs, attr)
+		}
 		if matchAttributeKey(attr.Key, HTTPMetricsAttributes) {
 			attrs = append(attrs, attr)
 		}

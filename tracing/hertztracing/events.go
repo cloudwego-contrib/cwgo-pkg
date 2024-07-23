@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tracing
+package hertztracing
 
 import (
 	"github.com/cloudwego/hertz/pkg/common/tracer/stats"

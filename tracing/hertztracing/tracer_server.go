@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tracing
+package hertztracing
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/obs-opentelemetry/cwmetrics"
 	"github.com/cloudwego-contrib/obs-opentelemetry/tracing/internal"
 
 	"time"
@@ -58,21 +59,21 @@ func NewServerTracer(opts ...Option) (serverconfig.Option, *Config) {
 
 func (s *serverTracer) createMeasures() {
 	serverRequestCountMeasure, err := s.config.meter.Int64Counter(
-		ServerRequestCount,
+		cwmetrics.ServerRequestCount,
 		metric.WithUnit("count"),
 		metric.WithDescription("measures Incoming request count total"),
 	)
 	handleErr(err)
 
 	serverLatencyMeasure, err := s.config.meter.Float64Histogram(
-		ServerLatency,
+		cwmetrics.ServerLatency,
 		metric.WithUnit("ms"),
 		metric.WithDescription("measures th incoming end to end duration"),
 	)
 	handleErr(err)
 
-	s.counters[ServerRequestCount] = serverRequestCountMeasure
-	s.histogramRecorder[ServerLatency] = serverLatencyMeasure
+	s.counters[cwmetrics.ServerRequestCount] = serverRequestCountMeasure
+	s.histogramRecorder[cwmetrics.ServerLatency] = serverLatencyMeasure
 }
 
 func (s *serverTracer) Start(ctx context.Context, c *app.RequestContext) context.Context {
@@ -140,7 +141,7 @@ func (s *serverTracer) Finish(ctx context.Context, c *app.RequestContext) {
 
 	span.End(oteltrace.WithTimestamp(getEndTimeOrNow(ti)))
 
-	metricsAttributes := extractMetricsAttributesFromSpan(span)
-	s.counters[ServerRequestCount].Add(ctx, 1, metric.WithAttributes(metricsAttributes...))
-	s.histogramRecorder[ServerLatency].Record(ctx, elapsedTime, metric.WithAttributes(metricsAttributes...))
+	metricsAttributes := cwmetrics.ExtractMetricsAttributesFromSpan(span)
+	s.counters[cwmetrics.ServerRequestCount].Add(ctx, 1, metric.WithAttributes(metricsAttributes...))
+	s.histogramRecorder[cwmetrics.ServerLatency].Record(ctx, elapsedTime, metric.WithAttributes(metricsAttributes...))
 }

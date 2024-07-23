@@ -12,24 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tracing_test
+package hertztracing
 
 import (
 	"context"
-	"testing"
-	"time"
-
+	"github.com/cloudwego-contrib/obs-opentelemetry/tracing/testutil"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
-	"github.com/hertz-contrib/obs-opentelemetry/tracing/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/otel"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"testing"
+	"time"
 )
 
 func TestMetricsExample(t *testing.T) {
@@ -41,9 +39,9 @@ func TestMetricsExample(t *testing.T) {
 	otel.SetMeterProvider(meterProvider)
 
 	// server example
-	tracer, cfg := hertztracing.NewServerTracer()
+	tracer, cfg := NewServerTracer()
 	h := server.Default(tracer, server.WithHostPorts(":39888"))
-	h.Use(hertztracing.ServerMiddleware(cfg))
+	h.Use(ServerMiddleware(cfg))
 	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
 		hlog.CtxDebugf(c, "message received successfully")
 		ctx.JSON(consts.StatusOK, "pong")
@@ -54,7 +52,7 @@ func TestMetricsExample(t *testing.T) {
 
 	// client example
 	c, _ := client.NewClient()
-	c.Use(hertztracing.ClientMiddleware())
+	c.Use(ClientMiddleware())
 	_, body, err := c.Get(context.Background(), nil, "http://localhost:39888/ping?foo=bar")
 	require.NoError(t, err)
 	assert.NotNil(t, body)
@@ -63,7 +61,7 @@ func TestMetricsExample(t *testing.T) {
 	_, _, err = c.Get(context.Background(), nil, "http://localhost:39887/ping?foo=bar")
 	assert.NotNil(t, err)
 
-	// diff metrics
+	// diff cwmetrics
 	assert.NoError(t, testutil.GatherAndCompare(
 		registry, "testdata/hertz_request_metrics.txt",
 		"http_server_request_count_total", "http_client_request_count_total"),

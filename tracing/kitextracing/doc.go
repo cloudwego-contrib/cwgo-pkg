@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package kitextracing provides the otel kitextracing & metrics implement of tracer
+// Package kitextracing provides the otel kitextracing & cwmetrics implement of tracer
 package kitextracing

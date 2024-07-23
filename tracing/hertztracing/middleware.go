@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tracing
+package hertztracing
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/obs-opentelemetry/cwmetrics"
 	"github.com/cloudwego-contrib/obs-opentelemetry/tracing/internal"
 	"time"
 
@@ -51,21 +52,21 @@ func ClientMiddleware(opts ...Option) client.Middleware {
 	counters := make(map[string]metric.Int64Counter)
 
 	clientRequestCountMeasure, err := cfg.meter.Int64Counter(
-		ClientRequestCount,
+		cwmetrics.ClientRequestCount,
 		metric.WithUnit("count"),
 		metric.WithDescription("measures the client request count total"),
 	)
 	handleErr(err)
 
 	clientLatencyMeasure, err := cfg.meter.Float64Histogram(
-		ClientLatency,
+		cwmetrics.ClientLatency,
 		metric.WithUnit("ms"),
 		metric.WithDescription("measures the duration outbound HTTP requests"),
 	)
 	handleErr(err)
 
-	counters[ClientRequestCount] = clientRequestCountMeasure
-	histogramRecorder[ClientLatency] = clientLatencyMeasure
+	counters[cwmetrics.ClientRequestCount] = clientRequestCountMeasure
+	histogramRecorder[cwmetrics.ClientLatency] = clientLatencyMeasure
 
 	return func(next client.Endpoint) client.Endpoint {
 		return func(ctx context.Context, req *protocol.Request, resp *protocol.Response) (err error) {
@@ -116,12 +117,12 @@ func ClientMiddleware(opts ...Option) client.Middleware {
 			}
 			span.SetAttributes(attrs...)
 
-			// extract metrics attr
-			metricsAttributes := extractMetricsAttributesFromSpan(span)
+			// extract cwmetrics attr
+			metricsAttributes := cwmetrics.ExtractMetricsAttributesFromSpan(span)
 
-			// record metrics
-			counters[ClientRequestCount].Add(ctx, 1, metric.WithAttributes(metricsAttributes...))
-			histogramRecorder[ClientLatency].Record(
+			// record cwmetrics
+			counters[cwmetrics.ClientRequestCount].Add(ctx, 1, metric.WithAttributes(metricsAttributes...))
+			histogramRecorder[cwmetrics.ClientLatency].Record(
 				ctx,
 				float64(time.Since(start))/float64(time.Millisecond),
 				metric.WithAttributes(metricsAttributes...),

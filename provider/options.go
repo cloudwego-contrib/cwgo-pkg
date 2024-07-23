@@ -137,7 +137,7 @@ func WithEnableTracing(enableTracing bool) Option {
 	})
 }
 
-// WithEnableMetrics enable metrics
+// WithEnableMetrics enable cwmetrics
 func WithEnableMetrics(enableMetrics bool) Option {
 	return option(func(cfg *config) {
 		cfg.enableMetrics = enableMetrics

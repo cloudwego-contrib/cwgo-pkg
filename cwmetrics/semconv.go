@@ -12,16 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hertztracing
+package cwmetrics
 
-import "go.opentelemetry.io/otel/attribute"
-
-// Attribute keys that can be added to a span.
-const (
-	ReadBytesKey  = attribute.Key("http.read_bytes")  // if anything was read from the request body, the total number of bytes read
-	ReadErrorKey  = attribute.Key("http.read_error")  // If an error occurred while reading a request, the string of the error (io.EOF is not recorded)
-	WroteBytesKey = attribute.Key("http.wrote_bytes") // if anything was written to the response writer, the total number of bytes written
-	WriteErrorKey = attribute.Key("http.write_error") // if an error occurred while writing a reply, the string of the error (io.EOF is not recorded)
+import (
+	"go.opentelemetry.io/otel/attribute"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 )
 
 const (
@@ -38,6 +33,13 @@ const (
 )
 
 const (
+	// RPCSystemKitexRecvSize recv_size
+	RPCSystemKitexRecvSize = attribute.Key("kitex.recv_size")
+	// RPCSystemKitexSendSize send_size
+	RPCSystemKitexSendSize = attribute.Key("kitex.send_size")
+)
+
+const (
 	// PeerServiceNamespaceKey peer.service.namespace
 	PeerServiceNamespaceKey = attribute.Key("peer.service.namespace")
 	// PeerDeploymentEnvironmentKey peer.deployment.environment
@@ -45,5 +47,17 @@ const (
 )
 
 const (
+	// SourceOperationKey source operation
+	//
+	// Type: string
+	// Required: Optional
+	// Examples: '/operation1'
+	SourceOperationKey = attribute.Key("source_operation")
+)
+
+const (
 	StatusKey = attribute.Key("status.code")
 )
+
+// RPCSystemKitex Semantic convention for kitex as the remoting system.
+var RPCSystemKitex = semconv.RPCSystemKey.String("kitex")
