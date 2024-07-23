@@ -16,7 +16,6 @@ package tracing
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/tracing"
 	"github.com/cloudwego-contrib/obs-opentelemetry/tracing/internal"
 
 	"time"
@@ -45,7 +44,7 @@ type serverTracer struct {
 }
 
 func NewServerTracer(opts ...Option) (serverconfig.Option, *Config) {
-	cfg := tracing.newConfig(opts)
+	cfg := newConfig(opts)
 	st := &serverTracer{
 		config:            cfg,
 		counters:          make(map[string]metric.Int64Counter),
