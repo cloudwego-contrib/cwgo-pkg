@@ -52,10 +52,8 @@ func NewLogger(opts ...Option) *Logger {
 		logger = *cfg.logger
 	}
 
-	zerologLogger := logger.Hook(cfg.defaultZerologHookFn())
-
 	return &Logger{
-		l:      &zerologLogger,
+		l:      &logger,
 		config: cfg,
 	}
 }

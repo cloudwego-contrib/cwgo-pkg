@@ -18,36 +18,17 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/cloudwego-contrib/obs-opentelemetry/logging"
-	"strings"
-	"testing"
-
 	"github.com/stretchr/testify/assert"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
+	"path/filepath"
+	"reflect"
+	"strings"
+	"testing"
 )
-
-func stdoutProvider(ctx context.Context) func() {
-	provider := sdktrace.NewTracerProvider()
-	otel.SetTracerProvider(provider)
-
-	exp, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
-	if err != nil {
-		panic(err)
-	}
-
-	bsp := sdktrace.NewBatchSpanProcessor(exp)
-	provider.RegisterSpanProcessor(bsp)
-
-	return func() {
-		if err := provider.Shutdown(ctx); err != nil {
-			panic(err)
-		}
-	}
-}
 
 // testEncoderConfig encoder config for testing, copy from zap
 func testEncoderConfig() zapcore.EncoderConfig {
@@ -76,80 +57,124 @@ func humanEncoderConfig() zapcore.EncoderConfig {
 	return cfg
 }
 
-// TestLogger test logger work with opentelemetry
-func TestLogger(t *testing.T) {
-	ctx := context.Background()
+func getWriteSyncer(file string) zapcore.WriteSyncer {
+	_, err := os.Stat(file)
+	if os.IsNotExist(err) {
+		_ = os.MkdirAll(filepath.Dir(file), 0o744)
+	}
 
+	f, _ := os.OpenFile(file, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
+
+	return zapcore.AddSync(f)
+}
+
+// TestLogger test logger work with hertz
+func TestLogger(t *testing.T) {
 	buf := new(bytes.Buffer)
 
-	shutdown := stdoutProvider(ctx)
-	defer shutdown()
-
-	logger := NewLogger(
-		WithTraceErrorSpanLevel(zap.WarnLevel),
-		WithRecordStackTraceInSpan(true),
-	)
-	defer func() {
-		err := logger.Sync()
-		if err != nil {
-			return
-		}
-	}()
+	logger := NewLogger(WithZapOptions(zap.WithFatalHook(zapcore.WriteThenPanic)))
+	defer logger.Sync()
 
 	logging.SetLogger(logger)
 	logging.SetOutput(buf)
 	logging.SetLevel(logging.LevelDebug)
 
-	logger.Info("log from origin zap")
-	assert.True(t, strings.Contains(buf.String(), "log from origin zap"))
-	buf.Reset()
+	type logMap map[string]string
 
-	tracer := otel.Tracer("test otel std logger")
+	logTestSlice := []logMap{
+		{
+			"logMessage":       "this is a trace log",
+			"formatLogMessage": "this is a trace log: %s",
+			"logLevel":         "Trace",
+			"zapLogLevel":      "debug",
+		},
+		{
+			"logMessage":       "this is a debug log",
+			"formatLogMessage": "this is a debug log: %s",
+			"logLevel":         "Debug",
+			"zapLogLevel":      "debug",
+		},
+		{
+			"logMessage":       "this is a info log",
+			"formatLogMessage": "this is a info log: %s",
+			"logLevel":         "Info",
+			"zapLogLevel":      "info",
+		},
+		{
+			"logMessage":       "this is a notice log",
+			"formatLogMessage": "this is a notice log: %s",
+			"logLevel":         "Notice",
+			"zapLogLevel":      "warn",
+		},
+		{
+			"logMessage":       "this is a warn log",
+			"formatLogMessage": "this is a warn log: %s",
+			"logLevel":         "Warn",
+			"zapLogLevel":      "warn",
+		},
+		{
+			"logMessage":       "this is a error log",
+			"formatLogMessage": "this is a error log: %s",
+			"logLevel":         "Error",
+			"zapLogLevel":      "error",
+		},
+		{
+			"logMessage":       "this is a fatal log",
+			"formatLogMessage": "this is a fatal log: %s",
+			"logLevel":         "Fatal",
+			"zapLogLevel":      "fatal",
+		},
+	}
 
-	ctx, span := tracer.Start(ctx, "root")
+	testHertzLogger := reflect.ValueOf(logger)
 
-	logging.CtxInfof(ctx, "hello %s", "world")
-	assert.True(t, strings.Contains(buf.String(), "trace_id"))
-	assert.True(t, strings.Contains(buf.String(), "span_id"))
-	assert.True(t, strings.Contains(buf.String(), "trace_flags"))
-	buf.Reset()
+	for _, v := range logTestSlice {
+		t.Run(v["logLevel"], func(t *testing.T) {
+			if v["logLevel"] == "Fatal" {
+				defer func() {
+					assert.Equal(t, "this is a fatal log", recover())
+				}()
+			}
+			logFunc := testHertzLogger.MethodByName(v["logLevel"])
+			logFunc.Call([]reflect.Value{
+				reflect.ValueOf(v["logMessage"]),
+			})
+			assert.Contains(t, buf.String(), v["logMessage"])
+			assert.Contains(t, buf.String(), v["zapLogLevel"])
 
-	span.End()
+			buf.Reset()
 
-	ctx, child := tracer.Start(ctx, "child")
+			logfFunc := testHertzLogger.MethodByName(fmt.Sprintf("%sf", v["logLevel"]))
+			logfFunc.Call([]reflect.Value{
+				reflect.ValueOf(v["formatLogMessage"]),
+				reflect.ValueOf(v["logLevel"]),
+			})
+			assert.Contains(t, buf.String(), fmt.Sprintf(v["formatLogMessage"], v["logLevel"]))
+			assert.Contains(t, buf.String(), v["zapLogLevel"])
 
-	logging.CtxWarnf(ctx, "foo %s", "bar")
+			buf.Reset()
 
-	logging.CtxTracef(ctx, "trace %s", "this is a trace log")
-	logging.CtxDebugf(ctx, "debug %s", "this is a debug log")
-	logging.CtxInfof(ctx, "info %s", "this is a info log")
-	logging.CtxNoticef(ctx, "notice %s", "this is a notice log")
-	logging.CtxWarnf(ctx, "warn %s", "this is a warn log")
-	logging.CtxErrorf(ctx, "error %s", "this is a error log")
+			ctx := context.Background()
+			ctxLogfFunc := testHertzLogger.MethodByName(fmt.Sprintf("Ctx%sf", v["logLevel"]))
+			ctxLogfFunc.Call([]reflect.Value{
+				reflect.ValueOf(ctx),
+				reflect.ValueOf(v["formatLogMessage"]),
+				reflect.ValueOf(v["logLevel"]),
+			})
+			assert.Contains(t, buf.String(), fmt.Sprintf(v["formatLogMessage"], v["logLevel"]))
+			assert.Contains(t, buf.String(), v["zapLogLevel"])
 
-	child.End()
-
-	_, errSpan := tracer.Start(ctx, "error")
-
-	logging.Info("no trace context")
-
-	errSpan.End()
+			buf.Reset()
+		})
+	}
 }
 
 // TestLogLevel test SetLevel
 func TestLogLevel(t *testing.T) {
 	buf := new(bytes.Buffer)
 
-	logger := NewLogger(
-		WithTraceErrorSpanLevel(zap.WarnLevel),
-		WithRecordStackTraceInSpan(true),
-	)
-	defer func() {
-		err := logger.Sync()
-		if err != nil {
-			return
-		}
-	}()
+	logger := NewLogger()
+	defer logger.Sync()
 
 	// output to buffer
 	logger.SetOutput(buf)
@@ -161,23 +186,108 @@ func TestLogLevel(t *testing.T) {
 
 	logger.Debugf("this is a debug log %s", "msg")
 	assert.True(t, strings.Contains(buf.String(), "this is a debug log"))
+
+	logger.SetLevel(logging.LevelError)
+	logger.Infof("this is a debug log %s", "msg")
+	assert.False(t, strings.Contains(buf.String(), "this is a info log"))
+
+	logger.Warnf("this is a warn log %s", "msg")
+	assert.False(t, strings.Contains(buf.String(), "this is a warn log"))
+
+	logger.Error("this is a error log %s", "msg")
+	assert.True(t, strings.Contains(buf.String(), "this is a error log"))
+}
+
+func TestWithCoreEnc(t *testing.T) {
+	buf := new(bytes.Buffer)
+
+	logger := NewLogger(WithCoreEnc(zapcore.NewConsoleEncoder(humanEncoderConfig())))
+	defer logger.Sync()
+
+	// output to buffer
+	logger.SetOutput(buf)
+
+	logger.Infof("this is a info log %s", "msg")
+	assert.True(t, strings.Contains(buf.String(), "this is a info log"))
+}
+
+func TestWithCoreWs(t *testing.T) {
+	buf := new(bytes.Buffer)
+
+	logger := NewLogger(WithCoreWs(zapcore.AddSync(buf)))
+	defer logger.Sync()
+
+	logger.Infof("this is a info log %s", "msg")
+	assert.True(t, strings.Contains(buf.String(), "this is a info log"))
+}
+
+func TestWithCoreLevel(t *testing.T) {
+	buf := new(bytes.Buffer)
+
+	logger := NewLogger(WithCoreLevel(zap.NewAtomicLevelAt(zapcore.WarnLevel)))
+	defer logger.Sync()
+
+	// output to buffer
+	logger.SetOutput(buf)
+
+	logger.Infof("this is a info log %s", "msg")
+	assert.False(t, strings.Contains(buf.String(), "this is a info log"))
+
+	logger.Warnf("this is a warn log %s", "msg")
+	assert.True(t, strings.Contains(buf.String(), "this is a warn log"))
 }
 
 // TestCoreOption test zapcore config option
 func TestCoreOption(t *testing.T) {
 	buf := new(bytes.Buffer)
 
+	dynamicLevel := zap.NewAtomicLevel()
+
+	dynamicLevel.SetLevel(zap.InfoLevel)
+
 	logger := NewLogger(
-		WithCoreEnc(zapcore.NewConsoleEncoder(humanEncoderConfig())),
-		WithCoreLevel(zap.NewAtomicLevelAt(zapcore.WarnLevel)),
-		WithCoreWs(zapcore.AddSync(buf)),
+		WithCores([]CoreConfig{
+			{
+				Enc: zapcore.NewConsoleEncoder(humanEncoderConfig()),
+				Ws:  zapcore.AddSync(os.Stdout),
+				Lvl: dynamicLevel,
+			},
+			{
+				Enc: zapcore.NewJSONEncoder(humanEncoderConfig()),
+				Ws:  getWriteSyncer("./all/log.log"),
+				Lvl: zap.NewAtomicLevelAt(zapcore.DebugLevel),
+			},
+			{
+				Enc: zapcore.NewJSONEncoder(humanEncoderConfig()),
+				Ws:  getWriteSyncer("./debug/log.log"),
+				Lvl: zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
+					return lev == zap.DebugLevel
+				}),
+			},
+			{
+				Enc: zapcore.NewJSONEncoder(humanEncoderConfig()),
+				Ws:  getWriteSyncer("./info/log.log"),
+				Lvl: zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
+					return lev == zap.InfoLevel
+				}),
+			},
+			{
+				Enc: zapcore.NewJSONEncoder(humanEncoderConfig()),
+				Ws:  getWriteSyncer("./warn/log.log"),
+				Lvl: zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
+					return lev == zap.WarnLevel
+				}),
+			},
+			{
+				Enc: zapcore.NewJSONEncoder(humanEncoderConfig()),
+				Ws:  getWriteSyncer("./error/log.log"),
+				Lvl: zap.LevelEnablerFunc(func(lev zapcore.Level) bool {
+					return lev >= zap.ErrorLevel
+				}),
+			},
+		}...),
 	)
-	defer func() {
-		err := logger.Sync()
-		if err != nil {
-			return
-		}
-	}()
+	defer logger.Sync()
 
 	logger.SetOutput(buf)
 
@@ -190,6 +300,10 @@ func TestCoreOption(t *testing.T) {
 	assert.True(t, strings.Contains(buf.String(), "this is a warn log"))
 	// test console encoder result
 	assert.True(t, strings.Contains(buf.String(), "\tERROR\t"))
+
+	logger.SetLevel(logging.LevelDebug)
+	logger.Debug("this is a debug log")
+	assert.True(t, strings.Contains(buf.String(), "this is a debug log"))
 }
 
 // TestCoreOption test zapcore config option
@@ -199,12 +313,7 @@ func TestZapOption(t *testing.T) {
 	logger := NewLogger(
 		WithZapOptions(zap.AddCaller()),
 	)
-	defer func() {
-		err := logger.Sync()
-		if err != nil {
-			return
-		}
-	}()
+	defer logger.Sync()
 
 	logger.SetOutput(buf)
 
@@ -214,139 +323,6 @@ func TestZapOption(t *testing.T) {
 	logger.Error("this is a warn log")
 	// test caller in log result
 	assert.True(t, strings.Contains(buf.String(), "caller"))
-}
-
-// TestCtxLogger test kv logger work with ctx
-func TestCtxKVLogger(t *testing.T) {
-	ctx := context.Background()
-
-	buf := new(bytes.Buffer)
-
-	shutdown := stdoutProvider(ctx)
-	defer shutdown()
-
-	logger := NewLogger(
-		WithTraceErrorSpanLevel(zap.WarnLevel),
-		WithRecordStackTraceInSpan(true),
-	)
-	defer func() {
-		err := logger.Sync()
-		if err != nil {
-			return
-		}
-	}()
-
-	logging.SetLogger(logger)
-	logging.SetOutput(buf)
-	logging.SetLevel(logging.LevelTrace)
-
-	for _, level := range []logging.Level{
-		logging.LevelTrace,
-		logging.LevelDebug,
-		logging.LevelInfo,
-		logging.LevelNotice,
-		logging.LevelWarn,
-		logging.LevelError,
-		// logging.LevelFatal,
-	} {
-		logger.CtxLogf(level, context.Background(), "log from origin zap %s=%s", "k1", "v1")
-		println(buf.String())
-		assert.True(t, strings.Contains(buf.String(), "log from origin zap"))
-		assert.True(t, strings.Contains(buf.String(), "k1"))
-		assert.True(t, strings.Contains(buf.String(), "v1"))
-		buf.Reset()
-	}
-
-	for _, level := range []logging.Level{
-		logging.LevelTrace,
-		logging.LevelDebug,
-		logging.LevelInfo,
-		logging.LevelNotice,
-		logging.LevelWarn,
-		logging.LevelError,
-		// logging.LevelFatal,
-	} {
-		logger.CtxKVLog(context.Background(), level, "log from origin zap", "k1", "v1")
-		println(buf.String())
-		assert.True(t, strings.Contains(buf.String(), "log from origin zap"))
-		assert.True(t, strings.Contains(buf.String(), "k1"))
-		assert.True(t, strings.Contains(buf.String(), "v1"))
-		buf.Reset()
-	}
-}
-
-// TestWithCustomFields test WithCustomFileds option.
-func TestWithCustomFields(t *testing.T) {
-	key := "service_name"
-	value := "kitexTracing"
-	buf := new(bytes.Buffer)
-
-	t.Run("ctx info", func(t *testing.T) {
-		buf.Reset()
-
-		log := NewLogger(WithCustomFields(key, value))
-		log.SetOutput(buf)
-
-		ctx := context.Background()
-		log.CtxInfof(ctx, "%s log", "extra")
-
-		logStructMap := make(map[string]interface{}, 0)
-
-		err := json.Unmarshal(buf.Bytes(), &logStructMap)
-		assert.Nil(t, err)
-
-		ret, ok := logStructMap[key]
-		assert.True(t, ok)
-		assert.Equal(t, value, ret)
-
-		ret, ok = logStructMap["msg"]
-		assert.True(t, ok)
-		assert.Equal(t, "extra log", ret)
-	})
-
-	t.Run("infof", func(t *testing.T) {
-		buf.Reset()
-
-		log := NewLogger(WithCustomFields(key, value))
-		log.SetOutput(buf)
-
-		log.Infof("%s log", "extra")
-
-		logStructMap := make(map[string]interface{}, 0)
-
-		err := json.Unmarshal(buf.Bytes(), &logStructMap)
-		assert.Nil(t, err)
-
-		ret, ok := logStructMap[key]
-		assert.True(t, ok)
-		assert.Equal(t, value, ret)
-
-		ret, ok = logStructMap["msg"]
-		assert.True(t, ok)
-		assert.Equal(t, "extra log", ret)
-	})
-
-	t.Run("info", func(t *testing.T) {
-		buf.Reset()
-
-		log := NewLogger(WithCustomFields(key, value))
-		log.SetOutput(buf)
-
-		log.Info("extra log")
-
-		logStructMap := make(map[string]interface{}, 0)
-
-		err := json.Unmarshal(buf.Bytes(), &logStructMap)
-		assert.Nil(t, err)
-
-		ret, ok := logStructMap[key]
-		assert.True(t, ok)
-		assert.Equal(t, value, ret)
-
-		ret, ok = logStructMap["msg"]
-		assert.True(t, ok)
-		assert.Equal(t, "extra log", ret)
-	})
 }
 
 // TestWithExtraKeys test WithExtraKeys option
@@ -410,4 +386,24 @@ func TestExtraKeyAsStr(t *testing.T) {
 	assert.Contains(t, buf.String(), v)
 
 	buf.Reset()
+}
+
+func BenchmarkNormal(b *testing.B) {
+	buf := new(bytes.Buffer)
+	log := NewLogger()
+	log.SetOutput(buf)
+	ctx := context.Background()
+	for i := 0; i < b.N; i++ {
+		log.CtxInfof(ctx, "normal log")
+	}
+}
+
+func BenchmarkWithExtraKeys(b *testing.B) {
+	buf := new(bytes.Buffer)
+	log := NewLogger(WithExtraKeys([]ExtraKey{"requestId"}))
+	log.SetOutput(buf)
+	ctx := context.WithValue(context.Background(), ExtraKey("requestId"), "123")
+	for i := 0; i < b.N; i++ {
+		log.CtxInfof(ctx, "normal log")
+	}
 }

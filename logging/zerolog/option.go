@@ -15,11 +15,7 @@
 package zerolog
 
 import (
-	"errors"
-
 	"github.com/rs/zerolog"
-	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/trace"
 )
 
 type ExtraKey string
@@ -73,31 +69,4 @@ func WithRecordStackTraceInSpan(recordStackTraceInSpan bool) Option {
 	return option(func(cfg *config) {
 		cfg.traceConfig.recordStackTraceInSpan = recordStackTraceInSpan
 	})
-}
-
-func (cfg config) defaultZerologHookFn() zerolog.HookFunc {
-	return func(e *zerolog.Event, level zerolog.Level, message string) {
-		ctx := e.GetCtx()
-		span := trace.SpanFromContext(ctx)
-		spanCtx := span.SpanContext()
-
-		if !spanCtx.IsValid() {
-			return
-		}
-
-		e.Any(spanIDKey, spanCtx.SpanID())
-		e.Any(traceIDKey, spanCtx.TraceID())
-		e.Any(traceFlagsKey, spanCtx.TraceFlags())
-
-		if !span.IsRecording() {
-			return
-		}
-
-		// set span status
-		if level >= cfg.traceConfig.errorSpanLevel {
-			span.SetStatus(codes.Error, "")
-			span.RecordError(errors.New(message),
-				trace.WithStackTrace(cfg.traceConfig.recordStackTraceInSpan))
-		}
-	}
 }

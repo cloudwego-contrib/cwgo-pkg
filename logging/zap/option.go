@@ -15,17 +15,16 @@
 package zap
 
 import (
-	"os"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
 )
-
-type ExtraKey string
 
 type Option interface {
 	apply(cfg *config)
 }
+
+type ExtraKey string
 
 type option func(cfg *config)
 
@@ -33,28 +32,21 @@ func (fn option) apply(cfg *config) {
 	fn(cfg)
 }
 
-type coreConfig struct {
-	enc zapcore.Encoder
-	ws  zapcore.WriteSyncer
-	lvl zap.AtomicLevel
-}
-
-type traceConfig struct {
-	recordStackTraceInSpan bool
-	errorSpanLevel         zapcore.Level
+type CoreConfig struct {
+	Enc zapcore.Encoder
+	Ws  zapcore.WriteSyncer
+	Lvl zapcore.LevelEnabler
 }
 
 type config struct {
-	customFields  []interface{}
 	extraKeys     []ExtraKey
-	coreConfig    coreConfig
+	coreConfigs   []CoreConfig
 	zapOpts       []zap.Option
-	traceConfig   *traceConfig
 	extraKeyAsStr bool
 }
 
 // defaultCoreConfig default zapcore config: json encoder, atomic level, stdout write syncer
-func defaultCoreConfig() *coreConfig {
+func defaultCoreConfig() *CoreConfig {
 	// default log encoder
 	enc := zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
 	// default log level
@@ -62,53 +54,47 @@ func defaultCoreConfig() *coreConfig {
 	// default write syncer stdout
 	ws := zapcore.AddSync(os.Stdout)
 
-	return &coreConfig{
-		enc: enc,
-		ws:  ws,
-		lvl: lvl,
+	return &CoreConfig{
+		Enc: enc,
+		Ws:  ws,
+		Lvl: lvl,
 	}
 }
 
 // defaultConfig default config
 func defaultConfig() *config {
-	coreConfig := defaultCoreConfig()
 	return &config{
-		coreConfig: *coreConfig,
-		traceConfig: &traceConfig{
-			recordStackTraceInSpan: true,
-			errorSpanLevel:         zapcore.ErrorLevel,
-		},
+		coreConfigs:   []CoreConfig{*defaultCoreConfig()},
 		zapOpts:       []zap.Option{},
 		extraKeyAsStr: false,
-		customFields:  []interface{}{},
 	}
 }
 
 // WithCoreEnc zapcore encoder
 func WithCoreEnc(enc zapcore.Encoder) Option {
 	return option(func(cfg *config) {
-		cfg.coreConfig.enc = enc
+		cfg.coreConfigs[0].Enc = enc
 	})
 }
 
 // WithCoreWs zapcore write syncer
 func WithCoreWs(ws zapcore.WriteSyncer) Option {
 	return option(func(cfg *config) {
-		cfg.coreConfig.ws = ws
+		cfg.coreConfigs[0].Ws = ws
 	})
 }
 
 // WithCoreLevel zapcore log level
 func WithCoreLevel(lvl zap.AtomicLevel) Option {
 	return option(func(cfg *config) {
-		cfg.coreConfig.lvl = lvl
+		cfg.coreConfigs[0].Lvl = lvl
 	})
 }
 
-// WithCustomFields record log with the key-value pair.
-func WithCustomFields(kv ...interface{}) Option {
+// WithCores zapcore
+func WithCores(coreConfigs ...CoreConfig) Option {
 	return option(func(cfg *config) {
-		cfg.customFields = append(cfg.customFields, kv...)
+		cfg.coreConfigs = coreConfigs
 	})
 }
 
@@ -119,25 +105,11 @@ func WithZapOptions(opts ...zap.Option) Option {
 	})
 }
 
-// WithTraceErrorSpanLevel trace error span level option
-func WithTraceErrorSpanLevel(level zapcore.Level) Option {
-	return option(func(cfg *config) {
-		cfg.traceConfig.errorSpanLevel = level
-	})
-}
-
-// WithRecordStackTraceInSpan record stack track option
-func WithRecordStackTraceInSpan(recordStackTraceInSpan bool) Option {
-	return option(func(cfg *config) {
-		cfg.traceConfig.recordStackTraceInSpan = recordStackTraceInSpan
-	})
-}
-
 // WithExtraKeys allow you log extra values from context
 func WithExtraKeys(keys []ExtraKey) Option {
 	return option(func(cfg *config) {
 		for _, k := range keys {
-			if !inArray(k, cfg.extraKeys) {
+			if !InArray(k, cfg.extraKeys) {
 				cfg.extraKeys = append(cfg.extraKeys, k)
 			}
 		}

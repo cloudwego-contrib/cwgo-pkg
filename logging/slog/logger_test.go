@@ -15,136 +15,182 @@
 package slog
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"github.com/cloudwego-contrib/obs-opentelemetry/logging"
+	"github.com/stretchr/testify/assert"
 	"log/slog"
 	"os"
-	"strings"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
-func stdoutProvider(ctx context.Context) func() {
-	provider := sdktrace.NewTracerProvider()
-	otel.SetTracerProvider(provider)
+const (
+	traceMsg    = "this is a trace log"
+	debugMsg    = "this is a debug log"
+	infoMsg     = "this is a info log"
+	warnMsg     = "this is a warn log"
+	noticeMsg   = "this is a notice log"
+	errorMsg    = "this is a error log"
+	fatalMsg    = "this is a fatal log"
+	logFileName = "hertz.log"
+)
 
-	exp, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
-	if err != nil {
-		panic(err)
-	}
-
-	bsp := sdktrace.NewBatchSpanProcessor(exp)
-	provider.RegisterSpanProcessor(bsp)
-
-	return func() {
-		if err := provider.Shutdown(ctx); err != nil {
-			panic(err)
-		}
-	}
-}
-
+// TestLogger test logger work with hertz
 func TestLogger(t *testing.T) {
-	ctx := context.Background()
-
 	buf := new(bytes.Buffer)
-
-	shutdown := stdoutProvider(ctx)
-	defer shutdown()
-
-	logger := NewLogger(
-		WithTraceErrorSpanLevel(slog.LevelWarn),
-		WithRecordStackTraceInSpan(true),
-	)
+	logger := NewLogger()
 
 	logging.SetLogger(logger)
 	logging.SetOutput(buf)
+	logging.SetLevel(logging.LevelError)
+
+	logging.Info(infoMsg)
+	assert.Equal(t, "", buf.String())
+
+	logging.Error(errorMsg)
+	// test SetLevel
+	assert.Contains(t, buf.String(), errorMsg)
+
+	buf.Reset()
+	f, err := os.OpenFile(logFileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	if err != nil {
+		t.Error(err)
+	}
+
+	defer os.Remove(logFileName)
+
+	logging.SetOutput(f)
+
+	logging.Info(infoMsg)
+	logging.Error(errorMsg)
+	_ = f.Sync()
+
+	readF, err := os.OpenFile(logFileName, os.O_RDONLY, 0o400)
+	if err != nil {
+		t.Error(err)
+	}
+	line, _ := bufio.NewReader(readF).ReadString('\n')
+
+	// test SetOutput
+	assert.Contains(t, line, errorMsg)
+}
+
+func TestWithLevel(t *testing.T) {
+	buf := new(bytes.Buffer)
+	lvl := &slog.LevelVar{}
+	lvl.Set(slog.LevelError)
+	logger := NewLogger(WithLevel(lvl))
+
+	logging.SetLogger(logger)
+	logging.SetOutput(buf)
+
+	logging.Notice(infoMsg)
+	assert.Equal(t, "", buf.String())
+
+	logging.Error(errorMsg)
+	assert.Contains(t, buf.String(), errorMsg)
+
+	buf.Reset()
 	logging.SetLevel(logging.LevelDebug)
+	logging.Debug(debugMsg)
 
-	logger.Info("log from origin slog")
-	assert.True(t, strings.Contains(buf.String(), "log from origin slog"))
-	buf.Reset()
-
-	tracer := otel.Tracer("test otel std logger")
-
-	ctx, span := tracer.Start(ctx, "root")
-
-	logging.CtxInfof(ctx, "hello %s", "you")
-	assert.True(t, strings.Contains(buf.String(), "trace_id"))
-	assert.True(t, strings.Contains(buf.String(), "span_id"))
-	assert.True(t, strings.Contains(buf.String(), "trace_flags"))
-	buf.Reset()
-
-	span.End()
-
-	ctx, child := tracer.Start(ctx, "child")
-
-	logging.CtxWarnf(ctx, "foo %s", "bar")
-
-	logging.CtxTracef(ctx, "trace %s", "this is a trace log")
-	logging.CtxDebugf(ctx, "debug %s", "this is a debug log")
-	logging.CtxInfof(ctx, "info %s", "this is a info log")
-	logging.CtxNoticef(ctx, "notice %s", "this is a notice log")
-	logging.CtxWarnf(ctx, "warn %s", "this is a warn log")
-	logging.CtxErrorf(ctx, "error %s", "this is a error log")
-
-	child.End()
-
-	_, errSpan := tracer.Start(ctx, "error")
-
-	logging.Info("no trace context")
-
-	errSpan.End()
+	assert.Contains(t, buf.String(), debugMsg)
 }
 
-func TestLogLevel(t *testing.T) {
+func TestWithHandlerOptions(t *testing.T) {
 	buf := new(bytes.Buffer)
+	logger := NewLogger(WithHandlerOptions(&slog.HandlerOptions{Level: slog.LevelError, ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+		if a.Key == slog.MessageKey {
+			a.Key = "content"
+		}
+		return a
+	}}))
 
-	logger := NewLogger(
-		WithTraceErrorSpanLevel(slog.LevelWarn),
-		WithRecordStackTraceInSpan(true),
-	)
+	logging.SetLogger(logger)
+	logging.SetOutput(buf)
 
-	// output to buffer
-	logger.SetOutput(buf)
+	logging.Warn(warnMsg)
+	assert.Equal(t, "", buf.String())
 
-	logger.Debug("this is a debug log")
-	assert.False(t, strings.Contains(buf.String(), "this is a debug log"))
+	logging.SetLevel(logging.LevelInfo)
 
-	logger.SetLevel(logging.LevelDebug)
+	logging.Debug(debugMsg)
+	assert.Equal(t, "", buf.String())
 
-	logger.Debugf("this is a debug log %s", "msg")
-	assert.True(t, strings.Contains(buf.String(), "this is a debug log"))
+	logging.Info(infoMsg)
+	assert.Contains(t, buf.String(), infoMsg)
+	assert.Contains(t, buf.String(), "content")
+
+	buf.Reset()
+	logging.SetLevel(logging.LevelTrace)
+
+	testCase := []struct {
+		levelName string
+		method    func(...any)
+		msg       string
+	}{
+		{
+			"Trace",
+			logging.Trace,
+			traceMsg,
+		},
+		{
+			"Debug",
+			logging.Debug,
+			debugMsg,
+		},
+		{
+			"Info",
+			logging.Info,
+			infoMsg,
+		},
+		{
+			"Notice",
+			logging.Notice,
+			noticeMsg,
+		},
+		{
+			"Warn",
+			logging.Warn,
+			warnMsg,
+		},
+		{
+			"Error",
+			logging.Error,
+			errorMsg,
+		},
+		{
+			"Fatal",
+			logging.Fatal,
+			fatalMsg,
+		},
+	}
+
+	for _, tc := range testCase {
+		tc.method(tc.msg)
+		assert.Contains(t, buf.String(), tc.levelName)
+		assert.Contains(t, buf.String(), tc.msg)
+		buf.Reset()
+	}
 }
 
-func TestLogOption(t *testing.T) {
+func TestWithoutLevel(t *testing.T) {
 	buf := new(bytes.Buffer)
+	logger := NewLogger(WithHandlerOptions(&slog.HandlerOptions{AddSource: true}))
 
-	lvl := new(slog.LevelVar)
-	lvl.Set(slog.LevelDebug)
-	logger := NewLogger(
-		WithLevel(lvl),
-		WithOutput(buf),
-		WithHandlerOptions(&slog.HandlerOptions{
-			AddSource: true,
-			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-				if a.Key == slog.MessageKey {
-					msg := a.Value.Any().(string)
-					msg = strings.ReplaceAll(msg, "log", "new log")
-					a.Value = slog.StringValue(msg)
-				}
-				return a
-			},
-		}),
-	)
+	logging.SetLogger(logger)
+	logging.SetOutput(buf)
 
-	logger.Debug("this is a debug log")
-	assert.True(t, strings.Contains(buf.String(), "this is a debug new log"))
+	logging.CtxInfof(context.TODO(), "hello %s", "hertz")
+	assert.Contains(t, buf.String(), "source")
+}
 
-	dir, _ := os.Getwd()
-	assert.True(t, strings.Contains(buf.String(), dir))
+func TestWithOutput(t *testing.T) {
+	buf := new(bytes.Buffer)
+	logger := NewLogger(WithOutput(buf))
+	logging.SetLogger(logger)
+
+	logging.CtxErrorf(context.TODO(), errorMsg)
+	assert.Contains(t, buf.String(), errorMsg)
 }
