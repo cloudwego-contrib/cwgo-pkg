@@ -1,4 +1,4 @@
-// Copyright 2023 CloudWeGo Authors.
+// Copyright 2022 CloudWeGo Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 package slog
 
 import (
+	"github.com/cloudwego-contrib/obs-opentelemetry/logging"
 	"io"
 	"log/slog"
 	"os"
@@ -30,77 +31,46 @@ func (fn option) apply(cfg *config) {
 	fn(cfg)
 }
 
-type coreConfig struct {
-	opt                *slog.HandlerOptions
-	writer             io.Writer
+type config struct {
 	level              *slog.LevelVar
 	withLevel          bool
+	handlerOptions     *slog.HandlerOptions
 	withHandlerOptions bool
-}
-
-type config struct {
-	coreConfig  coreConfig
-	traceConfig *traceConfig
+	output             io.Writer
 }
 
 func defaultConfig() *config {
-	coreConfig := defaultCoreConfig()
+	lvl := &slog.LevelVar{}
+	lvl.Set(tranSLevel(logging.LevelInfo))
+
+	handlerOptions := &slog.HandlerOptions{
+		Level: lvl,
+	}
 	return &config{
-		coreConfig: *coreConfig,
-		traceConfig: &traceConfig{
-			recordStackTraceInSpan: true,
-			errorSpanLevel:         slog.LevelError,
-		},
-	}
-}
-
-func defaultCoreConfig() *coreConfig {
-	level := new(slog.LevelVar)
-	level.Set(slog.LevelInfo)
-	return &coreConfig{
-		opt: &slog.HandlerOptions{
-			Level: level,
-		},
-		writer:             os.Stdout,
-		level:              level,
+		level:              lvl,
 		withLevel:          false,
+		handlerOptions:     handlerOptions,
 		withHandlerOptions: false,
+		output:             os.Stdout,
 	}
 }
 
-// WithHandlerOptions slog handler-options
-func WithHandlerOptions(opt *slog.HandlerOptions) Option {
-	return option(func(cfg *config) {
-		cfg.coreConfig.opt = opt
-		cfg.coreConfig.withHandlerOptions = true
-	})
-}
-
-// WithOutput slog writer
-func WithOutput(iow io.Writer) Option {
-	return option(func(cfg *config) {
-		cfg.coreConfig.writer = iow
-	})
-}
-
-// WithLevel slog level
 func WithLevel(lvl *slog.LevelVar) Option {
 	return option(func(cfg *config) {
-		cfg.coreConfig.level = lvl
-		cfg.coreConfig.withLevel = true
+		cfg.level = lvl
+		cfg.withLevel = true
 	})
 }
 
-// WithTraceErrorSpanLevel trace error span level option
-func WithTraceErrorSpanLevel(level slog.Level) Option {
+func WithHandlerOptions(opts *slog.HandlerOptions) Option {
 	return option(func(cfg *config) {
-		cfg.traceConfig.errorSpanLevel = level
+		cfg.handlerOptions = opts
+		cfg.withHandlerOptions = true
 	})
 }
 
-// WithRecordStackTraceInSpan record stack track option
-func WithRecordStackTraceInSpan(recordStackTraceInSpan bool) Option {
+func WithOutput(writer io.Writer) Option {
 	return option(func(cfg *config) {
-		cfg.traceConfig.recordStackTraceInSpan = recordStackTraceInSpan
+		cfg.output = writer
 	})
 }

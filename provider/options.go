@@ -130,7 +130,7 @@ func WithExportEndpoint(endpoint string) Option {
 	})
 }
 
-// WithEnableTracing enable kitextracing
+// WithEnableTracing enable kitex
 func WithEnableTracing(enableTracing bool) Option {
 	return option(func(cfg *config) {
 		cfg.enableTracing = enableTracing

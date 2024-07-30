@@ -16,28 +16,17 @@ package zap
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"github.com/cloudwego-contrib/obs-opentelemetry/logging"
 	"io"
 
-	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 var _ logging.FullLogger = (*Logger)(nil)
 
-// Ref to https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/README.md#json-formats
-const (
-	traceIDKey    = "trace_id"
-	spanIDKey     = "span_id"
-	traceFlagsKey = "trace_flags"
-)
-
 type Logger struct {
-	*zap.SugaredLogger
+	l      *zap.Logger
 	config *config
 }
 
@@ -49,13 +38,18 @@ func NewLogger(opts ...Option) *Logger {
 		opt.apply(config)
 	}
 
+	cores := make([]zapcore.Core, 0, len(config.coreConfigs))
+	for _, coreConfig := range config.coreConfigs {
+		cores = append(cores, zapcore.NewCore(coreConfig.Enc, coreConfig.Ws, coreConfig.Lvl))
+	}
+
 	logger := zap.New(
-		zapcore.NewCore(config.coreConfig.enc, config.coreConfig.ws, config.coreConfig.lvl),
+		zapcore.NewTee(cores[:]...),
 		config.zapOpts...)
 
 	return &Logger{
-		SugaredLogger: logger.Sugar().With(config.customFields...),
-		config:        config,
+		l:      logger,
+		config: config,
 	}
 }
 
@@ -67,34 +61,32 @@ func (l *Logger) GetExtraKeys() []ExtraKey {
 // PutExtraKeys add extraKeys after init
 func (l *Logger) PutExtraKeys(keys ...ExtraKey) {
 	for _, k := range keys {
-		if !inArray(k, l.config.extraKeys) {
+		if !InArray(k, l.config.extraKeys) {
 			l.config.extraKeys = append(l.config.extraKeys, k)
 		}
 	}
 }
 
 func (l *Logger) Log(level logging.Level, kvs ...interface{}) {
-	logger := l.With()
-
+	sugar := l.l.Sugar()
 	switch level {
 	case logging.LevelTrace, logging.LevelDebug:
-		logger.Debug(kvs...)
+		sugar.Debug(kvs...)
 	case logging.LevelInfo:
-		logger.Info(kvs...)
+		sugar.Info(kvs...)
 	case logging.LevelNotice, logging.LevelWarn:
-		logger.Warn(kvs...)
+		sugar.Warn(kvs...)
 	case logging.LevelError:
-		logger.Error(kvs...)
+		sugar.Error(kvs...)
 	case logging.LevelFatal:
-		logger.Fatal(kvs...)
+		sugar.Fatal(kvs...)
 	default:
-		logger.Warn(kvs...)
+		sugar.Warn(kvs...)
 	}
 }
 
 func (l *Logger) Logf(level logging.Level, format string, kvs ...interface{}) {
-	logger := l.With()
-
+	logger := l.l.Sugar().With()
 	switch level {
 	case logging.LevelTrace, logging.LevelDebug:
 		logger.Debugf(format, kvs...)
@@ -112,66 +104,40 @@ func (l *Logger) Logf(level logging.Level, format string, kvs ...interface{}) {
 }
 
 func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string, kvs ...interface{}) {
-	var zlevel zapcore.Level
-	var sl *zap.SugaredLogger
-
-	span := trace.SpanFromContext(ctx)
-	var traceKVs []interface{}
-	if span.SpanContext().TraceID().IsValid() {
-		traceKVs = append(traceKVs, traceIDKey, span.SpanContext().TraceID())
+	zLevel := LevelToZapLevel(level)
+	if !l.config.coreConfigs[0].Lvl.Enabled(zLevel) {
+		return
 	}
-	if span.SpanContext().SpanID().IsValid() {
-		traceKVs = append(traceKVs, spanIDKey, span.SpanContext().SpanID())
-	}
-	if span.SpanContext().TraceFlags().IsSampled() {
-		traceKVs = append(traceKVs, traceFlagsKey, span.SpanContext().TraceFlags())
-	}
-	if len(traceKVs) > 0 {
-		sl = l.With(traceKVs...)
-	} else {
-		sl = l.With()
-	}
-
+	zapLogger := l.l
 	if len(l.config.extraKeys) > 0 {
 		for _, k := range l.config.extraKeys {
 			if l.config.extraKeyAsStr {
-				sl = sl.With(string(k), ctx.Value(string(k)))
+				v := ctx.Value(string(k))
+				if v != nil {
+					zapLogger = zapLogger.With(zap.Any(string(k), v))
+				}
 			} else {
-				sl = sl.With(string(k), ctx.Value(k))
+				v := ctx.Value(k)
+				if v != nil {
+					zapLogger = zapLogger.With(zap.Any(string(k), v))
+				}
 			}
 		}
 	}
-
+	log := zapLogger.Sugar()
 	switch level {
 	case logging.LevelDebug, logging.LevelTrace:
-		zlevel = zap.DebugLevel
-		sl.Debugf(format, kvs...)
+		log.Debugf(format, kvs...)
 	case logging.LevelInfo:
-		zlevel = zap.InfoLevel
-		sl.Infof(format, kvs...)
+		log.Infof(format, kvs...)
 	case logging.LevelNotice, logging.LevelWarn:
-		zlevel = zap.WarnLevel
-		sl.Warnf(format, kvs...)
+		log.Warnf(format, kvs...)
 	case logging.LevelError:
-		zlevel = zap.ErrorLevel
-		sl.Errorf(format, kvs...)
+		log.Errorf(format, kvs...)
 	case logging.LevelFatal:
-		zlevel = zap.FatalLevel
-		sl.Fatalf(format, kvs...)
+		log.Fatalf(format, kvs...)
 	default:
-		zlevel = zap.WarnLevel
-		sl.Warnf(format, kvs...)
-	}
-
-	if !span.IsRecording() {
-		return
-	}
-
-	// set span status
-	if zlevel >= l.config.traceConfig.errorSpanLevel {
-		msg := getMessage(format, kvs)
-		span.SetStatus(codes.Error, "")
-		span.RecordError(errors.New(msg), trace.WithStackTrace(l.config.traceConfig.recordStackTraceInSpan))
+		log.Warnf(format, kvs...)
 	}
 }
 
@@ -216,7 +182,7 @@ func (l *Logger) Infof(format string, v ...interface{}) {
 }
 
 func (l *Logger) Noticef(format string, v ...interface{}) {
-	l.Logf(logging.LevelInfo, format, v...)
+	l.Logf(logging.LevelWarn, format, v...)
 }
 
 func (l *Logger) Warnf(format string, v ...interface{}) {
@@ -260,87 +226,42 @@ func (l *Logger) CtxFatalf(ctx context.Context, format string, v ...interface{})
 }
 
 func (l *Logger) SetLevel(level logging.Level) {
-	var lvl zapcore.Level
-	switch level {
-	case logging.LevelTrace, logging.LevelDebug:
-		lvl = zap.DebugLevel
-	case logging.LevelInfo:
-		lvl = zap.InfoLevel
-	case logging.LevelWarn, logging.LevelNotice:
-		lvl = zap.WarnLevel
-	case logging.LevelError:
-		lvl = zap.ErrorLevel
-	case logging.LevelFatal:
-		lvl = zap.FatalLevel
-	default:
-		lvl = zap.WarnLevel
+	lvl := LevelToZapLevel(level)
+
+	l.config.coreConfigs[0].Lvl = lvl
+
+	cores := make([]zapcore.Core, 0, len(l.config.coreConfigs))
+	for _, coreConfig := range l.config.coreConfigs {
+		cores = append(cores, zapcore.NewCore(coreConfig.Enc, coreConfig.Ws, coreConfig.Lvl))
 	}
-	l.config.coreConfig.lvl.SetLevel(lvl)
+
+	logger := zap.New(
+		zapcore.NewTee(cores[:]...),
+		l.config.zapOpts...)
+
+	l.l = logger
 }
 
 func (l *Logger) SetOutput(writer io.Writer) {
-	ws := zapcore.AddSync(writer)
-	log := zap.New(
-		zapcore.NewCore(l.config.coreConfig.enc, ws, l.config.coreConfig.lvl),
-		l.config.zapOpts...,
-	)
-	l.config.coreConfig.ws = ws
-	l.SugaredLogger = log.Sugar().With(l.config.customFields...)
+	l.config.coreConfigs[0].Ws = zapcore.AddSync(writer)
+
+	cores := make([]zapcore.Core, 0, len(l.config.coreConfigs))
+	for _, coreConfig := range l.config.coreConfigs {
+		cores = append(cores, zapcore.NewCore(coreConfig.Enc, coreConfig.Ws, coreConfig.Lvl))
+	}
+
+	logger := zap.New(
+		zapcore.NewTee(cores[:]...),
+		l.config.zapOpts...)
+
+	l.l = logger
 }
 
 // Logger is used to return an instance of *zap.Logger for custom fields, etc.
 func (l *Logger) Logger() *zap.Logger {
-	return l.SugaredLogger.Desugar()
+	return l.l
 }
 
-func (l *Logger) CtxKVLog(ctx context.Context, level logging.Level, format string, kvs ...interface{}) {
-	if len(kvs) == 0 || len(kvs)%2 != 0 {
-		l.Warn(fmt.Sprint("Keyvalues must appear in pairs:", kvs))
-		return
-	}
-
-	span := trace.SpanFromContext(ctx)
-	if span.SpanContext().TraceID().IsValid() {
-		kvs = append(kvs, traceIDKey, span.SpanContext().TraceID())
-	}
-	if span.SpanContext().SpanID().IsValid() {
-		kvs = append(kvs, spanIDKey, span.SpanContext().SpanID())
-	}
-	if span.SpanContext().TraceFlags().IsSampled() {
-		kvs = append(kvs, traceFlagsKey, span.SpanContext().TraceFlags())
-	}
-
-	var zlevel zapcore.Level
-	zl := l.With()
-	switch level {
-	case logging.LevelDebug, logging.LevelTrace:
-		zlevel = zap.DebugLevel
-		zl.Debugw(format, kvs...)
-	case logging.LevelInfo:
-		zlevel = zap.InfoLevel
-		zl.Infow(format, kvs...)
-	case logging.LevelNotice, logging.LevelWarn:
-		zlevel = zap.WarnLevel
-		zl.Warnw(format, kvs...)
-	case logging.LevelError:
-		zlevel = zap.ErrorLevel
-		zl.Errorw(format, kvs...)
-	case logging.LevelFatal:
-		zlevel = zap.FatalLevel
-		zl.Fatalw(format, kvs...)
-	default:
-		zlevel = zap.WarnLevel
-		zl.Warnw(format, kvs...)
-	}
-
-	if !span.IsRecording() {
-		return
-	}
-
-	// set span status
-	if zlevel >= l.config.traceConfig.errorSpanLevel {
-		msg := getMessage(format, kvs)
-		span.SetStatus(codes.Error, "")
-		span.RecordError(errors.New(msg), trace.WithStackTrace(l.config.traceConfig.recordStackTraceInSpan))
-	}
+func (l *Logger) Sync() {
+	_ = l.l.Sync()
 }
