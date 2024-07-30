@@ -1,4 +1,4 @@
-// Copyright 2024 CloudWeGo Authors.
+// Copyright 2022 CloudWeGo Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package zerolog
+package logrus
 
 import (
 	"strings"
 
-	"github.com/rs/zerolog"
+	"github.com/sirupsen/logrus"
 )
 
-// OtelSeverityText convert zerolog level to otel severityText
+// OtelSeverityText convert logrus level to otel severityText
 // ref to https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/data-model.md#severity-fields
-func OtelSeverityText(lv zerolog.Level) string {
-	s := strings.ToUpper(lv.String())
-	if s == "PANIC" {
-		s = "FATAL"
+func OtelSeverityText(lv logrus.Level) string {
+	s := lv.String()
+	if s == "warning" {
+		s = "warn"
 	}
-	return s
+	return strings.ToUpper(s)
 }

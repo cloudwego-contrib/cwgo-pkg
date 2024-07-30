@@ -1,4 +1,4 @@
-// Copyright 2024 CloudWeGo Authors.
+// Copyright 2022 CloudWeGo Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package zerolog
+package zap
 
 import (
-	"github.com/rs/zerolog"
+	cwzap "github.com/cloudwego-contrib/obs-opentelemetry/logging/zap"
+	"go.uber.org/zap/zapcore"
 )
-
-type ExtraKey string
 
 type Option interface {
 	apply(cfg *config)
@@ -32,11 +31,11 @@ func (fn option) apply(cfg *config) {
 
 type traceConfig struct {
 	recordStackTraceInSpan bool
-	errorSpanLevel         zerolog.Level
+	errorSpanLevel         zapcore.Level
 }
 
 type config struct {
-	logger      *zerolog.Logger
+	logger      *cwzap.Logger
 	traceConfig *traceConfig
 }
 
@@ -45,20 +44,22 @@ func defaultConfig() *config {
 	return &config{
 		traceConfig: &traceConfig{
 			recordStackTraceInSpan: true,
-			errorSpanLevel:         zerolog.ErrorLevel,
+			errorSpanLevel:         zapcore.ErrorLevel,
 		},
+		logger: cwzap.NewLogger(),
 	}
 }
 
 // WithLogger configures logger
-func WithLogger(logger *zerolog.Logger) Option {
+func WithLogger(logger *cwzap.Logger) Option {
 	return option(func(cfg *config) {
+		logger.PutExtraKeys(extraKeys...)
 		cfg.logger = logger
 	})
 }
 
 // WithTraceErrorSpanLevel trace error span level option
-func WithTraceErrorSpanLevel(level zerolog.Level) Option {
+func WithTraceErrorSpanLevel(level zapcore.Level) Option {
 	return option(func(cfg *config) {
 		cfg.traceConfig.errorSpanLevel = level
 	})

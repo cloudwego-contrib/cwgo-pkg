@@ -208,3 +208,12 @@ func (l *Logger) SetOutput(writer io.Writer) {
 	l.cfg.output = writer
 	l.l = slog.New(slog.NewJSONHandler(writer, l.cfg.handlerOptions))
 }
+func (l *Logger) SetLogger(log *slog.Logger) {
+	l.l = log
+}
+func (l *Logger) GetHandler() *slog.HandlerOptions {
+	return l.cfg.handlerOptions
+}
+func (l *Logger) GetOutput() io.Writer {
+	return l.cfg.output
+}

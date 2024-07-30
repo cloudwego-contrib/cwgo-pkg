@@ -19,7 +19,7 @@ import (
 	"log/slog"
 )
 
-// Adapt klog level to slog level
+// Adapt log level to slog level
 func tranSLevel(level logging.Level) (lvl slog.Level) {
 	switch level {
 	case logging.LevelTrace:
