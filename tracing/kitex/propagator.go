@@ -53,12 +53,12 @@ func (m *metadataProvider) Keys() []string {
 }
 
 // Inject injects span context into the kitex metadata info
-func Inject(ctx context.Context, c *config, metadata map[string]string) {
+func Inject(ctx context.Context, c *Config, metadata map[string]string) {
 	c.textMapPropagator.Inject(ctx, &metadataProvider{metadata: metadata})
 }
 
 // Extract returns the baggage and span context
-func Extract(ctx context.Context, c *config, metadata map[string]string) (baggage.Baggage, trace.SpanContext) {
+func Extract(ctx context.Context, c *Config, metadata map[string]string) (baggage.Baggage, trace.SpanContext) {
 	ctx = c.textMapPropagator.Extract(ctx, &metadataProvider{metadata: CGIVariableToHTTPHeaderMetadata(metadata)})
 	return baggage.FromContext(ctx), trace.SpanContextFromContext(ctx)
 }

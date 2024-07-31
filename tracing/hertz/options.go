@@ -61,7 +61,7 @@ type Config struct {
 	shouldIgnore          ConditionFunc
 }
 
-func newConfig(opts []Option) *Config {
+func NewConfig(opts []Option) *Config {
 	cfg := defaultConfig()
 
 	for _, opt := range opts {
@@ -118,6 +118,9 @@ func defaultConfig() *Config {
 			return false
 		},
 	}
+}
+func (c Config) GetTextMapPropagator() propagation.TextMapPropagator {
+	return c.textMapPropagator
 }
 
 // WithRecordSourceOperation configures record source operation dimension

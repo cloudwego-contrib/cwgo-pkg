@@ -33,11 +33,11 @@ import (
 var _ stats.Tracer = (*serverTracer)(nil)
 
 type serverTracer struct {
-	config            *config
+	config            *Config
 	histogramRecorder map[string]metric.Float64Histogram
 }
 
-func newServerOption(opts ...Option) (server.Option, *config) {
+func newServerOption(opts ...Option) (server.Option, *Config) {
 	cfg := newConfig(opts)
 	st := &serverTracer{
 		config: cfg,

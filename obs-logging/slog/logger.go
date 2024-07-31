@@ -28,8 +28,13 @@ func NewLogger(opts ...Option) *Logger {
 		Logger: *cfg.logger,
 		config: cfg,
 	}
-	logger.SetTraceLogger()
+	logger.setTraceLogger()
 	return logger
+}
+
+func (l *Logger) setTraceLogger() {
+	log := slog.New(NewTraceHandler(l.GetOutput(), l.config.logger.GetHandler(), l.config.traceConfig))
+	l.Logger.SetLogger(log)
 }
 
 func (l *Logger) SetOutput(writer io.Writer) {
@@ -39,8 +44,4 @@ func (l *Logger) SetOutput(writer io.Writer) {
 }
 func (l *Logger) SetLevel(level logging.Level) {
 	l.Logger.SetLevel(level)
-}
-func (l *Logger) SetTraceLogger() {
-	log := slog.New(NewTraceHandler(l.GetOutput(), l.config.logger.GetHandler(), l.config.traceConfig))
-	l.Logger.SetLogger(log)
 }

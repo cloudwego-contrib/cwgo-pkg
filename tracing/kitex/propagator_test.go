@@ -37,7 +37,7 @@ func TestExtract(t *testing.T) {
 
 	type args struct {
 		ctx      context.Context
-		c        *config
+		c        *Config
 		metadata map[string]string
 	}
 	tests := []struct {
@@ -95,7 +95,7 @@ func TestInject(t *testing.T) {
 
 	type args struct {
 		ctx      context.Context
-		c        *config
+		c        *Config
 		metadata map[string]string
 	}
 	tests := []struct {

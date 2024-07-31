@@ -47,7 +47,7 @@ func (sh *StringHeader) Visit(f func(k, v string)) {
 }
 
 func ClientMiddleware(opts ...Option) client.Middleware {
-	cfg := newConfig(opts)
+	cfg := NewConfig(opts)
 	histogramRecorder := make(map[string]metric.Float64Histogram)
 	counters := make(map[string]metric.Int64Counter)
 

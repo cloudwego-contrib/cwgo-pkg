@@ -28,7 +28,7 @@ import (
 )
 
 // ClientMiddleware inject span context into req meta
-func ClientMiddleware(cfg *config) endpoint.Middleware {
+func ClientMiddleware(cfg *Config) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, req, resp interface{}) (err error) {
 			span := oteltrace.SpanFromContext(ctx)
@@ -53,7 +53,7 @@ func ClientMiddleware(cfg *config) endpoint.Middleware {
 }
 
 // ServerMiddleware extract req meta into span context
-func ServerMiddleware(cfg *config) endpoint.Middleware {
+func ServerMiddleware(cfg *Config) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, req, resp interface{}) (err error) {
 			tc := internal.TraceCarrierFromContext(ctx)

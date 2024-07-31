@@ -31,11 +31,11 @@ import (
 var _ stats.Tracer = (*clientTracer)(nil)
 
 type clientTracer struct {
-	config            *config
+	config            *Config
 	histogramRecorder map[string]metric.Float64Histogram
 }
 
-func newClientOption(opts ...Option) (client.Option, *config) {
+func newClientOption(opts ...Option) (client.Option, *Config) {
 	cfg := newConfig(opts)
 	ct := &clientTracer{config: cfg}
 

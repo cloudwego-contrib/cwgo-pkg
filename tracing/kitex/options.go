@@ -27,16 +27,16 @@ const (
 
 // Option opts for opentelemetry tracer provider
 type Option interface {
-	apply(cfg *config)
+	apply(cfg *Config)
 }
 
-type option func(cfg *config)
+type option func(cfg *Config)
 
-func (fn option) apply(cfg *config) {
+func (fn option) apply(cfg *Config) {
 	fn(cfg)
 }
 
-type config struct {
+type Config struct {
 	tracer trace.Tracer
 	meter  metric.Meter
 
@@ -47,7 +47,7 @@ type config struct {
 	recordSourceOperation bool
 }
 
-func newConfig(opts []Option) *config {
+func newConfig(opts []Option) *Config {
 	cfg := defaultConfig()
 
 	for _, opt := range opts {
@@ -67,24 +67,27 @@ func newConfig(opts []Option) *config {
 	return cfg
 }
 
-func defaultConfig() *config {
-	return &config{
+func defaultConfig() *Config {
+	return &Config{
 		tracerProvider:    otel.GetTracerProvider(),
 		meterProvider:     otel.GetMeterProvider(),
 		textMapPropagator: otel.GetTextMapPropagator(),
 	}
 }
+func (c Config) GetTextMapPropagator() propagation.TextMapPropagator {
+	return c.textMapPropagator
+}
 
 // WithRecordSourceOperation configures record source operation dimension
 func WithRecordSourceOperation(recordSourceOperation bool) Option {
-	return option(func(cfg *config) {
+	return option(func(cfg *Config) {
 		cfg.recordSourceOperation = recordSourceOperation
 	})
 }
 
 // WithTextMapPropagator configures propagation
 func WithTextMapPropagator(p propagation.TextMapPropagator) Option {
-	return option(func(cfg *config) {
+	return option(func(cfg *Config) {
 		cfg.textMapPropagator = p
 	})
 }

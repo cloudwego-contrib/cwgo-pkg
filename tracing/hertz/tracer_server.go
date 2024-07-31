@@ -45,7 +45,7 @@ type serverTracer struct {
 }
 
 func NewServerTracer(opts ...Option) (serverconfig.Option, *Config) {
-	cfg := newConfig(opts)
+	cfg := NewConfig(opts)
 	st := &serverTracer{
 		config:            cfg,
 		counters:          make(map[string]metric.Int64Counter),
