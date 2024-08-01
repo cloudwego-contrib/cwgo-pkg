@@ -18,6 +18,7 @@ package hertzServer
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/obs-opentelemetry/cwmetrics/prometheus"
 	"io"
 	"math/rand"
 	"net/http"
@@ -95,7 +96,7 @@ func TestWithOption(t *testing.T) {
 	})
 
 	registry.MustRegister(testCounter)
-	_ = counterAdd(testCounter, 1, prom.Labels{
+	_ = prometheus.CounterAdd(testCounter, 1, prom.Labels{
 		"test1": "test1",
 		"test2": "test2",
 	})
