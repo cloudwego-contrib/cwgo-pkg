@@ -34,3 +34,17 @@ func WithTraceHistogram(h metric.Float64Histogram) Option {
 		cfg.histogram = h
 	})
 }
+
+// DefaultRequestsCounter
+// return metric.Int64Counter for WithRequests
+// suggest histogramName = <client/server>_requests_code_total
+func DefaultRequestsCounter(meter metric.Meter, histogramName string) (metric.Int64Counter, error) {
+	return meter.Int64Counter(histogramName, metric.WithUnit("{call}"))
+}
+
+// DefaultSecondsHistogram
+// return metric.Float64Histogram for WithSeconds
+// suggest histogramName = <client/server>_requests_seconds_bucket
+func DefaultSecondsHistogram(meter metric.Meter, histogramName string) (metric.Float64Histogram, error) {
+	return meter.Float64Histogram(histogramName, metric.WithUnit("s"))
+}
