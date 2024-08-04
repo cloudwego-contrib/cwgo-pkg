@@ -2,10 +2,10 @@ go 1.21
 
 use (
 	.
-	./logging/logrus
-	./logging/slog
-	./logging/zap
-	./logging/zerolog
+	./log/logging/logrus
+	./log/logging/slog
+	./log/logging/zap
+	./log/logging/zerolog
 
 )
 

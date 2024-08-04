@@ -56,7 +56,7 @@ func (p *otelProvider) Shutdown(ctx context.Context) error {
 	return err
 }
 
-// NewOpenTelemetryProvider Initializes an otlp trace and cwmetrics provider
+// NewOpenTelemetryProvider Initializes an otlp trace and meter provider
 func NewOpenTelemetryProvider(opts ...Option) OtelProvider {
 	var (
 		err           error
@@ -134,7 +134,7 @@ func NewOpenTelemetryProvider(opts ...Option) OtelProvider {
 
 		meterProvider = cfg.meterProvider
 		if meterProvider == nil {
-			// cwmetrics exporter
+			// meter exporter
 			metricExp, err := otlpmetricgrpc.New(context.Background(), metricsClientOpts...)
 
 			handleInitErr(err, "Failed to create the metric exporter")
@@ -145,11 +145,11 @@ func NewOpenTelemetryProvider(opts ...Option) OtelProvider {
 			meterProvider = metric.NewMeterProvider(reader, metric.WithResource(res))
 		}
 
-		// cwmetrics pusher
+		// meter pusher
 		otel.SetMeterProvider(meterProvider)
 
 		err = runtimemetrics.Start()
-		handleInitErr(err, "Failed to start runtime cwmetrics collector")
+		handleInitErr(err, "Failed to start runtime meter collector")
 	}
 
 	return &otelProvider{
