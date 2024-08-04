@@ -16,8 +16,8 @@ package logrus_test
 
 import (
 	"context"
-	logging2 "github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
-	logrus2 "github.com/cloudwego-contrib/obs-opentelemetry/log/obs-logging/logrus"
+	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	cwlogrus "github.com/cloudwego-contrib/obs-opentelemetry/log/obs-logging/logrus"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -50,52 +50,52 @@ func TestLogger(t *testing.T) {
 	shutdown := stdoutProvider(ctx)
 	defer shutdown()
 
-	logger := logrus2.NewLogger(
-		logrus2.WithTraceHookErrorSpanLevel(logrus.WarnLevel),
-		logrus2.WithTraceHookLevels(logrus.AllLevels),
-		logrus2.WithRecordStackTraceInSpan(true),
+	logger := cwlogrus.NewLogger(
+		cwlogrus.WithTraceHookErrorSpanLevel(logrus.WarnLevel),
+		cwlogrus.WithTraceHookLevels(logrus.AllLevels),
+		cwlogrus.WithRecordStackTraceInSpan(true),
 	)
 
 	logger.Logger().Info("log from origin logrus")
 
-	logging2.SetLogger(logger)
-	logging2.SetLevel(logging2.LevelDebug)
+	logging.SetLogger(logger)
+	logging.SetLevel(logging.LevelDebug)
 
 	tracer := otel.Tracer("test otel std logger")
 	ctx, span := tracer.Start(ctx, "root")
 
-	logging2.SetLogger(logger)
-	logging2.SetLevel(logging2.LevelTrace)
+	logging.SetLogger(logger)
+	logging.SetLevel(logging.LevelTrace)
 
-	logging2.Trace("trace")
-	logging2.Debug("debug")
-	logging2.Info("info")
-	logging2.Notice("notice")
-	logging2.Warn("warn")
-	logging2.Error("error")
+	logging.Trace("trace")
+	logging.Debug("debug")
+	logging.Info("info")
+	logging.Notice("notice")
+	logging.Warn("warn")
+	logging.Error("error")
 
-	logging2.Tracef("log level: %s", "trace")
-	logging2.Debugf("log level: %s", "debug")
-	logging2.Infof("log level: %s", "info")
-	logging2.Noticef("log level: %s", "notice")
-	logging2.Warnf("log level: %s", "warn")
-	logging2.Errorf("log level: %s", "error")
+	logging.Tracef("log level: %s", "trace")
+	logging.Debugf("log level: %s", "debug")
+	logging.Infof("log level: %s", "info")
+	logging.Noticef("log level: %s", "notice")
+	logging.Warnf("log level: %s", "warn")
+	logging.Errorf("log level: %s", "error")
 
-	logging2.CtxTracef(ctx, "log level: %s", "trace")
-	logging2.CtxDebugf(ctx, "log level: %s", "debug")
-	logging2.CtxInfof(ctx, "log level: %s", "info")
-	logging2.CtxNoticef(ctx, "log level: %s", "notice")
-	logging2.CtxWarnf(ctx, "log level: %s", "warn")
-	logging2.CtxErrorf(ctx, "log level: %s", "error")
+	logging.CtxTracef(ctx, "log level: %s", "trace")
+	logging.CtxDebugf(ctx, "log level: %s", "debug")
+	logging.CtxInfof(ctx, "log level: %s", "info")
+	logging.CtxNoticef(ctx, "log level: %s", "notice")
+	logging.CtxWarnf(ctx, "log level: %s", "warn")
+	logging.CtxErrorf(ctx, "log level: %s", "error")
 
 	span.End()
 
 	ctx, child := tracer.Start(ctx, "child")
-	logging2.CtxWarnf(ctx, "foo %s", "bar")
+	logging.CtxWarnf(ctx, "foo %s", "bar")
 	child.End()
 
 	ctx, errSpan := tracer.Start(ctx, "error")
-	logging2.CtxErrorf(ctx, "error %s", "this is a error")
-	logging2.Info("no trace context")
+	logging.CtxErrorf(ctx, "error %s", "this is a error")
+	logging.Info("no trace context")
 	errSpan.End()
 }

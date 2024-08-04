@@ -17,7 +17,7 @@ package slog
 import (
 	"bytes"
 	"context"
-	logging2 "github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
 	cwslog "github.com/cloudwego-contrib/obs-opentelemetry/logging/slog"
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel"
@@ -61,9 +61,9 @@ func TestLogger(t *testing.T) {
 		WithRecordStackTraceInSpan(true),
 	)
 
-	logging2.SetLogger(logger)
-	logging2.SetOutput(buf)
-	logging2.SetLevel(logging2.LevelDebug)
+	logging.SetLogger(logger)
+	logging.SetOutput(buf)
+	logging.SetLevel(logging.LevelDebug)
 
 	logger.Info("log from origin slog")
 	assert.True(t, strings.Contains(buf.String(), "log from origin slog"))
@@ -73,7 +73,7 @@ func TestLogger(t *testing.T) {
 
 	ctx, span := tracer.Start(ctx, "root")
 
-	logging2.CtxInfof(ctx, "hello %s", "you")
+	logging.CtxInfof(ctx, "hello %s", "you")
 	assert.True(t, strings.Contains(buf.String(), "trace_id"))
 	assert.True(t, strings.Contains(buf.String(), "span_id"))
 	assert.True(t, strings.Contains(buf.String(), "trace_flags"))
@@ -84,20 +84,20 @@ func TestLogger(t *testing.T) {
 
 	ctx, child := tracer.Start(ctx, "child")
 
-	logging2.CtxWarnf(ctx, "foo %s", "bar")
+	logging.CtxWarnf(ctx, "foo %s", "bar")
 
-	logging2.CtxTracef(ctx, "trace %s", "this is a trace log")
-	logging2.CtxDebugf(ctx, "debug %s", "this is a debug log")
-	logging2.CtxInfof(ctx, "info %s", "this is a info log")
-	logging2.CtxNoticef(ctx, "notice %s", "this is a notice log")
-	logging2.CtxWarnf(ctx, "warn %s", "this is a warn log")
-	logging2.CtxErrorf(ctx, "error %s", "this is a error log")
+	logging.CtxTracef(ctx, "trace %s", "this is a trace log")
+	logging.CtxDebugf(ctx, "debug %s", "this is a debug log")
+	logging.CtxInfof(ctx, "info %s", "this is a info log")
+	logging.CtxNoticef(ctx, "notice %s", "this is a notice log")
+	logging.CtxWarnf(ctx, "warn %s", "this is a warn log")
+	logging.CtxErrorf(ctx, "error %s", "this is a error log")
 
 	child.End()
 
 	_, errSpan := tracer.Start(ctx, "error")
 
-	logging2.Info("no trace context")
+	logging.Info("no trace context")
 
 	errSpan.End()
 }
@@ -116,7 +116,7 @@ func TestLogLevel(t *testing.T) {
 	logger.Debug("this is a debug log")
 	assert.False(t, strings.Contains(buf.String(), "this is a debug log"))
 
-	logger.SetLevel(logging2.LevelDebug)
+	logger.SetLevel(logging.LevelDebug)
 
 	logger.Debugf("this is a debug log %s", "msg")
 

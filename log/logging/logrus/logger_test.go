@@ -17,7 +17,7 @@ package logrus_test
 import (
 	"context"
 	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
-	logrus2 "github.com/cloudwego-contrib/obs-opentelemetry/logging/logrus"
+	cwlogrus "github.com/cloudwego-contrib/obs-opentelemetry/logging/logrus"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -26,7 +26,7 @@ import (
 func TestLogger(t *testing.T) {
 	ctx := context.Background()
 
-	logger := logrus2.NewLogger(logrus2.WithLogger(logrus.New()))
+	logger := cwlogrus.NewLogger(cwlogrus.WithLogger(logrus.New()))
 
 	logger.Logger().Info("log from origin logrus")
 

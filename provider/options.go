@@ -130,14 +130,14 @@ func WithExportEndpoint(endpoint string) Option {
 	})
 }
 
-// WithEnableTracing enable kitex
+// WithEnableTracing enable otelkitex
 func WithEnableTracing(enableTracing bool) Option {
 	return option(func(cfg *config) {
 		cfg.enableTracing = enableTracing
 	})
 }
 
-// WithEnableMetrics enable cwmetrics
+// WithEnableMetrics enable meter
 func WithEnableMetrics(enableMetrics bool) Option {
 	return option(func(cfg *config) {
 		cfg.enableMetrics = enableMetrics

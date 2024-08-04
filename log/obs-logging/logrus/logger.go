@@ -18,7 +18,7 @@ import (
 	"github.com/cloudwego-contrib/obs-opentelemetry/logging/logrus"
 )
 
-// Logger an alias to github.com/hertz-contrib/logger/logrus Logger
+// Logger an alias to github.com/otelhertz-contrib/logger/logrus Logger
 type Logger = logrus.Logger
 
 // NewLogger create logger with otel hook
