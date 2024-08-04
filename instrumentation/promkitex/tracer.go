@@ -19,14 +19,14 @@ package prometheus
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/instrumentation/prometheus"
+	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
 	cwmetric "github.com/cloudwego-contrib/obs-opentelemetry/meter/metric"
-	"log"
-	"net/http"
-
+	"github.com/cloudwego-contrib/obs-opentelemetry/semantic"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"log"
+	"net/http"
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/pkg/stats"
@@ -34,11 +34,11 @@ import (
 
 // Labels
 const (
-	labelKeyCaller = "caller"
-	labelKeyCallee = "callee"
-	labelKeyMethod = "method"
-	labelKeyStatus = "status"
-	labelKeyRetry  = "retry"
+	labelKeyCaller = semantic.LabelKeyCaller
+	labelKeyMethod = semantic.LabelMethodProm
+	labelKeyCallee = semantic.LabelKeyCallee
+	labelKeyStatus = semantic.LabelKeyStatus
+	labelKeyRetry  = semantic.LabelKeyRetry
 
 	// status
 	statusSucceed = "succeed"
@@ -72,9 +72,15 @@ func genLabels(ri rpcinfo.RPCInfo) prom.Labels {
 	return labels
 }
 
+func genCwLabels(ri rpcinfo.RPCInfo) []label.CwLabel {
+	labels := genLabels(ri)
+	return label.ToCwLabelFromPromelabel(labels)
+}
+
 type clientTracer struct {
 	clientHandledCounter   *prom.CounterVec
 	clientHandledHistogram *prom.HistogramVec
+	promMetric             *cwmetric.PrometheusMetrics
 }
 
 // Start record the beginning of an RPC invocation.
@@ -97,9 +103,8 @@ func (c *clientTracer) Finish(ctx context.Context) {
 	if ri.Stats().Error() != nil {
 		extraLabels[labelKeyStatus] = statusError
 	}
-
-	_ = prometheus.CounterAdd(c.clientHandledCounter, 1, genLabels(ri))
-	_ = prometheus.HistogramObserve(c.clientHandledHistogram, cost, genLabels(ri))
+	c.promMetric.Inc(ctx, genCwLabels(ri))
+	c.promMetric.Record(ctx, float64(cost.Microseconds()), genCwLabels(ri))
 }
 
 // NewClientTracer provide tracer for client call, addr and path is the scrape_configs for prometheus server.
@@ -123,7 +128,7 @@ func NewClientTracer(addr, path string, options ...Option) stats.Tracer {
 
 	clientHandledCounter := prom.NewCounterVec(
 		prom.CounterOpts{
-			Name: "kitex_client_throughput",
+			Name: semantic.ClientThroughput,
 			Help: "Total number of RPCs completed by the client, regardless of success or failure.",
 		},
 		[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
@@ -132,7 +137,7 @@ func NewClientTracer(addr, path string, options ...Option) stats.Tracer {
 
 	clientHandledHistogram := prom.NewHistogramVec(
 		prom.HistogramOpts{
-			Name:    "kitex_client_latency_us",
+			Name:    semantic.ClientDuration,
 			Help:    "Latency (microseconds) of the RPC until it is finished.",
 			Buckets: cfg.buckets,
 		},
@@ -142,17 +147,14 @@ func NewClientTracer(addr, path string, options ...Option) stats.Tracer {
 	if cfg.enableGoCollector {
 		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
 	}
-
+	promMetric := cwmetric.NewPrometheusMetrics(clientHandledCounter, clientHandledHistogram)
 	return &clientTracer{
-		clientHandledCounter:   clientHandledCounter,
-		clientHandledHistogram: clientHandledHistogram,
+		promMetric: promMetric,
 	}
 }
 
 type serverTracer struct {
-	serverHandledCounter   *prom.CounterVec
-	serverHandledHistogram *prom.HistogramVec
-	promethmetric          *cwmetric.PrometheusMetrics
+	promMetric *cwmetric.PrometheusMetrics
 }
 
 // Start record the beginning of server handling request from client.
@@ -177,8 +179,8 @@ func (c *serverTracer) Finish(ctx context.Context) {
 		extraLabels[labelKeyStatus] = statusError
 	}
 
-	_ = prometheus.CounterAdd(c.serverHandledCounter, 1, genLabels(ri))
-	_ = prometheus.HistogramObserve(c.serverHandledHistogram, cost, genLabels(ri))
+	c.promMetric.Inc(ctx, genCwLabels(ri))
+	c.promMetric.Record(ctx, float64(cost.Microseconds()), genCwLabels(ri))
 }
 
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
@@ -222,10 +224,9 @@ func NewServerTracer(addr, path string, options ...Option) stats.Tracer {
 	if cfg.enableGoCollector {
 		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
 	}
-
+	promMetric := cwmetric.NewPrometheusMetrics(serverHandledCounter, serverHandledHistogram)
 	return &serverTracer{
-		serverHandledCounter:   serverHandledCounter,
-		serverHandledHistogram: serverHandledHistogram,
+		promMetric: promMetric,
 	}
 }
 

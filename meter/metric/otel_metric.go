@@ -1,3 +1,17 @@
+// Copyright 2023 CloudWeGo Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package metric
 
 import (
@@ -11,16 +25,18 @@ import (
 var _ Metric = OtelMetrics{}
 
 type OtelMetrics struct {
-	counter           metric.Int64Counter
-	histogramRecorder metric.Float64Histogram
+	counter   metric.Int64Counter
+	histogram metric.Float64Histogram
 }
 
 func NewOtelMetrics(counter metric.Int64Counter, histogramRecorder metric.Float64Histogram) *OtelMetrics {
 	return &OtelMetrics{
-		counter:           counter,
-		histogramRecorder: histogramRecorder,
+		counter:   counter,
+		histogram: histogramRecorder,
 	}
 }
+
+// DeflautOtelMetrics 的默认实现
 func DeflautOtelMetrics(meter metric.Meter, countername, histogramname string) *OtelMetrics {
 	serverRequestCountMeasure, err := meter.Int64Counter(
 		countername,
@@ -37,7 +53,7 @@ func DeflautOtelMetrics(meter metric.Meter, countername, histogramname string) *
 	handleErr(err)
 	ometer := &OtelMetrics{}
 	ometer.counter = serverRequestCountMeasure
-	ometer.histogramRecorder = serverLatencyMeasure
+	ometer.histogram = serverLatencyMeasure
 	return ometer
 }
 
@@ -53,9 +69,9 @@ func (o OtelMetrics) Add(ctx context.Context, value int, labels []label.CwLabel)
 	return nil
 }
 
-func (o OtelMetrics) Observe(ctx context.Context, value float64, labels []label.CwLabel) error {
+func (o OtelMetrics) Record(ctx context.Context, value float64, labels []label.CwLabel) error {
 	otelLabel := label.ToOtelsFromCwLabel(labels)
-	o.histogramRecorder.Record(ctx, value, metric.WithAttributes(otelLabel...))
+	o.histogram.Record(ctx, value, metric.WithAttributes(otelLabel...))
 	return nil
 }
 func handleErr(err error) {

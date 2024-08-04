@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package hertzServer
+package promhertz
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/instrumentation/prometheus"
 	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
+	cwmetric "github.com/cloudwego-contrib/obs-opentelemetry/meter/metric"
+	"github.com/cloudwego-contrib/obs-opentelemetry/semantic"
 	"net/http"
 	"strconv"
 
@@ -49,9 +51,13 @@ func genLabels(ctx *app.RequestContext) prom.Labels {
 	return labels
 }
 
+func genCwLabels(ctx *app.RequestContext) []label.CwLabel {
+	labels := genLabels(ctx)
+	return label.ToCwLabelFromPromelabel(labels)
+}
+
 type serverTracer struct {
-	serverHandledCounter   *prom.CounterVec
-	serverHandledHistogram *prom.HistogramVec
+	promMetric *cwmetric.PrometheusMetrics
 }
 
 // Start record the beginning of server handling request from client.
@@ -71,8 +77,8 @@ func (s *serverTracer) Finish(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	cost := httpFinish.Time().Sub(httpStart.Time())
-	_ = prometheus.CounterAdd(s.serverHandledCounter, 1, genLabels(c))
-	_ = prometheus.HistogramObserve(s.serverHandledHistogram, cost, genLabels(c))
+	s.promMetric.Inc(ctx, genCwLabels(c))
+	s.promMetric.Record(ctx, float64(cost.Microseconds()), genCwLabels(c))
 }
 
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
@@ -94,7 +100,7 @@ func NewServerTracer(addr, path string, opts ...Option) tracer.Tracer {
 
 	serverHandledCounter := prom.NewCounterVec(
 		prom.CounterOpts{
-			Name: "hertz_server_throughput",
+			Name: semantic.ServerRequestCount,
 			Help: "Total number of HTTPs completed by the server, regardless of success or failure.",
 		},
 		[]string{labelMethod, labelStatusCode, labelPath},
@@ -103,21 +109,20 @@ func NewServerTracer(addr, path string, opts ...Option) tracer.Tracer {
 
 	serverHandledHistogram := prom.NewHistogramVec(
 		prom.HistogramOpts{
-			Name:    "hertz_server_latency_us",
+			Name:    semantic.ServerLatency,
 			Help:    "Latency (microseconds) of HTTP that had been application-level handled by the server.",
 			Buckets: cfg.buckets,
 		},
 		[]string{labelMethod, labelStatusCode, labelPath},
 	)
 	cfg.registry.MustRegister(serverHandledHistogram)
-
+	promMetri := cwmetric.NewPrometheusMetrics(serverHandledCounter, serverHandledHistogram)
 	if cfg.enableGoCollector {
 		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
 	}
 
 	return &serverTracer{
-		serverHandledCounter:   serverHandledCounter,
-		serverHandledHistogram: serverHandledHistogram,
+		promMetric: promMetri,
 	}
 }
 

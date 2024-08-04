@@ -17,7 +17,9 @@
 package prometheus
 
 import (
-	"github.com/cloudwego-contrib/obs-opentelemetry/instrumentation/prometheus"
+	"context"
+	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
+	"github.com/cloudwego-contrib/obs-opentelemetry/meter/metric"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -58,13 +60,17 @@ func TestPrometheusReporter(t *testing.T) {
 	)
 	registry.MustRegister(histogram)
 
-	labels := prom.Labels{
+	/*labels := prom.Labels{
 		"test1": "abc",
 		"test2": "def",
+	}*/
+	labels := []label.CwLabel{
+		label.CwLabel{Key: "test1", Value: "abc"},
+		label.CwLabel{Key: "test2", Value: "def"},
 	}
-
-	assert.True(t, prometheus.CounterAdd(counter, 6, labels) == nil)
-	assert.True(t, prometheus.HistogramObserve(histogram, time.Second, labels) == nil)
+	promMetric := metric.NewPrometheusMetrics(counter, histogram)
+	assert.True(t, promMetric.Add(context.Background(), 6, labels) == nil)
+	assert.True(t, promMetric.Record(context.Background(), float64(time.Second.Microseconds()), labels) == nil)
 
 	promServerResp, err := http.Get("http://localhost:9090/prometheus")
 	if err != nil {

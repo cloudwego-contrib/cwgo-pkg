@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package hertzServer
+package promhertz
 
 import (
 	prom "github.com/prometheus/client_golang/prometheus"

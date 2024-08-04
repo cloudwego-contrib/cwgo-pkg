@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package hertzServer
+package promhertz
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/instrumentation/prometheus"
+	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
+	cwmetric "github.com/cloudwego-contrib/obs-opentelemetry/meter/metric"
 	"io"
 	"math/rand"
 	"net/http"
@@ -96,10 +97,11 @@ func TestWithOption(t *testing.T) {
 	})
 
 	registry.MustRegister(testCounter)
-	_ = prometheus.CounterAdd(testCounter, 1, prom.Labels{
+	promMetric := cwmetric.NewPrometheusMetrics(testCounter, nil)
+	promMetric.Inc(context.Background(), label.ToCwLabelFromPromelabel(prom.Labels{
 		"test1": "test1",
 		"test2": "test2",
-	})
+	}))
 
 	h := server.Default(
 		server.WithHostPorts("127.0.0.1:8891"), server.WithTracer(

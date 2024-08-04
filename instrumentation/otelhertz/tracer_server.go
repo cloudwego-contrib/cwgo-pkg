@@ -17,6 +17,7 @@ package otelhertz
 import (
 	"context"
 	"github.com/cloudwego-contrib/obs-opentelemetry/instrumentation/internal"
+	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
 	cwmetric "github.com/cloudwego-contrib/obs-opentelemetry/meter/metric"
 	"github.com/cloudwego-contrib/obs-opentelemetry/semantic"
 	"time"
@@ -39,18 +40,14 @@ import (
 var _ tracer.Tracer = (*serverTracer)(nil)
 
 type serverTracer struct {
-	config            *Config
-	counters          map[string]metric.Int64Counter
-	histogramRecorder map[string]metric.Float64Histogram
-	metrics           cwmetric.Metric
+	config      *Config
+	otelMetrics *cwmetric.OtelMetrics
 }
 
 func NewServerTracer(opts ...Option) (serverconfig.Option, *Config) {
 	cfg := NewConfig(opts)
 	st := &serverTracer{
-		config:            cfg,
-		counters:          make(map[string]metric.Int64Counter),
-		histogramRecorder: make(map[string]metric.Float64Histogram),
+		config: cfg,
 	}
 
 	st.createMeasures()
@@ -72,9 +69,7 @@ func (s *serverTracer) createMeasures() {
 		metric.WithDescription("measures th incoming end to end duration"),
 	)
 	handleErr(err)
-
-	s.counters[semantic.ServerRequestCount] = serverRequestCountMeasure
-	s.histogramRecorder[semantic.ServerLatency] = serverLatencyMeasure
+	s.otelMetrics = cwmetric.NewOtelMetrics(serverRequestCountMeasure, serverLatencyMeasure)
 }
 
 func (s *serverTracer) Start(ctx context.Context, c *app.RequestContext) context.Context {
@@ -143,6 +138,6 @@ func (s *serverTracer) Finish(ctx context.Context, c *app.RequestContext) {
 	span.End(oteltrace.WithTimestamp(getEndTimeOrNow(ti)))
 
 	metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
-	s.counters[semantic.ServerRequestCount].Add(ctx, 1, metric.WithAttributes(metricsAttributes...))
-	s.histogramRecorder[semantic.ServerLatency].Record(ctx, elapsedTime, metric.WithAttributes(metricsAttributes...))
+	s.otelMetrics.Inc(ctx, label.ToCwLabelsFromOtels(metricsAttributes))
+	s.otelMetrics.Record(ctx, elapsedTime, label.ToCwLabelsFromOtels(metricsAttributes))
 }

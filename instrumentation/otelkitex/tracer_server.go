@@ -17,6 +17,8 @@ package otelkitex
 import (
 	"context"
 	"github.com/cloudwego-contrib/obs-opentelemetry/instrumentation/internal"
+	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
+	cwmetric "github.com/cloudwego-contrib/obs-opentelemetry/meter/metric"
 	"github.com/cloudwego-contrib/obs-opentelemetry/semantic"
 	"time"
 
@@ -24,7 +26,6 @@ import (
 	"github.com/cloudwego/kitex/pkg/stats"
 	"github.com/cloudwego/kitex/server"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	oteltrace "go.opentelemetry.io/otel/trace"
 )
@@ -32,8 +33,8 @@ import (
 var _ stats.Tracer = (*serverTracer)(nil)
 
 type serverTracer struct {
-	config            *Config
-	histogramRecorder map[string]metric.Float64Histogram
+	config      *Config
+	otelMetrics *cwmetric.OtelMetrics
 }
 
 func newServerOption(opts ...Option) (server.Option, *Config) {
@@ -50,10 +51,7 @@ func newServerOption(opts ...Option) (server.Option, *Config) {
 func (s *serverTracer) createMeasures() {
 	serverDurationMeasure, err := s.config.meter.Float64Histogram(semantic.ServerDuration)
 	handleErr(err)
-
-	s.histogramRecorder = map[string]metric.Float64Histogram{
-		semantic.ServerDuration: serverDurationMeasure,
-	}
+	s.otelMetrics = cwmetric.NewOtelMetrics(nil, serverDurationMeasure)
 }
 
 func (s *serverTracer) Start(ctx context.Context) context.Context {
@@ -114,5 +112,5 @@ func (s *serverTracer) Finish(ctx context.Context) {
 	span.End(oteltrace.WithTimestamp(getEndTimeOrNow(ri)))
 
 	metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
-	s.histogramRecorder[semantic.ServerDuration].Record(ctx, elapsedTime, metric.WithAttributes(metricsAttributes...))
+	s.otelMetrics.Record(ctx, elapsedTime, label.ToCwLabelsFromOtels(metricsAttributes))
 }
