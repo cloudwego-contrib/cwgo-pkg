@@ -16,9 +16,9 @@ package otelkitex
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
-	cwmetric "github.com/cloudwego-contrib/obs-opentelemetry/meter/metric"
-	"github.com/cloudwego-contrib/obs-opentelemetry/semantic"
+	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
+	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
+	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
 	"time"
 
 	"github.com/cloudwego/kitex/client"

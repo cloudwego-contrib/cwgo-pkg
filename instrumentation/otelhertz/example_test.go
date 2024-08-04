@@ -16,7 +16,7 @@ package otelhertz
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/instrumentation/otelhertz/testutil"
+	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/otelhertz/testutil"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/app/server"

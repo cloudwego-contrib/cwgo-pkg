@@ -16,7 +16,7 @@ package metric
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
 )
 
 type Metric interface {

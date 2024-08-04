@@ -43,7 +43,8 @@ package logrus
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+
 	"github.com/sirupsen/logrus"
 	"io"
 )

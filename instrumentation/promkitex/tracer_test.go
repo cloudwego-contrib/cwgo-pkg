@@ -18,8 +18,8 @@ package prometheus
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
-	"github.com/cloudwego-contrib/obs-opentelemetry/meter/metric"
+	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"io/ioutil"
 	"net/http"
 	"strings"

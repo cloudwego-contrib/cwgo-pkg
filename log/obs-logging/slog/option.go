@@ -15,7 +15,7 @@
 package slog
 
 import (
-	cwslog "github.com/cloudwego-contrib/obs-opentelemetry/logging/slog"
+	cwslog "github.com/cloudwego-contrib/cwgo-pkg/logging/slog"
 	"log/slog"
 )
 

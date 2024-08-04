@@ -17,8 +17,8 @@ package metric
 import (
 	"context"
 	"fmt"
-	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
-	"github.com/cloudwego-contrib/obs-opentelemetry/semantic"
+	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

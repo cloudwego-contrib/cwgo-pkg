@@ -17,7 +17,7 @@ package zap
 import (
 	"bytes"
 	"context"
-	logging "github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	logging "github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

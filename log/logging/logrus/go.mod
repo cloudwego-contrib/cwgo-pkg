@@ -1,4 +1,4 @@
-module github.com/cloudwego-contrib/obs-opentelemetry/logging/logrus
+module github.com/cloudwego-contrib/cwgo-pkg/logging/logrus
 
 go 1.21
 

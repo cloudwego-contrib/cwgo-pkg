@@ -17,7 +17,7 @@ package zerolog
 import (
 	"errors"
 
-	cwzerolog "github.com/cloudwego-contrib/obs-opentelemetry/logging/zerolog"
+	cwzerolog "github.com/cloudwego-contrib/cwgo-pkg/logging/zerolog"
 	"github.com/rs/zerolog"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"

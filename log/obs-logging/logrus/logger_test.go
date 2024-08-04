@@ -16,8 +16,8 @@ package logrus_test
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
-	cwlogrus "github.com/cloudwego-contrib/obs-opentelemetry/log/obs-logging/logrus"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+	cwlogrus "github.com/cloudwego-contrib/cwgo-pkg/log/obs-logging/logrus"
 	"testing"
 
 	"github.com/sirupsen/logrus"

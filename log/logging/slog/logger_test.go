@@ -18,7 +18,8 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+
 	"github.com/stretchr/testify/assert"
 	"log/slog"
 	"os"

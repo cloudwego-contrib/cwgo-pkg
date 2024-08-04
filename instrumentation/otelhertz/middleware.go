@@ -16,8 +16,8 @@ package otelhertz
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/instrumentation/internal"
-	"github.com/cloudwego-contrib/obs-opentelemetry/semantic"
+	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/internal"
+	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"

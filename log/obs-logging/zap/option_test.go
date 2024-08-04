@@ -17,7 +17,7 @@ package zap
 import (
 	"testing"
 
-	cwzap "github.com/cloudwego-contrib/obs-opentelemetry/logging/zap"
+	cwzap "github.com/cloudwego-contrib/cwgo-pkg/logging/zap"
 	"github.com/stretchr/testify/assert"
 )
 

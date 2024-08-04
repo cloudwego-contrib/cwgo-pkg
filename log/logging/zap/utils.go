@@ -15,7 +15,7 @@
 package zap
 
 import (
-	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

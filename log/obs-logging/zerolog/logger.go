@@ -15,7 +15,7 @@
 package zerolog
 
 import (
-	cwzerolog "github.com/cloudwego-contrib/obs-opentelemetry/logging/zerolog"
+	cwzerolog "github.com/cloudwego-contrib/cwgo-pkg/logging/zerolog"
 )
 
 type Logger struct {

@@ -15,7 +15,7 @@
 package logrus
 
 import (
-	"github.com/cloudwego-contrib/obs-opentelemetry/logging/logrus"
+	"github.com/cloudwego-contrib/cwgo-pkg/logging/logrus"
 )
 
 // Logger an alias to github.com/otelhertz-contrib/logger/logrus Logger

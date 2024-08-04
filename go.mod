@@ -1,4 +1,4 @@
-module github.com/cloudwego-contrib/obs-opentelemetry
+module github.com/cloudwego-contrib/cwgo-pkg
 
 go 1.21
 

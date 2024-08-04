@@ -17,8 +17,8 @@ package zap
 import (
 	"context"
 	"errors"
-	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
-	cwzap "github.com/cloudwego-contrib/obs-opentelemetry/logging/zap"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+	cwzap "github.com/cloudwego-contrib/cwgo-pkg/logging/zap"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"

@@ -18,8 +18,8 @@ package promhertz
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
-	cwmetric "github.com/cloudwego-contrib/obs-opentelemetry/meter/metric"
+	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
+	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"io"
 	"math/rand"
 	"net/http"

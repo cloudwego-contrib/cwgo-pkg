@@ -16,8 +16,8 @@ package metric
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
-	"github.com/cloudwego-contrib/obs-opentelemetry/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/stretchr/testify/assert"

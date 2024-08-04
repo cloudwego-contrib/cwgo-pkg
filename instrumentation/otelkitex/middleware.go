@@ -17,7 +17,7 @@ package otelkitex
 import (
 	"context"
 	"github.com/bytedance/gopkg/cloud/metainfo"
-	"github.com/cloudwego-contrib/obs-opentelemetry/instrumentation/internal"
+	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/internal"
 	"github.com/cloudwego/kitex/pkg/endpoint"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
