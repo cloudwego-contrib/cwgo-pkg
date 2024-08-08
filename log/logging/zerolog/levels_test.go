@@ -17,7 +17,7 @@
 package zerolog
 
 import (
-	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"testing"
 
 	"github.com/rs/zerolog"

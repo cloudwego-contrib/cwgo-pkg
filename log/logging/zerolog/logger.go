@@ -20,7 +20,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+
 	"io"
 	"os"
 
@@ -64,7 +65,7 @@ func GetLogger() (Logger, error) {
 		return *logger, nil
 	}
 
-	return Logger{}, errors.New("cwlog.DefaultLogger is not a zerolog logger")
+	return Logger{}, errors.New("cwlog.DefaultLogger is not a otelzerolog logger")
 }
 
 // SetLevel setting logging level for logger
@@ -91,12 +92,12 @@ func (l *Logger) WithField(key string, value interface{}) Logger {
 	return *l
 }
 
-// Unwrap returns the underlying zerolog logger
+// Unwrap returns the underlying otelzerolog logger
 func (l *Logger) Unwrap() zerolog.Logger {
 	return l.log
 }
 
-// Log log using zerolog logger with specified level
+// Log log using otelzerolog logger with specified level
 func (l *Logger) Log(level logging.Level, kvs ...interface{}) {
 	switch level {
 	case logging.LevelTrace, logging.LevelDebug:
@@ -114,7 +115,7 @@ func (l *Logger) Log(level logging.Level, kvs ...interface{}) {
 	}
 }
 
-// Logf log using zerolog logger with specified level and formatting
+// Logf log using otelzerolog logger with specified level and formatting
 func (l *Logger) Logf(level logging.Level, format string, kvs ...interface{}) {
 	switch level {
 	case logging.LevelTrace, logging.LevelDebug:

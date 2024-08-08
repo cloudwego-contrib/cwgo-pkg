@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package logrus
+package otelzap
 
 import (
-	"github.com/sirupsen/logrus"
+	cwzap "github.com/cloudwego-contrib/cwgo-pkg/logging/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-// Option logger options
 type Option interface {
 	apply(cfg *config)
 }
@@ -29,33 +29,45 @@ func (fn option) apply(cfg *config) {
 	fn(cfg)
 }
 
-type config struct {
-	logger *logrus.Logger
-	hooks  []logrus.Hook
+type traceConfig struct {
+	recordStackTraceInSpan bool
+	errorSpanLevel         zapcore.Level
 }
 
-func defaultConfig() *config {
-	// new logger
-	logger := logrus.New()
-	// default json format
-	logger.SetFormatter(new(logrus.JSONFormatter))
+type config struct {
+	logger      *cwzap.Logger
+	traceConfig *traceConfig
+}
 
+// defaultConfig default config
+func defaultConfig() *config {
 	return &config{
-		logger: logger,
-		hooks:  []logrus.Hook{},
+		traceConfig: &traceConfig{
+			recordStackTraceInSpan: true,
+			errorSpanLevel:         zapcore.ErrorLevel,
+		},
+		logger: cwzap.NewLogger(),
 	}
 }
 
 // WithLogger configures logger
-func WithLogger(logger *logrus.Logger) Option {
+func WithLogger(logger *cwzap.Logger) Option {
 	return option(func(cfg *config) {
+		logger.PutExtraKeys(extraKeys...)
 		cfg.logger = logger
 	})
 }
 
-// WithHook configures otellogrus hook
-func WithHook(hook logrus.Hook) Option {
+// WithTraceErrorSpanLevel trace error span level option
+func WithTraceErrorSpanLevel(level zapcore.Level) Option {
 	return option(func(cfg *config) {
-		cfg.hooks = append(cfg.hooks, hook)
+		cfg.traceConfig.errorSpanLevel = level
+	})
+}
+
+// WithRecordStackTraceInSpan record stack track option
+func WithRecordStackTraceInSpan(recordStackTraceInSpan bool) Option {
+	return option(func(cfg *config) {
+		cfg.traceConfig.recordStackTraceInSpan = recordStackTraceInSpan
 	})
 }

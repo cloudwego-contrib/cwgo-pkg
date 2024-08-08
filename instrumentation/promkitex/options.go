@@ -17,6 +17,7 @@
 package prometheus
 
 import (
+	"github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"net/http"
 
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -43,6 +44,8 @@ type config struct {
 	registry           *prom.Registry
 	serveMux           *http.ServeMux
 	disableServer      bool
+	counter            metric.Counter
+	recorder           metric.Recorder
 }
 
 func defaultConfig() *config {
@@ -101,5 +104,19 @@ func WithServeMux(serveMux *http.ServeMux) Option {
 func WithDisableServer(disable bool) Option {
 	return option(func(cfg *config) {
 		cfg.disableServer = disable
+	})
+}
+
+func WithCounter(counter *prom.CounterVec) Option {
+	return option(func(cfg *config) {
+		cfg.registry.Register(counter)
+		cfg.counter = metric.NewPromCounter(counter)
+	})
+}
+
+func WithRecorder(recorder *prom.HistogramVec) Option {
+	return option(func(cfg *config) {
+		cfg.registry.Register(recorder)
+		cfg.recorder = metric.NewPromRecorder(recorder)
 	})
 }

@@ -17,7 +17,7 @@
 package zerolog
 
 import (
-	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/rs/zerolog"
 )
 
@@ -42,7 +42,7 @@ var (
 	}
 )
 
-// matchHlogLevel map hlog.Level to zerolog.Level
+// matchHlogLevel map hlog.Level to otelzerolog.Level
 func matchlogLevel(level logging.Level) zerolog.Level {
 	zlvl, found := zerologLevels[level]
 
@@ -53,7 +53,7 @@ func matchlogLevel(level logging.Level) zerolog.Level {
 	return zerolog.WarnLevel // Default level
 }
 
-// matchZerologLevel map zerolog.Level to hlog.Level
+// matchZerologLevel map otelzerolog.Level to hlog.Level
 func matchZerologLevel(level zerolog.Level) logging.Level {
 	hlvl, found := hlogLevels[level]
 

@@ -12,12 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package provider
+package otellogrus
 
 import (
-	"context"
+	"testing"
+
+	"github.com/sirupsen/logrus"
 )
 
-type Provider interface {
-	Shutdown(ctx context.Context) error
+func TestOtelSeverityText(t *testing.T) {
+	type args struct {
+		lv logrus.Level
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "warn",
+			args: args{
+				lv: logrus.WarnLevel,
+			},
+			want: "WARN",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := OtelSeverityText(tt.args.lv); got != tt.want {
+				t.Errorf("OtelSeverityText() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

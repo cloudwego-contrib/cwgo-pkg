@@ -1,4 +1,4 @@
-// Copyright 2022 CloudWeGo Authors.
+// Copyright 2023 CloudWeGo Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package logrus
+package otelslog
 
 import (
-	"github.com/sirupsen/logrus"
+	cwslog "github.com/cloudwego-contrib/cwgo-pkg/logging/slog"
+	"log/slog"
 )
 
-// Option logger options
 type Option interface {
 	apply(cfg *config)
 }
@@ -30,32 +30,38 @@ func (fn option) apply(cfg *config) {
 }
 
 type config struct {
-	logger *logrus.Logger
-	hooks  []logrus.Hook
+	logger      *cwslog.Logger
+	traceConfig *traceConfig
 }
 
+// defaultConfig default config
 func defaultConfig() *config {
-	// new logger
-	logger := logrus.New()
-	// default json format
-	logger.SetFormatter(new(logrus.JSONFormatter))
-
 	return &config{
-		logger: logger,
-		hooks:  []logrus.Hook{},
+		traceConfig: &traceConfig{
+			recordStackTraceInSpan: true,
+			errorSpanLevel:         slog.LevelError,
+		},
+		logger: cwslog.NewLogger(),
 	}
 }
 
 // WithLogger configures logger
-func WithLogger(logger *logrus.Logger) Option {
+func WithLogger(logger *cwslog.Logger) Option {
 	return option(func(cfg *config) {
 		cfg.logger = logger
 	})
 }
 
-// WithHook configures otellogrus hook
-func WithHook(hook logrus.Hook) Option {
+// WithTraceErrorSpanLevel trace error span level option
+func WithTraceErrorSpanLevel(level slog.Level) Option {
 	return option(func(cfg *config) {
-		cfg.hooks = append(cfg.hooks, hook)
+		cfg.traceConfig.errorSpanLevel = level
+	})
+}
+
+// WithRecordStackTraceInSpan record stack track option
+func WithRecordStackTraceInSpan(recordStackTraceInSpan bool) Option {
+	return option(func(cfg *config) {
+		cfg.traceConfig.recordStackTraceInSpan = recordStackTraceInSpan
 	})
 }

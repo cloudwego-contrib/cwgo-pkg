@@ -12,12 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package provider
+package otellogrus
 
 import (
-	"context"
+	"github.com/cloudwego-contrib/cwgo-pkg/logging/logrus"
 )
 
-type Provider interface {
-	Shutdown(ctx context.Context) error
+// Logger an alias to github.com/otelhertz-contrib/logger/otellogrus Logger
+type Logger = logrus.Logger
+
+// NewLogger create logger with otel hook
+func NewLogger(opts ...Option) *Logger {
+	cfg := defaultConfig()
+
+	// apply options
+	for _, opt := range opts {
+		opt.apply(cfg)
+	}
+
+	// default trace hooks
+	cfg.hooks = append(cfg.hooks, NewTraceHook(cfg.traceHookConfig))
+
+	// attach hook
+	for _, hook := range cfg.hooks {
+		cfg.logger.AddHook(hook)
+	}
+
+	return logrus.NewLogger(
+		logrus.WithLogger(cfg.logger),
+	)
 }

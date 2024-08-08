@@ -24,3 +24,15 @@ type Metric interface {
 	Add(ctx context.Context, value int, labels []label.CwLabel) error
 	Record(ctx context.Context, value float64, labels []label.CwLabel) error
 }
+
+type Measure interface {
+	Counter
+	Recorder
+}
+type Counter interface {
+	Inc(ctx context.Context, labels []label.CwLabel) error
+	Add(ctx context.Context, value int, labels []label.CwLabel) error
+}
+type Recorder interface {
+	Record(ctx context.Context, value float64, labels []label.CwLabel) error
+}

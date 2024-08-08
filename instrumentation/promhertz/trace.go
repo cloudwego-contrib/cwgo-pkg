@@ -57,7 +57,7 @@ func genCwLabels(ctx *app.RequestContext) []label.CwLabel {
 }
 
 type serverTracer struct {
-	promMetric *cwmetric.PrometheusMetrics
+	promMetric cwmetric.Measure
 }
 
 // Start record the beginning of server handling request from client.
@@ -97,32 +97,38 @@ func NewServerTracer(addr, path string, opts ...Option) tracer.Tracer {
 			}
 		}()
 	}
+	if cfg.counter == nil {
+		serverHandledCounter := prom.NewCounterVec(
+			prom.CounterOpts{
+				Name: semantic.ServerRequestCount,
+				Help: "Total number of HTTPs completed by the server, regardless of success or failure.",
+			},
+			[]string{labelMethod, labelStatusCode, labelPath},
+		)
+		cfg.registry.MustRegister(serverHandledCounter)
+		cfg.counter = cwmetric.NewPromCounter(serverHandledCounter)
+	}
 
-	serverHandledCounter := prom.NewCounterVec(
-		prom.CounterOpts{
-			Name: semantic.ServerRequestCount,
-			Help: "Total number of HTTPs completed by the server, regardless of success or failure.",
-		},
-		[]string{labelMethod, labelStatusCode, labelPath},
-	)
-	cfg.registry.MustRegister(serverHandledCounter)
+	if cfg.counter == nil {
+		serverHandledHistogram := prom.NewHistogramVec(
+			prom.HistogramOpts{
+				Name:    semantic.ServerLatency,
+				Help:    "Latency (microseconds) of HTTP that had been application-level handled by the server.",
+				Buckets: cfg.buckets,
+			},
+			[]string{labelMethod, labelStatusCode, labelPath},
+		)
+		cfg.registry.MustRegister(serverHandledHistogram)
+		cfg.recorder = cwmetric.NewPromRecorder(serverHandledHistogram)
+	}
 
-	serverHandledHistogram := prom.NewHistogramVec(
-		prom.HistogramOpts{
-			Name:    semantic.ServerLatency,
-			Help:    "Latency (microseconds) of HTTP that had been application-level handled by the server.",
-			Buckets: cfg.buckets,
-		},
-		[]string{labelMethod, labelStatusCode, labelPath},
-	)
-	cfg.registry.MustRegister(serverHandledHistogram)
-	promMetri := cwmetric.NewPrometheusMetrics(serverHandledCounter, serverHandledHistogram)
+	measure := cwmetric.NewMeasure(cfg.counter, cfg.recorder)
 	if cfg.enableGoCollector {
 		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
 	}
 
 	return &serverTracer{
-		promMetric: promMetri,
+		promMetric: measure,
 	}
 }
 

@@ -31,7 +31,7 @@ import (
 	"testing"
 )
 
-// testEncoderConfig encoder config for testing, copy from zap
+// testEncoderConfig encoder config for testing, copy from otelzap
 func testEncoderConfig() zapcore.EncoderConfig {
 	return zapcore.EncoderConfig{
 		MessageKey:     "msg",
@@ -49,7 +49,7 @@ func testEncoderConfig() zapcore.EncoderConfig {
 	}
 }
 
-// humanEncoderConfig copy from zap
+// humanEncoderConfig copy from otelzap
 func humanEncoderConfig() zapcore.EncoderConfig {
 	cfg := testEncoderConfig()
 	cfg.EncodeTime = zapcore.ISO8601TimeEncoder

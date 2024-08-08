@@ -17,6 +17,7 @@
 package promhertz
 
 import (
+	"github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 )
@@ -40,6 +41,8 @@ type config struct {
 	registry           *prom.Registry
 	runtimeMetricRules []collectors.GoRuntimeMetricsRule
 	disableServer      bool
+	counter            metric.Counter
+	recorder           metric.Recorder
 }
 
 func defaultConfig() *config {
@@ -87,5 +90,19 @@ func WithRegistry(registry *prom.Registry) Option {
 		if registry != nil {
 			cfg.registry = registry
 		}
+	})
+}
+
+func WithCounter(counter *prom.CounterVec) Option {
+	return option(func(cfg *config) {
+		cfg.registry.Register(counter)
+		cfg.counter = metric.NewPromCounter(counter)
+	})
+}
+
+func WithRecorder(recorder *prom.HistogramVec) Option {
+	return option(func(cfg *config) {
+		cfg.registry.Register(recorder)
+		cfg.recorder = metric.NewPromRecorder(recorder)
 	})
 }

@@ -12,12 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package provider
+package otellogrus
 
 import (
-	"context"
+	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
-type Provider interface {
-	Shutdown(ctx context.Context) error
+// OtelSeverityText convert otellogrus level to otel severityText
+// ref to https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/data-model.md#severity-fields
+func OtelSeverityText(lv logrus.Level) string {
+	s := lv.String()
+	if s == "warning" {
+		s = "warn"
+	}
+	return strings.ToUpper(s)
 }

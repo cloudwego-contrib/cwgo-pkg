@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"testing"
 
 	"github.com/rs/zerolog"
@@ -48,7 +48,7 @@ func TestGetLogger_notSet(t *testing.T) {
 	_, err := GetLogger()
 
 	assert.Error(t, err)
-	assert.Equal(t, "hlog.DefaultLogger is not a zerolog logger", err.Error())
+	assert.Equal(t, "hlog.DefaultLogger is not a otelzerolog logger", err.Error())
 }
 
 func TestGetLogger(t *testing.T) {

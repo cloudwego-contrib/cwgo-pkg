@@ -91,7 +91,7 @@ func NewLogger(opts ...Option) *Logger {
 	}
 }
 
-// Logger slog impl
+// Logger otelslog impl
 type Logger struct {
 	l   *slog.Logger
 	cfg *config

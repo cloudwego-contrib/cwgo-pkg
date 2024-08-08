@@ -15,6 +15,7 @@
 package otelkitex
 
 import (
+	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
@@ -45,6 +46,8 @@ type Config struct {
 	textMapPropagator propagation.TextMapPropagator
 
 	recordSourceOperation bool
+	counter               cwmetric.Counter
+	recorder              cwmetric.Recorder
 }
 
 func NewConfig(opts []Option) *Config {

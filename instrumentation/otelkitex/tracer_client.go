@@ -32,8 +32,8 @@ import (
 var _ stats.Tracer = (*clientTracer)(nil)
 
 type clientTracer struct {
-	config      *Config
-	otelMetrics *cwmetric.OtelMetrics
+	config  *Config
+	measure cwmetric.Measure
 }
 
 func newClientOption(opts ...Option) (client.Option, *Config) {
@@ -48,7 +48,7 @@ func newClientOption(opts ...Option) (client.Option, *Config) {
 func (c *clientTracer) createMeasures() {
 	clientDurationMeasure, err := c.config.meter.Float64Histogram(semantic.ClientDuration)
 	handleErr(err)
-	c.otelMetrics = cwmetric.NewOtelMetrics(nil, clientDurationMeasure)
+	c.measure = cwmetric.NewMeasure(nil, cwmetric.NewOtelRecorder(clientDurationMeasure))
 }
 
 func (c *clientTracer) Start(ctx context.Context) context.Context {
@@ -105,5 +105,5 @@ func (c *clientTracer) Finish(ctx context.Context) {
 	span.End(oteltrace.WithTimestamp(getEndTimeOrNow(ri)))
 
 	metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
-	c.otelMetrics.Record(ctx, elapsedTime, label.ToCwLabelsFromOtels(metricsAttributes))
+	c.measure.Record(ctx, elapsedTime, label.ToCwLabelsFromOtels(metricsAttributes))
 }

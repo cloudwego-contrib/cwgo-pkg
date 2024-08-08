@@ -97,7 +97,7 @@ func TestWithOption(t *testing.T) {
 	})
 
 	registry.MustRegister(testCounter)
-	promMetric := cwmetric.NewPrometheusMetrics(testCounter, nil)
+	promMetric := cwmetric.NewMeasure(cwmetric.NewPromCounter(testCounter), nil)
 	promMetric.Inc(context.Background(), label.ToCwLabelFromPromelabel(prom.Labels{
 		"test1": "test1",
 		"test2": "test2",

@@ -12,12 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package provider
+package otelzap
 
 import (
-	"context"
+	"testing"
+
+	cwzap "github.com/cloudwego-contrib/cwgo-pkg/logging/zap"
+	"github.com/stretchr/testify/assert"
 )
 
-type Provider interface {
-	Shutdown(ctx context.Context) error
+func TestWithLogger(t *testing.T) {
+	l := NewLogger(WithLogger(cwzap.NewLogger()))
+	for _, v := range extraKeys {
+		assert.Contains(t, l.GetExtraKeys(), v)
+	}
 }

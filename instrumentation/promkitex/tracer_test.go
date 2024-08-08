@@ -68,9 +68,9 @@ func TestPrometheusReporter(t *testing.T) {
 		label.CwLabel{Key: "test1", Value: "abc"},
 		label.CwLabel{Key: "test2", Value: "def"},
 	}
-	promMetric := metric.NewPrometheusMetrics(counter, histogram)
-	assert.True(t, promMetric.Add(context.Background(), 6, labels) == nil)
-	assert.True(t, promMetric.Record(context.Background(), float64(time.Second.Microseconds()), labels) == nil)
+	promMeasure := metric.NewMeasure(metric.NewPromCounter(counter), metric.NewPromRecorder(histogram))
+	assert.True(t, promMeasure.Add(context.Background(), 6, labels) == nil)
+	assert.True(t, promMeasure.Record(context.Background(), float64(time.Second.Microseconds()), labels) == nil)
 
 	promServerResp, err := http.Get("http://localhost:9090/prometheus")
 	if err != nil {

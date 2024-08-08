@@ -12,30 +12,59 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package logrus_test
+package otellogrus_test
 
 import (
 	"context"
+	logrus2 "github.com/cloudwego-contrib/cwgo-pkg/instrumentation/otellogrus"
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
-
-	cwlogrus "github.com/cloudwego-contrib/cwgo-pkg/logging/logrus"
 	"testing"
 
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
+
+func stdoutProvider(ctx context.Context) func() {
+	provider := sdktrace.NewTracerProvider()
+	otel.SetTracerProvider(provider)
+
+	exp, err := stdouttrace.New()
+	if err != nil {
+		panic(err)
+	}
+
+	bsp := sdktrace.NewBatchSpanProcessor(exp)
+	provider.RegisterSpanProcessor(bsp)
+
+	return func() {
+		if err := provider.Shutdown(ctx); err != nil {
+			panic(err)
+		}
+	}
+}
 
 func TestLogger(t *testing.T) {
 	ctx := context.Background()
+	shutdown := stdoutProvider(ctx)
+	defer shutdown()
 
-	logger := cwlogrus.NewLogger(cwlogrus.WithLogger(logrus.New()))
+	logger := logrus2.NewLogger(
+		logrus2.WithTraceHookErrorSpanLevel(logrus.WarnLevel),
+		logrus2.WithTraceHookLevels(logrus.AllLevels),
+		logrus2.WithRecordStackTraceInSpan(true),
+	)
 
 	logger.Logger().Info("log from origin otellogrus")
 
 	logging.SetLogger(logger)
-	logging.SetLevel(logging.LevelError)
-	logging.SetLevel(logging.LevelWarn)
-	logging.SetLevel(logging.LevelInfo)
 	logging.SetLevel(logging.LevelDebug)
+
+	tracer := otel.Tracer("test otel std logger")
+	ctx, span := tracer.Start(ctx, "root")
+
+	logging.SetLogger(logger)
 	logging.SetLevel(logging.LevelTrace)
 
 	logging.Trace("trace")
@@ -58,4 +87,15 @@ func TestLogger(t *testing.T) {
 	logging.CtxNoticef(ctx, "log level: %s", "notice")
 	logging.CtxWarnf(ctx, "log level: %s", "warn")
 	logging.CtxErrorf(ctx, "log level: %s", "error")
+
+	span.End()
+
+	ctx, child := tracer.Start(ctx, "child")
+	logging.CtxWarnf(ctx, "foo %s", "bar")
+	child.End()
+
+	ctx, errSpan := tracer.Start(ctx, "error")
+	logging.CtxErrorf(ctx, "error %s", "this is a error")
+	logging.Info("no trace context")
+	errSpan.End()
 }

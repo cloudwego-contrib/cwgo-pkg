@@ -28,6 +28,8 @@ import (
 	"time"
 )
 
+var defaultBuckets = []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000}
+
 func TestMetrics(t *testing.T) {
 	registry := prom.NewRegistry()
 	ctx := context.Background()
@@ -64,7 +66,7 @@ func TestMetrics(t *testing.T) {
 		"test1": "abc",
 		"test2": "def",
 	}
-	prommmetric := NewPrometheusMetrics(counter, histogram)
+	prommmetric := NewMeasure(NewPromCounter(counter), NewPromRecorder(histogram))
 	assert.Nil(t, prommmetric.Add(ctx, 6, label.ToCwLabelFromPromelabel(labels)))
 	assert.Nil(t, prommmetric.Record(ctx, float64(100*time.Millisecond.Microseconds()), label.ToCwLabelFromPromelabel(labels)))
 

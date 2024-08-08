@@ -78,9 +78,7 @@ func genCwLabels(ri rpcinfo.RPCInfo) []label.CwLabel {
 }
 
 type clientTracer struct {
-	clientHandledCounter   *prom.CounterVec
-	clientHandledHistogram *prom.HistogramVec
-	promMetric             *cwmetric.PrometheusMetrics
+	measure cwmetric.Measure
 }
 
 // Start record the beginning of an RPC invocation.
@@ -103,8 +101,8 @@ func (c *clientTracer) Finish(ctx context.Context) {
 	if ri.Stats().Error() != nil {
 		extraLabels[labelKeyStatus] = statusError
 	}
-	c.promMetric.Inc(ctx, genCwLabels(ri))
-	c.promMetric.Record(ctx, float64(cost.Microseconds()), genCwLabels(ri))
+	c.measure.Inc(ctx, genCwLabels(ri))
+	c.measure.Record(ctx, float64(cost.Microseconds()), genCwLabels(ri))
 }
 
 // NewClientTracer provide tracer for client call, addr and path is the scrape_configs for prometheus server.
@@ -126,35 +124,41 @@ func NewClientTracer(addr, path string, options ...Option) stats.Tracer {
 		}()
 	}
 
-	clientHandledCounter := prom.NewCounterVec(
-		prom.CounterOpts{
-			Name: semantic.ClientThroughput,
-			Help: "Total number of RPCs completed by the client, regardless of success or failure.",
-		},
-		[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
-	)
-	cfg.registry.MustRegister(clientHandledCounter)
+	if cfg.counter == nil {
+		clientHandledCounter := prom.NewCounterVec(
+			prom.CounterOpts{
+				Name: semantic.ClientThroughput,
+				Help: "Total number of RPCs completed by the client, regardless of success or failure.",
+			},
+			[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
+		)
+		cfg.registry.MustRegister(clientHandledCounter)
+		cfg.counter = cwmetric.NewPromCounter(clientHandledCounter)
+	}
+	if cfg.recorder == nil {
+		clientHandledHistogram := prom.NewHistogramVec(
+			prom.HistogramOpts{
+				Name:    semantic.ClientDuration,
+				Help:    "Latency (microseconds) of the RPC until it is finished.",
+				Buckets: cfg.buckets,
+			},
+			[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
+		)
+		cfg.registry.MustRegister(clientHandledHistogram)
+		cfg.recorder = cwmetric.NewPromRecorder(clientHandledHistogram)
+	}
 
-	clientHandledHistogram := prom.NewHistogramVec(
-		prom.HistogramOpts{
-			Name:    semantic.ClientDuration,
-			Help:    "Latency (microseconds) of the RPC until it is finished.",
-			Buckets: cfg.buckets,
-		},
-		[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
-	)
-	cfg.registry.MustRegister(clientHandledHistogram)
 	if cfg.enableGoCollector {
 		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
 	}
-	promMetric := cwmetric.NewPrometheusMetrics(clientHandledCounter, clientHandledHistogram)
+	promMetric := cwmetric.NewMeasure(cfg.counter, cfg.recorder)
 	return &clientTracer{
-		promMetric: promMetric,
+		measure: promMetric,
 	}
 }
 
 type serverTracer struct {
-	promMetric *cwmetric.PrometheusMetrics
+	measure cwmetric.Measure
 }
 
 // Start record the beginning of server handling request from client.
@@ -179,8 +183,8 @@ func (c *serverTracer) Finish(ctx context.Context) {
 		extraLabels[labelKeyStatus] = statusError
 	}
 
-	c.promMetric.Inc(ctx, genCwLabels(ri))
-	c.promMetric.Record(ctx, float64(cost.Microseconds()), genCwLabels(ri))
+	c.measure.Inc(ctx, genCwLabels(ri))
+	c.measure.Record(ctx, float64(cost.Microseconds()), genCwLabels(ri))
 }
 
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
@@ -201,32 +205,35 @@ func NewServerTracer(addr, path string, options ...Option) stats.Tracer {
 			}
 		}()
 	}
-
-	serverHandledCounter := prom.NewCounterVec(
-		prom.CounterOpts{
-			Name: "kitex_server_throughput",
-			Help: "Total number of RPCs completed by the server, regardless of success or failure.",
-		},
-		[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
-	)
-	cfg.registry.MustRegister(serverHandledCounter)
-
-	serverHandledHistogram := prom.NewHistogramVec(
-		prom.HistogramOpts{
-			Name:    "kitex_server_latency_us",
-			Help:    "Latency (microseconds) of RPC that had been application-level handled by the server.",
-			Buckets: cfg.buckets,
-		},
-		[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
-	)
-	cfg.registry.MustRegister(serverHandledHistogram)
-
+	if cfg.counter == nil {
+		serverHandledCounter := prom.NewCounterVec(
+			prom.CounterOpts{
+				Name: "kitex_server_throughput",
+				Help: "Total number of RPCs completed by the server, regardless of success or failure.",
+			},
+			[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
+		)
+		cfg.registry.MustRegister(serverHandledCounter)
+		cfg.counter = cwmetric.NewPromCounter(serverHandledCounter)
+	}
+	if cfg.recorder == nil {
+		serverHandledHistogram := prom.NewHistogramVec(
+			prom.HistogramOpts{
+				Name:    "kitex_server_latency_us",
+				Help:    "Latency (microseconds) of RPC that had been application-level handled by the server.",
+				Buckets: cfg.buckets,
+			},
+			[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
+		)
+		cfg.registry.MustRegister(serverHandledHistogram)
+		cfg.recorder = cwmetric.NewPromRecorder(serverHandledHistogram)
+	}
 	if cfg.enableGoCollector {
 		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
 	}
-	promMetric := cwmetric.NewPrometheusMetrics(serverHandledCounter, serverHandledHistogram)
+	measure := cwmetric.NewMeasure(cfg.counter, cfg.recorder)
 	return &serverTracer{
-		promMetric: promMetric,
+		measure: measure,
 	}
 }
 

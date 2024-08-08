@@ -40,8 +40,8 @@ import (
 var _ tracer.Tracer = (*serverTracer)(nil)
 
 type serverTracer struct {
-	config      *Config
-	otelMetrics *cwmetric.OtelMetrics
+	config  *Config
+	measure cwmetric.Measure
 }
 
 func NewServerTracer(opts ...Option) (serverconfig.Option, *Config) {
@@ -69,7 +69,7 @@ func (s *serverTracer) createMeasures() {
 		metric.WithDescription("measures th incoming end to end duration"),
 	)
 	handleErr(err)
-	s.otelMetrics = cwmetric.NewOtelMetrics(serverRequestCountMeasure, serverLatencyMeasure)
+	s.measure = cwmetric.NewMeasure(cwmetric.NewOtelCounter(serverRequestCountMeasure), cwmetric.NewOtelRecorder(serverLatencyMeasure))
 }
 
 func (s *serverTracer) Start(ctx context.Context, c *app.RequestContext) context.Context {
@@ -138,6 +138,6 @@ func (s *serverTracer) Finish(ctx context.Context, c *app.RequestContext) {
 	span.End(oteltrace.WithTimestamp(getEndTimeOrNow(ti)))
 
 	metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
-	s.otelMetrics.Inc(ctx, label.ToCwLabelsFromOtels(metricsAttributes))
-	s.otelMetrics.Record(ctx, elapsedTime, label.ToCwLabelsFromOtels(metricsAttributes))
+	s.measure.Inc(ctx, label.ToCwLabelsFromOtels(metricsAttributes))
+	s.measure.Record(ctx, elapsedTime, label.ToCwLabelsFromOtels(metricsAttributes))
 }

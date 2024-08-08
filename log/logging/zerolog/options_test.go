@@ -18,7 +18,8 @@ package zerolog
 
 import (
 	"bytes"
-	"github.com/cloudwego-contrib/obs-opentelemetry/log/logging"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+
 	"path/filepath"
 	"strings"
 	"testing"

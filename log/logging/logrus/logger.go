@@ -51,7 +51,7 @@ import (
 
 var _ logging.FullLogger = (*Logger)(nil)
 
-// Logger logrus impl
+// Logger otellogrus impl
 type Logger struct {
 	l *logrus.Logger
 }
