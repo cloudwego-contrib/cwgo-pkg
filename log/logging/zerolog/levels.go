@@ -32,7 +32,7 @@ var (
 		logging.LevelFatal:  zerolog.FatalLevel,
 	}
 
-	hlogLevels = map[zerolog.Level]logging.Level{
+	logginglevel = map[zerolog.Level]logging.Level{
 		zerolog.TraceLevel: logging.LevelTrace,
 		zerolog.DebugLevel: logging.LevelDebug,
 		zerolog.InfoLevel:  logging.LevelInfo,
@@ -55,7 +55,7 @@ func matchlogLevel(level logging.Level) zerolog.Level {
 
 // matchZerologLevel map otelzerolog.Level to hlog.Level
 func matchZerologLevel(level zerolog.Level) logging.Level {
-	hlvl, found := hlogLevels[level]
+	hlvl, found := logginglevel[level]
 
 	if found {
 		return hlvl

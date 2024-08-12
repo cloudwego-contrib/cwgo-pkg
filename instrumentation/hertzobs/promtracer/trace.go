@@ -17,7 +17,6 @@
 package promtracer
 
 import (
-	"context"
 	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs"
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
@@ -30,7 +29,6 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/tracer"
-	"github.com/cloudwego/hertz/pkg/common/tracer/stats"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 )
@@ -55,32 +53,6 @@ func genLabels(ctx *app.RequestContext) prom.Labels {
 func genCwLabels(ctx *app.RequestContext) []label.CwLabel {
 	labels := genLabels(ctx)
 	return label.ToCwLabelFromPromelabel(labels)
-}
-
-type serverTracer struct {
-	promMetric cwmetric.Measure
-}
-
-// Start record the beginning of server handling request from client.
-func (s *serverTracer) Start(ctx context.Context, c *app.RequestContext) context.Context {
-	return ctx
-}
-
-// Finish record the ending of server handling request from client.
-func (s *serverTracer) Finish(ctx context.Context, c *app.RequestContext) {
-	if c.GetTraceInfo().Stats().Level() == stats.LevelDisabled {
-		return
-	}
-
-	httpStart := c.GetTraceInfo().Stats().GetEvent(stats.HTTPStart)
-	httpFinish := c.GetTraceInfo().Stats().GetEvent(stats.HTTPFinish)
-	if httpFinish == nil || httpStart == nil {
-		return
-	}
-	cost := httpFinish.Time().Sub(httpStart.Time())
-
-	s.promMetric.Inc(ctx, genCwLabels(c))
-	s.promMetric.Record(ctx, float64(cost.Microseconds()), genCwLabels(c))
 }
 
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
