@@ -69,7 +69,7 @@ func getWriteSyncer(file string) zapcore.WriteSyncer {
 	return zapcore.AddSync(f)
 }
 
-// TestLogger test logger work with otelhertz
+// TestLogger test logger work with hertzobs
 func TestLogger(t *testing.T) {
 	buf := new(bytes.Buffer)
 

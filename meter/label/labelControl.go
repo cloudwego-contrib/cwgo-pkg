@@ -11,34 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
 
-package otellogrus
+package label
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/logging/logrus"
+	"context"
 )
 
-// Logger an alias to github.com/hertzobs-contrib/logger/otellogrus Logger
-type Logger = logrus.Logger
-
-// NewLogger create logger with otel hook
-func NewLogger(opts ...Option) *Logger {
-	cfg := defaultConfig()
-
-	// apply options
-	for _, opt := range opts {
-		opt.apply(cfg)
-	}
-
-	// default trace hooks
-	cfg.hooks = append(cfg.hooks, NewTraceHook(cfg.traceHookConfig))
-
-	// attach hook
-	for _, hook := range cfg.hooks {
-		cfg.logger.AddHook(hook)
-	}
-
-	return logrus.NewLogger(
-		logrus.WithLogger(cfg.logger),
-	)
+type LabelControl interface {
+	InjectLabels(ctx context.Context) context.Context
+	ExtractLabels(ctx context.Context) []CwLabel
 }

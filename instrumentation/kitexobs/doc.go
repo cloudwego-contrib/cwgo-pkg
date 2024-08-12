@@ -1,4 +1,4 @@
-// Copyright 2023 CloudWeGo Authors.
+// Copyright 2022 CloudWeGo Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,22 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package metric
-
-import (
-	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
-)
-
-type Measure interface {
-	Counter
-	Recorder
-	label.LabelControl
-}
-type Counter interface {
-	Inc(ctx context.Context, labels []label.CwLabel) error
-	Add(ctx context.Context, value int, labels []label.CwLabel) error
-}
-type Recorder interface {
-	Record(ctx context.Context, value float64, labels []label.CwLabel) error
-}
+// Package kitexobs provides the otel kitexobs & meter implement of tracer
+package kitexobs

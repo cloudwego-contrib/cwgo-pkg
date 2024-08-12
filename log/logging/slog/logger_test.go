@@ -34,10 +34,10 @@ const (
 	noticeMsg   = "this is a notice log"
 	errorMsg    = "this is a error log"
 	fatalMsg    = "this is a fatal log"
-	logFileName = "otelhertz.log"
+	logFileName = "hertzobs.log"
 )
 
-// TestLogger test logger work with otelhertz
+// TestLogger test logger work with hertzobs
 func TestLogger(t *testing.T) {
 	buf := new(bytes.Buffer)
 	logger := NewLogger()
@@ -183,7 +183,7 @@ func TestWithoutLevel(t *testing.T) {
 	logging.SetLogger(logger)
 	logging.SetOutput(buf)
 
-	logging.CtxInfof(context.TODO(), "hello %s", "otelhertz")
+	logging.CtxInfof(context.TODO(), "hello %s", "hertzobs")
 	assert.Contains(t, buf.String(), "source")
 }
 

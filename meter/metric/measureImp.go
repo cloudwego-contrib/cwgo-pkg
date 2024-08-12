@@ -8,12 +8,14 @@ import (
 type MeasureImpl struct {
 	counter  Counter
 	recorder Recorder
+	label.LabelControl
 }
 
-func NewMeasure(counter Counter, recorder Recorder) Measure {
+func NewMeasure(counter Counter, recorder Recorder, labelcontrol label.LabelControl) Measure {
 	return &MeasureImpl{
-		counter:  counter,
-		recorder: recorder,
+		counter:      counter,
+		recorder:     recorder,
+		LabelControl: labelcontrol,
 	}
 }
 
@@ -29,4 +31,11 @@ func (m *MeasureImpl) Add(ctx context.Context, value int, labels []label.CwLabel
 // Recorder interface implementation
 func (m *MeasureImpl) Record(ctx context.Context, value float64, labels []label.CwLabel) error {
 	return m.recorder.Record(ctx, value, labels)
+}
+
+func (m *MeasureImpl) InjectLabels(ctx context.Context) context.Context {
+	return m.LabelControl.InjectLabels(ctx)
+}
+func (m *MeasureImpl) ExtractLabels(ctx context.Context) []label.CwLabel {
+	return m.ExtractLabels(ctx)
 }
