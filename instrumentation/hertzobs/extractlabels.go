@@ -17,7 +17,6 @@ package hertzobs
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs/oteltracer"
 	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/internal"
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
@@ -37,11 +36,11 @@ var _ label.LabelControl = OtelLabelControl{}
 
 type OtelLabelControl struct {
 	tracer                   trace.Tracer
-	shouldIgnore             oteltracer.ConditionFunc
+	shouldIgnore             ConditionFunc
 	serverHttpRouteFormatter func(c *app.RequestContext) string
 }
 
-func NewOtelLabelControl(tracer trace.Tracer, shouldIgnore oteltracer.ConditionFunc, serverHttpRouteFormatter func(c *app.RequestContext) string) OtelLabelControl {
+func NewOtelLabelControl(tracer trace.Tracer, shouldIgnore ConditionFunc, serverHttpRouteFormatter func(c *app.RequestContext) string) OtelLabelControl {
 	return OtelLabelControl{
 		tracer:                   tracer,
 		shouldIgnore:             shouldIgnore,

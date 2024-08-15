@@ -17,7 +17,6 @@ package hertzobs
 import (
 	"context"
 	"github.com/bytedance/gopkg/cloud/metainfo"
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs/oteltracer"
 	"reflect"
 	"testing"
 
@@ -41,7 +40,7 @@ func TestExtract(t *testing.T) {
 
 	type args struct {
 		ctx      context.Context
-		c        *oteltracer.Config
+		c        *Config
 		metadata *protocol.RequestHeader
 	}
 	tests := []struct {
@@ -54,7 +53,7 @@ func TestExtract(t *testing.T) {
 			name: "extract successful",
 			args: args{
 				ctx:      ctx,
-				c:        oteltracer.DefaultConfig(),
+				c:        DefaultConfig(),
 				metadata: headers,
 			},
 			want:  bags,
@@ -75,7 +74,7 @@ func TestExtract(t *testing.T) {
 }
 
 func TestInject(t *testing.T) {
-	cfg := oteltracer.NewConfig([]oteltracer.Option{oteltracer.WithTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+	cfg := NewConfig([]Option{WithTextMapPropagator(propagation.NewCompositeTextMapPropagator(
 		b3.New(),
 		ot.OT{},
 		propagation.Baggage{},
@@ -97,7 +96,7 @@ func TestInject(t *testing.T) {
 
 	type args struct {
 		ctx      context.Context
-		c        *oteltracer.Config
+		c        *Config
 		metadata *protocol.RequestHeader
 	}
 	tests := []struct {

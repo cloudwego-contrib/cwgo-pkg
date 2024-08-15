@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package oteltracer
+package kitexobs
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/kitexobs"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
@@ -60,12 +59,12 @@ func NewConfig(opts []Option) *Config {
 
 	cfg.meter = cfg.meterProvider.Meter(
 		instrumentationName,
-		metric.WithInstrumentationVersion(kitexobs.SemVersion()),
+		metric.WithInstrumentationVersion(SemVersion()),
 	)
 
 	cfg.tracer = cfg.tracerProvider.Tracer(
 		instrumentationName,
-		trace.WithInstrumentationVersion(kitexobs.SemVersion()),
+		trace.WithInstrumentationVersion(SemVersion()),
 	)
 
 	return cfg

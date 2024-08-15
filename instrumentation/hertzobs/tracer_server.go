@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package oteltracer
+package hertzobs
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -27,7 +25,7 @@ import (
 
 func NewServerTracer(opts ...Option) (serverconfig.Option, *Config) {
 	cfg := NewConfig(opts)
-	st := &hertzobs.HertzTracer{}
+	st := &HertzTracer{}
 
 	serverRequestCountMeasure, err := cfg.meter.Int64Counter(
 		semantic.ServerRequestCount,
@@ -42,14 +40,8 @@ func NewServerTracer(opts ...Option) (serverconfig.Option, *Config) {
 		metric.WithDescription("measures th incoming end to end duration"),
 	)
 	handleErr(err)
-	labelControl := hertzobs.NewOtelLabelControl(cfg.tracer, cfg.shouldIgnore, cfg.serverHttpRouteFormatter)
+	labelControl := NewOtelLabelControl(cfg.tracer, cfg.shouldIgnore, cfg.serverHttpRouteFormatter)
 	st.Measure = cwmetric.NewMeasure(cwmetric.NewOtelCounter(serverRequestCountMeasure), cwmetric.NewOtelRecorder(serverLatencyMeasure), labelControl)
 
 	return server.WithTracer(st), cfg
-}
-
-func handleErr(err error) {
-	if err != nil {
-		otel.Handle(err)
-	}
 }

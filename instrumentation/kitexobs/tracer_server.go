@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package oteltracer
+package kitexobs
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/kitexobs"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
 	"github.com/cloudwego/kitex/server"
@@ -23,10 +22,10 @@ import (
 
 func NewServerOption(opts ...Option) (server.Option, *Config) {
 	cfg := NewConfig(opts)
-	st := &kitexobs.KitexTracer{}
+	st := &KitexTracer{}
 	serverDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ServerDuration)
-	kitexobs.HandleErr(err)
-	labelcontrol := kitexobs.NewOtelLabelControl(cfg.tracer, cfg.recordSourceOperation)
+	HandleErr(err)
+	labelcontrol := NewOtelLabelControl(cfg.tracer, cfg.recordSourceOperation)
 	st.Measure = cwmetric.NewMeasure(nil, cwmetric.NewOtelRecorder(serverDurationMeasure), labelcontrol)
 
 	return server.WithTracer(st), cfg

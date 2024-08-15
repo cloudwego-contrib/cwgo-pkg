@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package oteltracer
+package hertzobs
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"go.opentelemetry.io/otel"
@@ -71,12 +70,12 @@ func NewConfig(opts []Option) *Config {
 
 	cfg.meter = cfg.meterProvider.Meter(
 		instrumentationName,
-		metric.WithInstrumentationVersion(hertzobs.SemVersion()),
+		metric.WithInstrumentationVersion(SemVersion()),
 	)
 
 	cfg.tracer = cfg.tracerProvider.Tracer(
 		instrumentationName,
-		trace.WithInstrumentationVersion(hertzobs.SemVersion()),
+		trace.WithInstrumentationVersion(SemVersion()),
 	)
 
 	return cfg

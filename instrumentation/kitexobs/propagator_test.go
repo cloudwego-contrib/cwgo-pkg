@@ -16,7 +16,6 @@ package kitexobs
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/kitexobs/oteltracer"
 	"reflect"
 	"testing"
 
@@ -38,7 +37,7 @@ func TestExtract(t *testing.T) {
 
 	type args struct {
 		ctx      context.Context
-		c        *oteltracer.Config
+		c        *Config
 		metadata map[string]string
 	}
 	tests := []struct {
@@ -51,7 +50,7 @@ func TestExtract(t *testing.T) {
 			name: "extract successful",
 			args: args{
 				ctx: ctx,
-				c:   oteltracer.DefaultConfig(),
+				c:   DefaultConfig(),
 				metadata: map[string]string{
 					"foo": "bar",
 				},
@@ -74,7 +73,7 @@ func TestExtract(t *testing.T) {
 }
 
 func TestInject(t *testing.T) {
-	cfg := oteltracer.NewConfig([]oteltracer.Option{oteltracer.WithTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+	cfg := NewConfig([]Option{WithTextMapPropagator(propagation.NewCompositeTextMapPropagator(
 		b3.New(),
 		ot.OT{},
 		propagation.Baggage{},
@@ -96,7 +95,7 @@ func TestInject(t *testing.T) {
 
 	type args struct {
 		ctx      context.Context
-		c        *oteltracer.Config
+		c        *Config
 		metadata map[string]string
 	}
 	tests := []struct {

@@ -16,8 +16,6 @@ package kitexobs
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/kitexobs/oteltracer"
-
 	"github.com/bytedance/gopkg/cloud/metainfo"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/baggage"
@@ -54,12 +52,12 @@ func (m *metadataProvider) Keys() []string {
 }
 
 // Inject injects span context into the kitexobs metadata info
-func Inject(ctx context.Context, c *oteltracer.Config, metadata map[string]string) {
+func Inject(ctx context.Context, c *Config, metadata map[string]string) {
 	c.GetTextMapPropagator().Inject(ctx, &metadataProvider{metadata: metadata})
 }
 
 // Extract returns the baggage and span context
-func Extract(ctx context.Context, c *oteltracer.Config, metadata map[string]string) (baggage.Baggage, trace.SpanContext) {
+func Extract(ctx context.Context, c *Config, metadata map[string]string) (baggage.Baggage, trace.SpanContext) {
 	ctx = c.GetTextMapPropagator().Extract(ctx, &metadataProvider{metadata: CGIVariableToHTTPHeaderMetadata(metadata)})
 	return baggage.FromContext(ctx), trace.SpanContextFromContext(ctx)
 }

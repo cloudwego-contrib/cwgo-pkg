@@ -18,7 +18,6 @@ import (
 	"context"
 	"github.com/bytedance/gopkg/cloud/metainfo"
 	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/internal"
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/kitexobs/oteltracer"
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego/kitex/pkg/endpoint"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -29,7 +28,7 @@ import (
 )
 
 // ClientMiddleware inject span context into req meta
-func ClientMiddleware(cfg *oteltracer.Config) endpoint.Middleware {
+func ClientMiddleware(cfg *Config) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, req, resp interface{}) (err error) {
 			span := oteltrace.SpanFromContext(ctx)
@@ -54,7 +53,7 @@ func ClientMiddleware(cfg *oteltracer.Config) endpoint.Middleware {
 }
 
 // ServerMiddleware extract req meta into span context
-func ServerMiddleware(cfg *oteltracer.Config) endpoint.Middleware {
+func ServerMiddleware(cfg *Config) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, req, resp interface{}) (err error) {
 			tc := internal.TraceCarrierFromContext(ctx)

@@ -16,7 +16,6 @@ package hertzobs
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs/oteltracer"
 	"net/http"
 	"testing"
 	"time"
@@ -34,7 +33,7 @@ import (
 func TestServerMiddleware(t *testing.T) {
 	sr := tracetest.NewSpanRecorder()
 	otel.SetTracerProvider(sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(sr)))
-	tracer, cfg := oteltracer.NewServerTracer(oteltracer.WithCustomResponseHandler(func(c context.Context, ctx *app.RequestContext) {
+	tracer, cfg := NewServerTracer(WithCustomResponseHandler(func(c context.Context, ctx *app.RequestContext) {
 		ctx.Header("trace-id", oteltrace.SpanFromContext(c).SpanContext().TraceID().String())
 	}))
 	h := server.Default(tracer, server.WithHostPorts("127.0.0.1:6666"))
@@ -52,7 +51,7 @@ func TestServerMiddleware(t *testing.T) {
 func TestServerMiddlewareDisableTrace(t *testing.T) {
 	sr := tracetest.NewSpanRecorder()
 	otel.SetTracerProvider(sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(sr)))
-	tracer, cfg := oteltracer.NewServerTracer(oteltracer.WithCustomResponseHandler(func(c context.Context, ctx *app.RequestContext) {
+	tracer, cfg := NewServerTracer(WithCustomResponseHandler(func(c context.Context, ctx *app.RequestContext) {
 		ctx.Header("trace-id", oteltrace.SpanFromContext(c).SpanContext().TraceID().String())
 	}))
 	h := server.Default(tracer,

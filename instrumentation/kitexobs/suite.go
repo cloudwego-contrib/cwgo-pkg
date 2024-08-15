@@ -15,7 +15,6 @@
 package kitexobs
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/kitexobs/oteltracer"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/server"
@@ -44,8 +43,8 @@ func (s *serverSuite) Options() []server.Option {
 }
 
 // NewClientSuite client suite for otel with http2 and ttheader meta handler
-func NewClientSuite(opts ...oteltracer.Option) *clientSuite {
-	clientOpts, cfg := oteltracer.NewClientOption(opts...)
+func NewClientSuite(opts ...Option) *clientSuite {
+	clientOpts, cfg := NewClientOption(opts...)
 	cOpts := []client.Option{
 		clientOpts,
 		client.WithMiddleware(ClientMiddleware(cfg)),
@@ -57,8 +56,8 @@ func NewClientSuite(opts ...oteltracer.Option) *clientSuite {
 }
 
 // NewServerSuite server suite for otel with http2 and ttheader meta handler
-func NewServerSuite(opts ...oteltracer.Option) *serverSuite {
-	serverOpts, cfg := oteltracer.NewServerOption(opts...)
+func NewServerSuite(opts ...Option) *serverSuite {
+	serverOpts, cfg := NewServerOption(opts...)
 	sOpts := []server.Option{
 		serverOpts,
 		server.WithMiddleware(ServerMiddleware(cfg)),
@@ -70,8 +69,8 @@ func NewServerSuite(opts ...oteltracer.Option) *serverSuite {
 }
 
 // Deprecated: Use NewServerSuite instead.
-func NewGRPCServerSuite(opts ...oteltracer.Option) *serverSuite {
-	serverOpts, cfg := oteltracer.NewServerOption(opts...)
+func NewGRPCServerSuite(opts ...Option) *serverSuite {
+	serverOpts, cfg := NewServerOption(opts...)
 	sOpts := []server.Option{
 		serverOpts,
 		server.WithMiddleware(ServerMiddleware(cfg)),
@@ -82,8 +81,8 @@ func NewGRPCServerSuite(opts ...oteltracer.Option) *serverSuite {
 }
 
 // Deprecated: Use NewClientSuite instead.
-func NewGRPCClientSuite(opts ...oteltracer.Option) *clientSuite {
-	clientOpts, cfg := oteltracer.NewClientOption(opts...)
+func NewGRPCClientSuite(opts ...Option) *clientSuite {
+	clientOpts, cfg := NewClientOption(opts...)
 	cOpts := []client.Option{
 		clientOpts,
 		client.WithMiddleware(ClientMiddleware(cfg)),
@@ -95,8 +94,8 @@ func NewGRPCClientSuite(opts ...oteltracer.Option) *clientSuite {
 }
 
 // Deprecated: Use NewClientSuite instead.
-func NewFramedClientSuite(opts ...oteltracer.Option) *clientSuite {
-	clientOpts, cfg := oteltracer.NewClientOption(opts...)
+func NewFramedClientSuite(opts ...Option) *clientSuite {
+	clientOpts, cfg := NewClientOption(opts...)
 	cOpts := []client.Option{
 		clientOpts,
 		client.WithMiddleware(ClientMiddleware(cfg)),

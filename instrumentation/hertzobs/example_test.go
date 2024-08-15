@@ -16,7 +16,6 @@ package hertzobs
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs/oteltracer"
 	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs/testutil"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/client"
@@ -40,7 +39,7 @@ func TestMetricsExample(t *testing.T) {
 	otel.SetMeterProvider(meterProvider)
 
 	// server example
-	tracer, cfg := oteltracer.NewServerTracer()
+	tracer, cfg := NewServerTracer()
 	h := server.Default(tracer, server.WithHostPorts(":39888"))
 	h.Use(ServerMiddleware(cfg))
 	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {

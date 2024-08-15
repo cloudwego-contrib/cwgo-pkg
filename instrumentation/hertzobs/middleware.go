@@ -16,7 +16,7 @@ package hertzobs
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs/oteltracer"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/internal"
 	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
 	"time"
@@ -47,12 +47,24 @@ func (sh *StringHeader) Visit(f func(k, v string)) {
 		})
 }
 
-func ClientMiddleware(opts ...oteltracer.Option) client.Middleware {
-	cfg := oteltracer.NewConfig(opts)
+func ClientMiddleware(opts ...Option) client.Middleware {
+	cfg := NewConfig(opts)
 	histogramRecorder := make(map[string]metric.Float64Histogram)
 	counters := make(map[string]metric.Int64Counter)
 
-	clientRequestCountMeasure, clientLatencyMeasure := oteltracer.ClientCounter(cfg)
+	clientRequestCountMeasure, err := cfg.meter.Int64Counter(
+		semantic.ClientRequestCount,
+		metric.WithUnit("count"),
+		metric.WithDescription("measures the client request count total"),
+	)
+	handleErr(err)
+
+	clientLatencyMeasure, err := cfg.meter.Float64Histogram(
+		semantic.ClientLatency,
+		metric.WithUnit("ms"),
+		metric.WithDescription("measures the duration outbound HTTP requests"),
+	)
+	handleErr(err)
 
 	counters[semantic.ClientRequestCount] = clientRequestCountMeasure
 	histogramRecorder[semantic.ClientLatency] = clientLatencyMeasure
@@ -64,7 +76,13 @@ func ClientMiddleware(opts ...oteltracer.Option) client.Middleware {
 			}
 
 			// trace start
-			ctx, span, startTime := oteltracer.SpanFromReq(cfg, ctx, req)
+			start := time.Now()
+			ctx, span := cfg.tracer.Start(
+				ctx,
+				cfg.clientSpanNameFormatter(req),
+				oteltrace.WithTimestamp(start),
+				oteltrace.WithSpanKind(oteltrace.SpanKindClient),
+			)
 			defer span.End()
 
 			// inject client service resource attributes (canonical service) to meta map
@@ -82,7 +100,7 @@ func ClientMiddleware(opts ...oteltracer.Option) client.Middleware {
 			if httpReq, err := adaptor.GetCompatRequest(req); err == nil {
 				span.SetAttributes(semconv.NetAttributesFromHTTPRequest("tcp", httpReq)...)
 				span.SetAttributes(semconv.EndUserAttributesFromHTTPRequest(httpReq)...)
-				span.SetAttributes(semconv.HTTPServerAttributesFromHTTPRequest("", oteltracer.GetClientSpanNameFormatter(cfg, req), httpReq)...)
+				span.SetAttributes(semconv.HTTPServerAttributesFromHTTPRequest("", cfg.clientSpanNameFormatter(req), httpReq)...)
 			}
 
 			// span attributes
@@ -106,7 +124,7 @@ func ClientMiddleware(opts ...oteltracer.Option) client.Middleware {
 			counters[semantic.ClientRequestCount].Add(ctx, 1, metric.WithAttributes(metricsAttributes...))
 			histogramRecorder[semantic.ClientLatency].Record(
 				ctx,
-				float64(time.Since(startTime))/float64(time.Millisecond),
+				float64(time.Since(start))/float64(time.Millisecond),
 				metric.WithAttributes(metricsAttributes...),
 			)
 
@@ -115,9 +133,9 @@ func ClientMiddleware(opts ...oteltracer.Option) client.Middleware {
 	}
 }
 
-func ServerMiddleware(cfg *oteltracer.Config) app.HandlerFunc {
+func ServerMiddleware(cfg *Config) app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
-		if oteltracer.ShouldIgnore(cfg, ctx, c) {
+		if cfg.shouldIgnore(ctx, c) {
 			c.Next(ctx)
 			return
 		}
@@ -149,7 +167,7 @@ func ServerMiddleware(cfg *oteltracer.Config) app.HandlerFunc {
 		// set baggage
 		ctx = baggage.ContextWithBaggage(ctx, bags)
 
-		ctx, span := sTracer.Start(oteltrace.ContextWithRemoteSpanContext(ctx, spanCtx), oteltracer.GetServerSpanNameFormatter(cfg, c), opts...)
+		ctx, span := sTracer.Start(oteltrace.ContextWithRemoteSpanContext(ctx, spanCtx), cfg.serverSpanNameFormatter(c), opts...)
 
 		// peer service attributes
 		span.SetAttributes(peerServiceAttributes...)
@@ -159,6 +177,9 @@ func ServerMiddleware(cfg *oteltracer.Config) app.HandlerFunc {
 
 		c.Next(ctx)
 
-		oteltracer.HandleCustomResponseHandlere(cfg, ctx, c)
+		if cfg.customResponseHandler != nil {
+			// execute custom response handler
+			cfg.customResponseHandler(ctx, c)
+		}
 	}
 }

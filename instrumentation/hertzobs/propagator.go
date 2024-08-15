@@ -16,7 +16,6 @@ package hertzobs
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs/oteltracer"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"go.opentelemetry.io/otel/baggage"
 	"go.opentelemetry.io/otel/propagation"
@@ -52,12 +51,12 @@ func (m *metadataProvider) Keys() []string {
 }
 
 // Inject injects span context into the hertzobs metadata info
-func Inject(ctx context.Context, c *oteltracer.Config, headers *protocol.RequestHeader) {
+func Inject(ctx context.Context, c *Config, headers *protocol.RequestHeader) {
 	c.GetTextMapPropagator().Inject(ctx, &metadataProvider{headers: headers})
 }
 
 // Extract returns the baggage and span context
-func Extract(ctx context.Context, c *oteltracer.Config, headers *protocol.RequestHeader) (baggage.Baggage, trace.SpanContext) {
+func Extract(ctx context.Context, c *Config, headers *protocol.RequestHeader) (baggage.Baggage, trace.SpanContext) {
 	ctx = c.GetTextMapPropagator().Extract(ctx, &metadataProvider{headers: headers})
 	return baggage.FromContext(ctx), trace.SpanContextFromContext(ctx)
 }
