@@ -44,7 +44,7 @@ type HertzTracer struct {
 
 func (h HertzTracer) Start(ctx context.Context, c *app.RequestContext) context.Context {
 	context.WithValue(ctx, requestContextKey, c)
-	return h.Measure.InjectLabels(ctx)
+	return h.Measure.ProcessAndInjectLabels(ctx)
 }
 
 func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
@@ -61,7 +61,7 @@ func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	elapsedTime := float64(st.GetEvent(stats.HTTPFinish).Time().Sub(httpStart.Time())) / float64(time.Millisecond)
-	labels := h.Measure.ExtractLabels(ctx)
+	labels := h.Measure.ProcessAndExtractLabels(ctx)
 
 	h.Measure.Inc(ctx, labels)
 	h.Measure.Record(ctx, elapsedTime, labels)

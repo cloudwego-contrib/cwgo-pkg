@@ -18,23 +18,13 @@ import (
 	"context"
 	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
 	"github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
-	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
-)
-
-const (
-	labelKeyCaller = semantic.LabelKeyCaller
-	labelKeyMethod = semantic.LabelMethodProm
-	labelKeyCallee = semantic.LabelKeyCallee
-	labelKeyStatus = semantic.LabelKeyStatus
-	labelKeyRetry  = semantic.LabelKeyRetry
 )
 
 func TestPromProvider(t *testing.T) {
@@ -59,7 +49,6 @@ func TestPromProvider(t *testing.T) {
 	registry.MustRegister(histogram)
 
 	mux := http.NewServeMux()
-	mux.Handle("/prometheus", promhttp.HandlerFor(registry, promhttp.HandlerOpts{ErrorHandling: promhttp.ContinueOnError}))
 
 	measure := metric.NewMeasure(metric.NewPromCounter(counter), metric.NewPromRecorder(histogram), nil)
 	provider := NewPromProvider(":9090",
@@ -70,8 +59,8 @@ func TestPromProvider(t *testing.T) {
 	defer provider.Shutdown(context.Background())
 	//assert.NoError(t, err, "Failed to register opsProcessed counter")
 	labels := []label.CwLabel{
-		label.CwLabel{Key: "test1", Value: "abc"},
-		label.CwLabel{Key: "test2", Value: "def"},
+		{Key: "test1", Value: "abc"},
+		{Key: "test2", Value: "def"},
 	}
 	// 模拟一些处理
 	assert.True(t, measure.Add(context.Background(), 6, labels) == nil)

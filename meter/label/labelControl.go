@@ -20,6 +20,6 @@ import (
 )
 
 type LabelControl interface {
-	InjectLabels(ctx context.Context) context.Context
-	ExtractLabels(ctx context.Context) []CwLabel
+	ProcessAndInjectLabels(ctx context.Context) context.Context
+	ProcessAndExtractLabels(ctx context.Context) []CwLabel
 }

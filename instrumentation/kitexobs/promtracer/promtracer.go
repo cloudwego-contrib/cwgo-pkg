@@ -21,13 +21,8 @@ import (
 	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/kitexobs"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
-	prom "github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/collectors"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"log"
-	"net/http"
-
 	"github.com/cloudwego/kitex/pkg/stats"
+	prom "github.com/prometheus/client_golang/prometheus"
 )
 
 // Labels
@@ -40,22 +35,10 @@ const (
 )
 
 // NewClientTracer provide tracer for client call, addr and path is the scrape_configs for prometheus server.
-func NewClientTracer(addr, path string, options ...Option) stats.Tracer {
+func NewClientTracer(options ...Option) stats.Tracer {
 	cfg := defaultConfig()
 	for _, opt := range options {
 		opt.apply(cfg)
-	}
-
-	if !cfg.disableServer {
-		cfg.serveMux.Handle(path, promhttp.HandlerFor(cfg.registry, promhttp.HandlerOpts{
-			ErrorHandling: promhttp.ContinueOnError,
-			Registry:      cfg.registry,
-		}))
-		go func() {
-			if err := http.ListenAndServe(addr, cfg.serveMux); err != nil {
-				log.Fatal("Unable to start a promhttp server, err: " + err.Error())
-			}
-		}()
 	}
 
 	if cfg.counter == nil {
@@ -82,9 +65,6 @@ func NewClientTracer(addr, path string, options ...Option) stats.Tracer {
 		cfg.recorder = cwmetric.NewPromRecorder(clientHandledHistogram)
 	}
 
-	if cfg.enableGoCollector {
-		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
-	}
 	promMetric := cwmetric.NewMeasure(cfg.counter, cfg.recorder, kitexobs.DefaultPromLabelControl())
 	return &kitexobs.KitexTracer{
 		Measure: promMetric,
@@ -92,23 +72,12 @@ func NewClientTracer(addr, path string, options ...Option) stats.Tracer {
 }
 
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
-func NewServerTracer(addr, path string, options ...Option) stats.Tracer {
+func NewServerTracer(options ...Option) stats.Tracer {
 	cfg := defaultConfig()
 	for _, opt := range options {
 		opt.apply(cfg)
 	}
 
-	if !cfg.disableServer {
-		cfg.serveMux.Handle(path, promhttp.HandlerFor(cfg.registry, promhttp.HandlerOpts{
-			ErrorHandling: promhttp.ContinueOnError,
-			Registry:      cfg.registry,
-		}))
-		go func() {
-			if err := http.ListenAndServe(addr, cfg.serveMux); err != nil {
-				log.Fatal("Unable to start a promhttp server, err: " + err.Error())
-			}
-		}()
-	}
 	if cfg.counter == nil {
 		serverHandledCounter := prom.NewCounterVec(
 			prom.CounterOpts{
@@ -132,9 +101,7 @@ func NewServerTracer(addr, path string, options ...Option) stats.Tracer {
 		cfg.registry.MustRegister(serverHandledHistogram)
 		cfg.recorder = cwmetric.NewPromRecorder(serverHandledHistogram)
 	}
-	if cfg.enableGoCollector {
-		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
-	}
+
 	measure := cwmetric.NewMeasure(cfg.counter, cfg.recorder, kitexobs.DefaultPromLabelControl())
 	return &kitexobs.KitexTracer{
 		Measure: measure,

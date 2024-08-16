@@ -27,7 +27,7 @@ type KitexTracer struct {
 }
 
 func (s *KitexTracer) Start(ctx context.Context) context.Context {
-	return s.Measure.InjectLabels(ctx)
+	return s.Measure.ProcessAndInjectLabels(ctx)
 }
 
 func (s *KitexTracer) Finish(ctx context.Context) {
@@ -43,7 +43,7 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 	duration := rpcFinish.Time().Sub(rpcStart.Time())
 	elapsedTime := float64(duration) / float64(time.Millisecond)
 
-	labels := s.Measure.ExtractLabels(ctx)
+	labels := s.Measure.ProcessAndExtractLabels(ctx)
 	s.Measure.Inc(ctx, labels)
 	s.Measure.Record(ctx, elapsedTime, labels)
 }

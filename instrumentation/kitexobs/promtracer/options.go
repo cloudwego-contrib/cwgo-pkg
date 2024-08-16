@@ -18,10 +18,7 @@ package prometheus
 
 import (
 	"github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
-	"net/http"
-
 	prom "github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/collectors"
 )
 
 var defaultBuckets = []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000}
@@ -38,39 +35,17 @@ func (fn option) apply(cfg *config) {
 }
 
 type config struct {
-	buckets            []float64
-	enableGoCollector  bool
-	runtimeMetricRules []collectors.GoRuntimeMetricsRule
-	registry           *prom.Registry
-	serveMux           *http.ServeMux
-	disableServer      bool
-	counter            metric.Counter
-	recorder           metric.Recorder
+	buckets  []float64
+	registry *prom.Registry
+	counter  metric.Counter
+	recorder metric.Recorder
 }
 
 func defaultConfig() *config {
 	return &config{
-		buckets:            defaultBuckets,
-		enableGoCollector:  false,
-		runtimeMetricRules: []collectors.GoRuntimeMetricsRule{},
-		registry:           prom.NewRegistry(),
-		serveMux:           http.DefaultServeMux,
-		disableServer:      false,
+		buckets:  defaultBuckets,
+		registry: prom.NewRegistry(),
 	}
-}
-
-// WithEnableGoCollector enable go collector
-func WithEnableGoCollector(enable bool) Option {
-	return option(func(cfg *config) {
-		cfg.enableGoCollector = enable
-	})
-}
-
-// WithGoCollectorRule define your custom go collector rule
-func WithGoCollectorRule(rules ...collectors.GoRuntimeMetricsRule) Option {
-	return option(func(cfg *config) {
-		cfg.runtimeMetricRules = rules
-	})
 }
 
 // WithHistogramBuckets define your custom histogram buckets base on your biz
@@ -88,22 +63,6 @@ func WithRegistry(registry *prom.Registry) Option {
 		if registry != nil {
 			cfg.registry = registry
 		}
-	})
-}
-
-// WithServeMux define your custom serve mux
-func WithServeMux(serveMux *http.ServeMux) Option {
-	return option(func(cfg *config) {
-		if serveMux != nil {
-			cfg.serveMux = serveMux
-		}
-	})
-}
-
-// WithDisableServer disable prometheus server
-func WithDisableServer(disable bool) Option {
-	return option(func(cfg *config) {
-		cfg.disableServer = disable
 	})
 }
 

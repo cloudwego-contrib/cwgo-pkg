@@ -17,10 +17,9 @@ package promprovider
 import (
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"net/http"
 )
-
-var defaultBuckets = []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000}
 
 // Option opts for opentelemetry tracer provider
 type Option interface {
@@ -34,10 +33,14 @@ func (fn option) apply(cfg *config) {
 }
 
 type config struct {
-	serveMux    *http.ServeMux
-	registry    *prometheus.Registry
-	measure     cwmetric.Measure
-	serviceName string
+	serveMux           *http.ServeMux
+	registry           *prometheus.Registry
+	measure            cwmetric.Measure
+	serviceName        string
+	disableServer      bool
+	path               string
+	enableGoCollector  bool
+	runtimeMetricRules []collectors.GoRuntimeMetricsRule
 }
 
 func newConfig(opts []Option) *config {
@@ -52,8 +55,10 @@ func newConfig(opts []Option) *config {
 
 func defaultConfig() *config {
 	return &config{
-		registry: prometheus.NewRegistry(),
-		serveMux: http.DefaultServeMux,
+		registry:           prometheus.NewRegistry(),
+		serveMux:           http.DefaultServeMux,
+		runtimeMetricRules: []collectors.GoRuntimeMetricsRule{},
+		disableServer:      false,
 	}
 }
 
@@ -84,5 +89,25 @@ func WithServiceName(serviceName string) Option {
 func WithMeasure(measure cwmetric.Measure) Option {
 	return option(func(cfg *config) {
 		cfg.measure = measure
+	})
+}
+
+// WithDisableServer disable prometheus server
+func WithDisableServer(disable bool) Option {
+	return option(func(cfg *config) {
+		cfg.disableServer = disable
+	})
+}
+
+func WithPath(path string) Option {
+	return option(func(cfg *config) {
+		cfg.path = path
+	})
+}
+
+// WithGoCollectorRule define your custom go collector rule
+func WithGoCollectorRule(rules ...collectors.GoRuntimeMetricsRule) Option {
+	return option(func(cfg *config) {
+		cfg.runtimeMetricRules = rules
 	})
 }

@@ -18,19 +18,10 @@ package promtracer
 
 import (
 	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs"
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
-	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
-	"net/http"
-	"strconv"
-
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
-	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/tracer"
 	prom "github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/collectors"
 )
 
 const (
@@ -40,21 +31,6 @@ const (
 	unknownLabelValue = "unknown"
 )
 
-// genLabels make labels values.
-func genLabels(ctx *app.RequestContext) prom.Labels {
-	labels := make(prom.Labels)
-	labels[labelMethod] = defaultValIfEmpty(string(ctx.Request.Method()), unknownLabelValue)
-	labels[labelStatusCode] = defaultValIfEmpty(strconv.Itoa(ctx.Response.Header.StatusCode()), unknownLabelValue)
-	labels[labelPath] = defaultValIfEmpty(ctx.FullPath(), unknownLabelValue)
-
-	return labels
-}
-
-func genCwLabels(ctx *app.RequestContext) []label.CwLabel {
-	labels := genLabels(ctx)
-	return label.ToCwLabelFromPromelabel(labels)
-}
-
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
 func NewServerTracer(addr, path string, opts ...Option) tracer.Tracer {
 	cfg := defaultConfig()
@@ -63,14 +39,6 @@ func NewServerTracer(addr, path string, opts ...Option) tracer.Tracer {
 		opts.apply(cfg)
 	}
 
-	if !cfg.disableServer {
-		http.Handle(path, promhttp.HandlerFor(cfg.registry, promhttp.HandlerOpts{ErrorHandling: promhttp.ContinueOnError}))
-		go func() {
-			if err := http.ListenAndServe(addr, nil); err != nil {
-				logging.Fatal("HERTZ: Unable to start a promhttp server, err: " + err.Error())
-			}
-		}()
-	}
 	if cfg.counter == nil {
 		serverHandledCounter := prom.NewCounterVec(
 			prom.CounterOpts{
@@ -97,18 +65,8 @@ func NewServerTracer(addr, path string, opts ...Option) tracer.Tracer {
 	}
 	labelControl := hertzobs.DefaultPromLabelControl()
 	measure := cwmetric.NewMeasure(cfg.counter, cfg.recorder, labelControl)
-	if cfg.enableGoCollector {
-		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
-	}
 
 	return &hertzobs.HertzTracer{
 		Measure: measure,
 	}
-}
-
-func defaultValIfEmpty(val, def string) string {
-	if val == "" {
-		return def
-	}
-	return val
 }

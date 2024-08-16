@@ -16,12 +16,12 @@ package promprovider
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/provider"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"log"
+
 	"net/http"
 )
 
@@ -31,7 +31,6 @@ var _ provider.Provider = &promProvider{}
 type promProvider struct {
 	registry *prometheus.Registry
 	server   *http.Server
-	measure  metric.Measure
 }
 
 // Shutdown 实现 Provider 接口的 Shutdown 方法
@@ -42,6 +41,9 @@ func (p *promProvider) Shutdown(ctx context.Context) error {
 	}
 
 	return nil
+}
+func (p *promProvider) GetRegistry() *prometheus.Registry {
+	return p.registry
 }
 
 // NewPromProvider 初始化并返回一个新的 promProvider 实例
@@ -57,22 +59,27 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 		Addr: addr,
 	}
 	if cfg.serveMux != nil {
-		server.Handler = cfg.serveMux
-	} else {
-		server.Handler = promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
+		cfg.serveMux = http.DefaultServeMux
 	}
-
+	if !cfg.disableServer {
+		cfg.serveMux.Handle(cfg.path, promhttp.HandlerFor(cfg.registry, promhttp.HandlerOpts{
+			ErrorHandling: promhttp.ContinueOnError,
+			Registry:      cfg.registry,
+		}))
+		server.Handler = cfg.serveMux
+		go func() {
+			if err := server.ListenAndServe(); err != nil {
+				log.Fatalf("HTTP server ListenAndServe: %v", err)
+				return
+			}
+		}()
+	}
+	if cfg.enableGoCollector {
+		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
+	}
 	pp := &promProvider{
 		registry: registry,
 		server:   server,
-		measure:  cfg.measure,
 	}
-	go func() {
-		if err := server.ListenAndServe(); err != nil {
-			log.Fatalf("HTTP server ListenAndServe: %v", err)
-			return
-		}
-	}()
-
 	return pp
 }

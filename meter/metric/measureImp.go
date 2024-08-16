@@ -33,9 +33,9 @@ func (m *MeasureImpl) Record(ctx context.Context, value float64, labels []label.
 	return m.recorder.Record(ctx, value, labels)
 }
 
-func (m *MeasureImpl) InjectLabels(ctx context.Context) context.Context {
-	return m.LabelControl.InjectLabels(ctx)
+func (m *MeasureImpl) ProcessAndInjectLabels(ctx context.Context) context.Context {
+	return m.LabelControl.ProcessAndInjectLabels(ctx)
 }
-func (m *MeasureImpl) ExtractLabels(ctx context.Context) []label.CwLabel {
-	return m.ExtractLabels(ctx)
+func (m *MeasureImpl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
+	return m.ProcessAndExtractLabels(ctx)
 }

@@ -48,7 +48,7 @@ func NewOtelLabelControl(tracer trace.Tracer, shouldIgnore ConditionFunc, server
 	}
 }
 
-func (o OtelLabelControl) InjectLabels(ctx context.Context) context.Context {
+func (o OtelLabelControl) ProcessAndInjectLabels(ctx context.Context) context.Context {
 	c, ok := ctx.Value(requestContextKey).(*app.RequestContext)
 	if ok == false {
 		return ctx
@@ -62,7 +62,7 @@ func (o OtelLabelControl) InjectLabels(ctx context.Context) context.Context {
 	return internal.WithTraceCarrier(ctx, tc)
 }
 
-func (o OtelLabelControl) ExtractLabels(ctx context.Context) []label.CwLabel {
+func (o OtelLabelControl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
 	c, ok := ctx.Value(requestContextKey).(*app.RequestContext)
 	if ok == false {
 		return nil
@@ -139,30 +139,20 @@ func DefaultPromLabelControl() PromLabelControl {
 	return PromLabelControl{}
 }
 
-func (p PromLabelControl) InjectLabels(ctx context.Context) context.Context {
+func (p PromLabelControl) ProcessAndInjectLabels(ctx context.Context) context.Context {
 	return ctx
 }
 
-func (p PromLabelControl) ExtractLabels(ctx context.Context) []label.CwLabel {
+func (p PromLabelControl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
 	c, ok := ctx.Value(requestContextKey).(*app.RequestContext)
 	if ok == false {
 		return nil
 	}
-	return genCwLabels(c)
-}
-
-// genLabels make labels values.
-func genLabels(ctx *app.RequestContext) prom.Labels {
 	labels := make(prom.Labels)
-	labels[labelMethod] = defaultValIfEmpty(string(ctx.Request.Method()), unknownLabelValue)
-	labels[labelStatusCode] = defaultValIfEmpty(strconv.Itoa(ctx.Response.Header.StatusCode()), unknownLabelValue)
-	labels[labelPath] = defaultValIfEmpty(ctx.FullPath(), unknownLabelValue)
+	labels[labelMethod] = defaultValIfEmpty(string(c.Request.Method()), unknownLabelValue)
+	labels[labelStatusCode] = defaultValIfEmpty(strconv.Itoa(c.Response.Header.StatusCode()), unknownLabelValue)
+	labels[labelPath] = defaultValIfEmpty(c.FullPath(), unknownLabelValue)
 
-	return labels
-}
-
-func genCwLabels(ctx *app.RequestContext) []label.CwLabel {
-	labels := genLabels(ctx)
 	return label.ToCwLabelFromPromelabel(labels)
 }
 

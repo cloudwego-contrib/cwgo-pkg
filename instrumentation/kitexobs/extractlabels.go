@@ -53,14 +53,14 @@ func NewOtelLabelControl(tracer trace.Tracer, recordoperation bool) OtelLabelCon
 	}
 }
 
-func (o OtelLabelControl) InjectLabels(ctx context.Context) context.Context {
+func (o OtelLabelControl) ProcessAndInjectLabels(ctx context.Context) context.Context {
 	tc := &internal.TraceCarrier{}
 	tc.SetTracer(o.tracer)
 
 	return internal.WithTraceCarrier(ctx, tc)
 }
 
-func (o OtelLabelControl) ExtractLabels(ctx context.Context) []label.CwLabel {
+func (o OtelLabelControl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
 	ri := rpcinfo.GetRPCInfo(ctx)
 	st := ri.Stats()
 	tc := internal.TraceCarrierFromContext(ctx)
@@ -110,21 +110,17 @@ func DefaultPromLabelControl() PromLabelControl {
 	return PromLabelControl{}
 }
 
-func (p PromLabelControl) InjectLabels(ctx context.Context) context.Context {
+func (p PromLabelControl) ProcessAndInjectLabels(ctx context.Context) context.Context {
 	return ctx
 }
 
-func (p PromLabelControl) ExtractLabels(ctx context.Context) []label.CwLabel {
+func (p PromLabelControl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
 	ri := rpcinfo.GetRPCInfo(ctx)
 	extraLabels := make(prom.Labels)
 	extraLabels[labelKeyStatus] = statusSucceed
 	if ri.Stats().Error() != nil {
 		extraLabels[labelKeyStatus] = statusError
 	}
-	return genCwLabels(ri)
-}
-
-func genLabels(ri rpcinfo.RPCInfo) prom.Labels {
 	var (
 		labels = make(prom.Labels)
 
@@ -144,14 +140,9 @@ func genLabels(ri rpcinfo.RPCInfo) prom.Labels {
 	if retriedCnt, ok := callee.Tag(rpcinfo.RetryTag); ok {
 		labels[labelKeyRetry] = retriedCnt
 	}
-
-	return labels
-}
-
-func genCwLabels(ri rpcinfo.RPCInfo) []label.CwLabel {
-	labels := genLabels(ri)
 	return label.ToCwLabelFromPromelabel(labels)
 }
+
 func defaultValIfEmpty(val, def string) string {
 	if val == "" {
 		return def
