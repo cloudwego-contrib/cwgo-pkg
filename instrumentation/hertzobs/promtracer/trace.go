@@ -32,7 +32,7 @@ const (
 )
 
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
-func NewServerTracer(addr, path string, opts ...Option) tracer.Tracer {
+func NewServerTracer(opts ...Option) tracer.Tracer {
 	cfg := defaultConfig()
 
 	for _, opts := range opts {
