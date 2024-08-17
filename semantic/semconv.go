@@ -20,6 +20,24 @@ import (
 )
 
 const (
+	LabelMethodKey = semconv.RPCMethodKey
+	LabelCalleeKey = semconv.RPCServiceKey
+	LabelCallerKey = attribute.Key("caller.rpc.service")
+	LabelKeyStatus = "event.status"
+)
+const (
+	LabelMethod     = "method"
+	LabelStatusCode = "statusCode"
+	LabelPath       = "path"
+	LabelKeyCallee  = "callee"
+
+	LabelKeyRetry  = "retry"
+	LabelKeyCaller = "caller"
+
+	UnknownLabelValue = "unknown"
+)
+
+const (
 	// RequestProtocolKey protocol of the request.
 	//
 	// Type: string
@@ -57,17 +75,6 @@ const (
 
 const (
 	StatusKey = attribute.Key("status.code")
-)
-
-const (
-	LabelMethodProm       = "method"
-	LabelStatusCodeProm   = "statusCode"
-	LabelPathProm         = "path"
-	UnknownLabelValueProm = "unknown"
-	LabelKeyCallee        = "callee"
-	LabelKeyStatus        = "status"
-	LabelKeyRetry         = "retry"
-	LabelKeyCaller        = "caller"
 )
 
 // RPC Server meter

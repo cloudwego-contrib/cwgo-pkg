@@ -18,17 +18,7 @@ package promtracer
 
 import (
 	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/hertzobs"
-	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
-	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
 	"github.com/cloudwego/hertz/pkg/common/tracer"
-	prom "github.com/prometheus/client_golang/prometheus"
-)
-
-const (
-	labelMethod       = "method"
-	labelStatusCode   = "statusCode"
-	labelPath         = "path"
-	unknownLabelValue = "unknown"
 )
 
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
@@ -39,34 +29,8 @@ func NewServerTracer(opts ...Option) tracer.Tracer {
 		opts.apply(cfg)
 	}
 
-	if cfg.counter == nil {
-		serverHandledCounter := prom.NewCounterVec(
-			prom.CounterOpts{
-				Name: semantic.ServerRequestCount,
-				Help: "Total number of HTTPs completed by the server, regardless of success or failure.",
-			},
-			[]string{labelMethod, labelStatusCode, labelPath},
-		)
-		cfg.registry.MustRegister(serverHandledCounter)
-		cfg.counter = cwmetric.NewPromCounter(serverHandledCounter)
-	}
-
-	if cfg.counter == nil {
-		serverHandledHistogram := prom.NewHistogramVec(
-			prom.HistogramOpts{
-				Name:    semantic.ServerLatency,
-				Help:    "Latency (microseconds) of HTTP that had been application-level handled by the server.",
-				Buckets: cfg.buckets,
-			},
-			[]string{labelMethod, labelStatusCode, labelPath},
-		)
-		cfg.registry.MustRegister(serverHandledHistogram)
-		cfg.recorder = cwmetric.NewPromRecorder(serverHandledHistogram)
-	}
-	labelControl := hertzobs.DefaultPromLabelControl()
-	measure := cwmetric.NewMeasure(cfg.counter, cfg.recorder, labelControl)
-
+	cfg.measure.SetLabelControl(DefaultPromLabelControl())
 	return &hertzobs.HertzTracer{
-		Measure: measure,
+		Measure: cfg.measure,
 	}
 }

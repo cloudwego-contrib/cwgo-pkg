@@ -35,26 +35,14 @@ func (fn option) apply(cfg *config) {
 }
 
 type config struct {
-	buckets  []float64
 	registry *prom.Registry
-	counter  metric.Counter
-	recorder metric.Recorder
+	measure  metric.Measure
 }
 
 func defaultConfig() *config {
 	return &config{
-		buckets:  defaultBuckets,
 		registry: prom.NewRegistry(),
 	}
-}
-
-// WithHistogramBuckets define your custom histogram buckets base on your biz
-func WithHistogramBuckets(buckets []float64) Option {
-	return option(func(cfg *config) {
-		if len(buckets) > 0 {
-			cfg.buckets = buckets
-		}
-	})
 }
 
 // WithRegistry define your custom registry
@@ -66,16 +54,9 @@ func WithRegistry(registry *prom.Registry) Option {
 	})
 }
 
-func WithCounter(counter *prom.CounterVec) Option {
+// WithMeasure define your custom registry
+func WithMeasure(measure metric.Measure) Option {
 	return option(func(cfg *config) {
-		cfg.registry.Register(counter)
-		cfg.counter = metric.NewPromCounter(counter)
-	})
-}
-
-func WithRecorder(recorder *prom.HistogramVec) Option {
-	return option(func(cfg *config) {
-		cfg.registry.Register(recorder)
-		cfg.recorder = metric.NewPromRecorder(recorder)
+		cfg.measure = measure
 	})
 }

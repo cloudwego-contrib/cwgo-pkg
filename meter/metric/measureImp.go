@@ -5,10 +5,16 @@ import (
 	"github.com/cloudwego-contrib/cwgo-pkg/meter/label"
 )
 
+var _ Measure = &MeasureImpl{}
+
 type MeasureImpl struct {
 	counter  Counter
 	recorder Recorder
 	label.LabelControl
+}
+
+func (m *MeasureImpl) SetLabelControl(control label.LabelControl) {
+	m.LabelControl = control
 }
 
 func NewMeasure(counter Counter, recorder Recorder, labelcontrol label.LabelControl) Measure {

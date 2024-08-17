@@ -16,7 +16,10 @@ package promprovider
 
 import (
 	"context"
+	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/provider"
+	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -31,6 +34,7 @@ var _ provider.Provider = &promProvider{}
 type promProvider struct {
 	registry *prometheus.Registry
 	server   *http.Server
+	Measure  metric.Measure
 }
 
 // Shutdown 实现 Provider 接口的 Shutdown 方法
@@ -74,12 +78,39 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			}
 		}()
 	}
+	var counter metric.Counter
+	var recorder metric.Recorder
+	if cfg.enableCounter {
+		clientHandledCounter := prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Name: cfg.counterName,
+				Help: fmt.Sprintf("Total number of requires completed by the %s, regardless of success or failure.", cfg.counterName),
+			},
+			[]string{semantic.LabelKeyCaller, semantic.LabelKeyCallee, semantic.LabelMethod, semantic.LabelKeyStatus, semantic.LabelKeyRetry},
+		)
+		cfg.registry.MustRegister(clientHandledCounter)
+		counter = metric.NewPromCounter(clientHandledCounter)
+	}
+	if cfg.enableRecorder {
+		clientHandledHistogram := prometheus.NewHistogramVec(
+			prometheus.HistogramOpts{
+				Name:    cfg.recorderName,
+				Help:    fmt.Sprintf("Latency (microseconds) of the %s until it is finished.", cfg.recorderName),
+				Buckets: cfg.buckets,
+			},
+			[]string{semantic.LabelKeyCaller, semantic.LabelKeyCallee, semantic.LabelMethod, semantic.LabelKeyStatus, semantic.LabelKeyRetry},
+		)
+		cfg.registry.MustRegister(clientHandledHistogram)
+		recorder = metric.NewPromRecorder(clientHandledHistogram)
+	}
+	measure := metric.NewMeasure(counter, recorder, nil)
 	if cfg.enableGoCollector {
 		cfg.registry.MustRegister(collectors.NewGoCollector(collectors.WithGoCollectorRuntimeMetrics(cfg.runtimeMetricRules...)))
 	}
 	pp := &promProvider{
 		registry: registry,
 		server:   server,
+		Measure:  measure,
 	}
 	return pp
 }

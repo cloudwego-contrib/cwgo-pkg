@@ -19,19 +19,7 @@ package prometheus
 
 import (
 	"github.com/cloudwego-contrib/cwgo-pkg/instrumentation/kitexobs"
-	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/meter/metric"
-	"github.com/cloudwego-contrib/cwgo-pkg/semantic"
 	"github.com/cloudwego/kitex/pkg/stats"
-	prom "github.com/prometheus/client_golang/prometheus"
-)
-
-// Labels
-const (
-	labelKeyCaller = semantic.LabelKeyCaller
-	labelKeyMethod = semantic.LabelMethodProm
-	labelKeyCallee = semantic.LabelKeyCallee
-	labelKeyStatus = semantic.LabelKeyStatus
-	labelKeyRetry  = semantic.LabelKeyRetry
 )
 
 // NewClientTracer provide tracer for client call, addr and path is the scrape_configs for prometheus server.
@@ -41,33 +29,8 @@ func NewClientTracer(options ...Option) stats.Tracer {
 		opt.apply(cfg)
 	}
 
-	if cfg.counter == nil {
-		clientHandledCounter := prom.NewCounterVec(
-			prom.CounterOpts{
-				Name: semantic.ClientThroughput,
-				Help: "Total number of RPCs completed by the client, regardless of success or failure.",
-			},
-			[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
-		)
-		cfg.registry.MustRegister(clientHandledCounter)
-		cfg.counter = cwmetric.NewPromCounter(clientHandledCounter)
-	}
-	if cfg.recorder == nil {
-		clientHandledHistogram := prom.NewHistogramVec(
-			prom.HistogramOpts{
-				Name:    semantic.ClientDuration,
-				Help:    "Latency (microseconds) of the RPC until it is finished.",
-				Buckets: cfg.buckets,
-			},
-			[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
-		)
-		cfg.registry.MustRegister(clientHandledHistogram)
-		cfg.recorder = cwmetric.NewPromRecorder(clientHandledHistogram)
-	}
-
-	promMetric := cwmetric.NewMeasure(cfg.counter, cfg.recorder, kitexobs.DefaultPromLabelControl())
 	return &kitexobs.KitexTracer{
-		Measure: promMetric,
+		Measure: cfg.measure,
 	}
 }
 
@@ -77,40 +40,8 @@ func NewServerTracer(options ...Option) stats.Tracer {
 	for _, opt := range options {
 		opt.apply(cfg)
 	}
-
-	if cfg.counter == nil {
-		serverHandledCounter := prom.NewCounterVec(
-			prom.CounterOpts{
-				Name: "kitex_server_throughput",
-				Help: "Total number of RPCs completed by the server, regardless of success or failure.",
-			},
-			[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
-		)
-		cfg.registry.MustRegister(serverHandledCounter)
-		cfg.counter = cwmetric.NewPromCounter(serverHandledCounter)
-	}
-	if cfg.recorder == nil {
-		serverHandledHistogram := prom.NewHistogramVec(
-			prom.HistogramOpts{
-				Name:    "kitex_server_latency_us",
-				Help:    "Latency (microseconds) of RPC that had been application-level handled by the server.",
-				Buckets: cfg.buckets,
-			},
-			[]string{labelKeyCaller, labelKeyCallee, labelKeyMethod, labelKeyStatus, labelKeyRetry},
-		)
-		cfg.registry.MustRegister(serverHandledHistogram)
-		cfg.recorder = cwmetric.NewPromRecorder(serverHandledHistogram)
-	}
-
-	measure := cwmetric.NewMeasure(cfg.counter, cfg.recorder, kitexobs.DefaultPromLabelControl())
+	cfg.measure.SetLabelControl(DefaultPromLabelControl())
 	return &kitexobs.KitexTracer{
-		Measure: measure,
+		Measure: cfg.measure,
 	}
-}
-
-func defaultValIfEmpty(val, def string) string {
-	if val == "" {
-		return def
-	}
-	return val
 }

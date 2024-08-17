@@ -21,6 +21,8 @@ import (
 	"net/http"
 )
 
+var defaultBuckets = []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000}
+
 // Option opts for opentelemetry tracer provider
 type Option interface {
 	apply(cfg *config)
@@ -33,10 +35,16 @@ func (fn option) apply(cfg *config) {
 }
 
 type config struct {
-	serveMux           *http.ServeMux
-	registry           *prometheus.Registry
-	measure            cwmetric.Measure
-	serviceName        string
+	buckets  []float64
+	serveMux *http.ServeMux
+	registry *prometheus.Registry
+	measure  cwmetric.Measure
+
+	enableCounter  bool
+	counterName    string
+	enableRecorder bool
+	recorderName   string
+
 	disableServer      bool
 	path               string
 	enableGoCollector  bool
@@ -55,10 +63,13 @@ func newConfig(opts []Option) *config {
 
 func defaultConfig() *config {
 	return &config{
+		buckets:            defaultBuckets,
 		registry:           prometheus.NewRegistry(),
 		serveMux:           http.DefaultServeMux,
 		runtimeMetricRules: []collectors.GoRuntimeMetricsRule{},
 		disableServer:      false,
+		counterName:        "counter",
+		recorderName:       "recorder",
 	}
 }
 
@@ -80,9 +91,27 @@ func WithServeMux(serveMux *http.ServeMux) Option {
 	})
 }
 
-func WithServiceName(serviceName string) Option {
+func WithCounter() Option {
 	return option(func(cfg *config) {
-		cfg.serviceName = serviceName
+		cfg.enableCounter = true
+	})
+}
+
+func WithCounterName(name string) Option {
+	return option(func(cfg *config) {
+		cfg.counterName = name
+	})
+}
+
+func WithRecorder() Option {
+	return option(func(cfg *config) {
+		cfg.enableRecorder = true
+	})
+}
+
+func WithRecorderName(name string) Option {
+	return option(func(cfg *config) {
+		cfg.recorderName = name
 	})
 }
 
