@@ -15,15 +15,14 @@ package kitexobs
 import (
 	"context"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/instrumentation/internal"
-	label2 "github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
-var _ label2.LabelControl = OtelLabelControl{}
+var _ label.LabelControl = OtelLabelControl{}
 
 type OtelLabelControl struct {
 	tracer                trace.Tracer
@@ -44,7 +43,7 @@ func (o OtelLabelControl) ProcessAndInjectLabels(ctx context.Context) context.Co
 	return internal.WithTraceCarrier(ctx, tc)
 }
 
-func (o OtelLabelControl) ProcessAndExtractLabels(ctx context.Context) []label2.CwLabel {
+func (o OtelLabelControl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
 	ri := rpcinfo.GetRPCInfo(ctx)
 	st := ri.Stats()
 	tc := internal.TraceCarrierFromContext(ctx)
@@ -82,7 +81,7 @@ func (o OtelLabelControl) ProcessAndExtractLabels(ctx context.Context) []label2.
 		recordErrorSpanWithStack(span, rpcErr, panicMsg, panicStack)
 	}
 
-	span.End(oteltrace.WithTimestamp(getEndTimeOrNow(ri)))
+	span.End(trace.WithTimestamp(getEndTimeOrNow(ri)))
 	metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
-	return label2.ToCwLabelsFromOtels(metricsAttributes)
+	return label.ToCwLabelsFromOtels(metricsAttributes)
 }

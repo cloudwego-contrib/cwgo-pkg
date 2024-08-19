@@ -65,8 +65,8 @@ func TestPrometheusReporter(t *testing.T) {
 		"test2": "def",
 	}*/
 	labels := []label.CwLabel{
-		label.CwLabel{Key: "test1", Value: "abc"},
-		label.CwLabel{Key: "test2", Value: "def"},
+		{Key: "test1", Value: "abc"},
+		{Key: "test2", Value: "def"},
 	}
 	promMeasure := cwmetric.NewMeasure(cwmetric.NewPromCounter(counter), cwmetric.NewPromRecorder(histogram), DefaultPromLabelControl())
 	assert.True(t, promMeasure.Add(context.Background(), 6, labels) == nil)
