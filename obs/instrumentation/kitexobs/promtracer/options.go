@@ -21,8 +21,6 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 )
 
-var defaultBuckets = []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000}
-
 // Option opts for monitor prometheus
 type Option interface {
 	apply(cfg *config)

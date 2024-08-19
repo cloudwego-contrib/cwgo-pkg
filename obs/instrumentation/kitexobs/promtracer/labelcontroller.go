@@ -1,14 +1,30 @@
+/*
+ * Copyright 2024 CloudWeGo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package prometheus
 
 import (
 	"context"
-	label2 "github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	prom "github.com/prometheus/client_golang/prometheus"
 )
 
-var _ label2.LabelControl = PromLabelControl{}
+var _ label.LabelControl = PromLabelControl{}
 
 type PromLabelControl struct {
 }
@@ -21,7 +37,7 @@ func (p PromLabelControl) ProcessAndInjectLabels(ctx context.Context) context.Co
 	return ctx
 }
 
-func (p PromLabelControl) ProcessAndExtractLabels(ctx context.Context) []label2.CwLabel {
+func (p PromLabelControl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
 	ri := rpcinfo.GetRPCInfo(ctx)
 	extraLabels := make(prom.Labels)
 	extraLabels[semantic.LabelKeyStatus] = semantic.StatusSucceed
@@ -47,7 +63,7 @@ func (p PromLabelControl) ProcessAndExtractLabels(ctx context.Context) []label2.
 	if retriedCnt, ok := callee.Tag(rpcinfo.RetryTag); ok {
 		labels[semantic.LabelKeyRetry] = retriedCnt
 	}
-	return label2.ToCwLabelFromPromelabel(labels)
+	return label.ToCwLabelFromPromelabel(labels)
 }
 
 func defaultValIfEmpty(val, def string) string {

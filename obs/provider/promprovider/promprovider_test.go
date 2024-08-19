@@ -17,10 +17,10 @@ package promprovider
 import (
 	"context"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
-	metric2 "github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"testing"
@@ -50,7 +50,7 @@ func TestPromProvider(t *testing.T) {
 
 	mux := http.NewServeMux()
 
-	measure := metric2.NewMeasure(metric2.NewPromCounter(counter), metric2.NewPromRecorder(histogram), nil)
+	measure := metric.NewMeasure(metric.NewPromCounter(counter), metric.NewPromRecorder(histogram), nil)
 	provider := NewPromProvider(":9090",
 		WithRegistry(registry),
 		WithMeasure(measure),
@@ -72,7 +72,7 @@ func TestPromProvider(t *testing.T) {
 	}
 	assert.True(t, promServerResp.StatusCode == http.StatusOK)
 
-	bodyBytes, err := ioutil.ReadAll(promServerResp.Body)
+	bodyBytes, err := io.ReadAll(promServerResp.Body)
 	assert.True(t, err == nil)
 	respStr := string(bodyBytes)
 	assert.True(t, strings.Contains(respStr, `test_counter{service="prometheus-test",test1="abc",test2="def"} 6`))

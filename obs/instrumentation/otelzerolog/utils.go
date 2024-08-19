@@ -15,7 +15,6 @@
 package otelzerolog
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/rs/zerolog"
@@ -29,22 +28,4 @@ func OtelSeverityText(lv zerolog.Level) string {
 		s = "FATAL"
 	}
 	return s
-}
-
-// getMessage format with Sprint, Sprintf, or neither.
-func getMessage(template string, fmtArgs []interface{}) string {
-	if len(fmtArgs) == 0 {
-		return template
-	}
-
-	if template != "" {
-		return fmt.Sprintf(template, fmtArgs...)
-	}
-
-	if len(fmtArgs) == 1 {
-		if str, ok := fmtArgs[0].(string); ok {
-			return str
-		}
-	}
-	return fmt.Sprint(fmtArgs...)
 }

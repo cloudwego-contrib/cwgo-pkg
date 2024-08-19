@@ -19,7 +19,7 @@ import (
 	"context"
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/instrumentation/internal"
-	label2 "github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/adaptor"
@@ -27,10 +27,9 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.opentelemetry.io/otel/trace"
-	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
-var _ label2.LabelControl = OtelLabelControl{}
+var _ label.LabelControl = OtelLabelControl{}
 
 type OtelLabelControl struct {
 	tracer                   trace.Tracer
@@ -48,7 +47,7 @@ func NewOtelLabelControl(tracer trace.Tracer, shouldIgnore ConditionFunc, server
 
 func (o OtelLabelControl) ProcessAndInjectLabels(ctx context.Context) context.Context {
 	c, ok := ctx.Value(requestContextKey).(*app.RequestContext)
-	if ok == false {
+	if !ok {
 		return ctx
 	}
 	if o.shouldIgnore(ctx, c) {
@@ -60,9 +59,9 @@ func (o OtelLabelControl) ProcessAndInjectLabels(ctx context.Context) context.Co
 	return internal.WithTraceCarrier(ctx, tc)
 }
 
-func (o OtelLabelControl) ProcessAndExtractLabels(ctx context.Context) []label2.CwLabel {
+func (o OtelLabelControl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
 	c, ok := ctx.Value(requestContextKey).(*app.RequestContext)
-	if ok == false {
+	if !ok {
 		return nil
 	}
 	if o.shouldIgnore(ctx, c) {
@@ -115,8 +114,8 @@ func (o OtelLabelControl) ProcessAndExtractLabels(ctx context.Context) []label2.
 		recordErrorSpanWithStack(span, httpErr, panicMsg, panicStack)
 	}
 
-	span.End(oteltrace.WithTimestamp(getEndTimeOrNow(ti)))
+	span.End(trace.WithTimestamp(getEndTimeOrNow(ti)))
 
 	metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
-	return label2.ToCwLabelsFromOtels(metricsAttributes)
+	return label.ToCwLabelsFromOtels(metricsAttributes)
 }

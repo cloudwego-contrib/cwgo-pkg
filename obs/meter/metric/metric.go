@@ -16,19 +16,19 @@ package metric
 
 import (
 	"context"
-	label2 "github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
 )
 
 type Measure interface {
 	Counter
 	Recorder
-	label2.LabelControl
-	SetLabelControl(label2.LabelControl)
+	label.LabelControl
+	SetLabelControl(label.LabelControl)
 }
 type Counter interface {
-	Inc(ctx context.Context, labels []label2.CwLabel) error
-	Add(ctx context.Context, value int, labels []label2.CwLabel) error
+	Inc(ctx context.Context, labels []label.CwLabel) error
+	Add(ctx context.Context, value int, labels []label.CwLabel) error
 }
 type Recorder interface {
-	Record(ctx context.Context, value float64, labels []label2.CwLabel) error
+	Record(ctx context.Context, value float64, labels []label.CwLabel) error
 }

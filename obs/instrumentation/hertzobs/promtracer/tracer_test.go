@@ -55,9 +55,9 @@ func TestServerTracerWorkWithHertz(t *testing.T) {
 	})
 
 	h.POST("/metricPost", func(c context.Context, ctx *app.RequestContext) {
-		rand.Seed(time.Now().UnixMilli())
+		r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 		// make sure the response time is greater than 50 milliseconds and less than around 151 milliseconds
-		time.Sleep(time.Duration(rand.Intn(100)+51) * time.Millisecond)
+		time.Sleep(time.Duration(r.Intn(100)+51) * time.Millisecond)
 		ctx.String(200, "hello post")
 	})
 
@@ -154,9 +154,9 @@ func TestWithBucketsOption(t *testing.T) {
 	})
 
 	h.POST("/metricPost", func(c context.Context, ctx *app.RequestContext) {
-		rand.Seed(time.Now().UnixMilli())
+		r := rand.New(rand.NewSource(time.Now().UnixMilli()))
 		// make sure the response time is greater than 50 milliseconds and less than around 151 milliseconds
-		time.Sleep(time.Duration(rand.Intn(100)+51) * time.Millisecond)
+		time.Sleep(time.Duration(r.Intn(100)+51) * time.Millisecond)
 		ctx.String(200, "hello post")
 	})
 

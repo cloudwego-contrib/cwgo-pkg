@@ -15,29 +15,10 @@
 package otelslog
 
 import (
-	"fmt"
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"log/slog"
 	"strings"
 )
-
-// get format msg
-func getMessage(template string, fmtArgs []interface{}) string {
-	if len(fmtArgs) == 0 {
-		return template
-	}
-
-	if template != "" {
-		return fmt.Sprintf(template, fmtArgs...)
-	}
-
-	if len(fmtArgs) == 1 {
-		if str, ok := fmtArgs[0].(string); ok {
-			return str
-		}
-	}
-	return fmt.Sprint(fmtArgs...)
-}
 
 // OtelSeverityText convert otelslog level to otel severityText
 // ref to https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/data-model.md#severity-fields
@@ -49,8 +30,8 @@ func OtelSeverityText(lv slog.Level) string {
 	return strings.ToUpper(s)
 }
 
-// Adapt klog level to otelslog level
-func tranSLevel(level logging.Level) (lvl slog.Level) {
+// TranSLevel Adapt klog level to teleology level
+func TranSLevel(level logging.Level) (lvl slog.Level) {
 	switch level {
 	case logging.LevelTrace:
 		lvl = LevelTrace
