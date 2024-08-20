@@ -19,16 +19,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
-
-	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // testEncoderConfig encoder config for testing, copy from otelzap

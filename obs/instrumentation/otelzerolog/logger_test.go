@@ -17,9 +17,10 @@ package otelzerolog
 import (
 	"bytes"
 	"context"
+	"testing"
+
 	logging "github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	cwzerolog "github.com/cloudwego-contrib/cwgo-pkg/logging/zerolog"
-	"testing"
 
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"

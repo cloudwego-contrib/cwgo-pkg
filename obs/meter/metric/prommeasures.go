@@ -18,6 +18,7 @@ package metric
 
 import (
 	"context"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -33,6 +34,7 @@ func NewPromCounter(counter *prometheus.CounterVec) *PromCounter {
 		counter: counter,
 	}
 }
+
 func (p PromCounter) Inc(ctx context.Context, labels []label.CwLabel) error {
 	pLabel := label.ToPromelabelFromCwLabel(labels)
 	counter, err := p.counter.GetMetricWith(pLabel)

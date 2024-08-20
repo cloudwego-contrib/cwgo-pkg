@@ -17,8 +17,9 @@
 package zerolog
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"testing"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"

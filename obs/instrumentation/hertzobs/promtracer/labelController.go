@@ -18,11 +18,12 @@ package promtracer
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"
 	"github.com/cloudwego/hertz/pkg/app"
 	prom "github.com/prometheus/client_golang/prometheus"
-	"strconv"
 )
 
 const (
@@ -31,8 +32,7 @@ const (
 
 var _ label.LabelControl = PromLabelControl{}
 
-type PromLabelControl struct {
-}
+type PromLabelControl struct{}
 
 func DefaultPromLabelControl() PromLabelControl {
 	return PromLabelControl{}

@@ -34,6 +34,7 @@ func ToCwLabelsFromOtels(otelAttributes []attribute.KeyValue) []CwLabel {
 	}
 	return cwLabels
 }
+
 func ToOtelsFromCwLabel(cwLabels []CwLabel) []attribute.KeyValue {
 	otelAttributes := make([]attribute.KeyValue, len(cwLabels))
 	for i, label := range cwLabels {

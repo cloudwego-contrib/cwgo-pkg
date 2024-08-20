@@ -20,10 +20,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
-
 	"io"
 	"os"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/rs/zerolog"
 )

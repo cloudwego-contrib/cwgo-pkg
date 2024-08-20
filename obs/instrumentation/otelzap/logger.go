@@ -17,6 +17,7 @@ package otelzap
 import (
 	"context"
 	"errors"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	cwzap "github.com/cloudwego-contrib/cwgo-pkg/logging/zap"
 	"go.opentelemetry.io/otel/codes"

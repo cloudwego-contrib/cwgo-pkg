@@ -27,11 +27,12 @@ package hertzobs
 
 import (
 	"context"
+	"time"
+
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/tracer"
 	"github.com/cloudwego/hertz/pkg/common/tracer/stats"
-	"time"
 )
 
 var _ tracer.Tracer = (*HertzTracer)(nil)
@@ -43,12 +44,12 @@ type HertzTracer struct {
 }
 
 func (h HertzTracer) Start(ctx context.Context, c *app.RequestContext) context.Context {
-	context.WithValue(ctx, requestContextKey, c)
+	ctx = context.WithValue(ctx, requestContextKey, c)
 	return h.Measure.ProcessAndInjectLabels(ctx)
 }
 
 func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
-	context.WithValue(ctx, requestContextKey, c)
+	ctx = context.WithValue(ctx, requestContextKey, c)
 	ti := c.GetTraceInfo()
 	st := ti.Stats()
 

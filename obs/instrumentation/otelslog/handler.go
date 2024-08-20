@@ -17,10 +17,11 @@ package otelslog
 import (
 	"context"
 	"errors"
-	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/trace"
 	"io"
 	"log/slog"
+
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const (

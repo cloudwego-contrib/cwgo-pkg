@@ -17,8 +17,9 @@
 package zerolog
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"io"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/rs/zerolog"
 )

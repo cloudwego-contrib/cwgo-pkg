@@ -17,14 +17,14 @@ package promprovider
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/provider"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"log"
-
-	"net/http"
 )
 
 var _ provider.Provider = &promProvider{}
@@ -45,6 +45,7 @@ func (p *promProvider) Shutdown(ctx context.Context) error {
 
 	return nil
 }
+
 func (p *promProvider) GetRegistry() *prometheus.Registry {
 	return p.registry
 }
@@ -101,7 +102,6 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			cfg.registry.MustRegister(HttpCounterVec)
 			counter = metric.NewPromCounter(HttpCounterVec)
 		}
-
 	}
 	if cfg.enableRecorder {
 		if cfg.enableRPC {
@@ -126,7 +126,6 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			)
 			cfg.registry.MustRegister(serverHandledHistogram)
 		}
-
 	}
 	measure := metric.NewMeasure(counter, recorder, nil)
 

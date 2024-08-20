@@ -15,8 +15,9 @@
 package otelslog
 
 import (
-	cwslog "github.com/cloudwego-contrib/cwgo-pkg/logging/slog"
 	"log/slog"
+
+	cwslog "github.com/cloudwego-contrib/cwgo-pkg/logging/slog"
 )
 
 type Option interface {

@@ -16,9 +16,9 @@ package zap
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
-
 	"io"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

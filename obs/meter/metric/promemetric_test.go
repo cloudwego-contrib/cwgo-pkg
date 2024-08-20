@@ -16,16 +16,17 @@ package metric
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
-	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
-	prom "github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
+	prom "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/stretchr/testify/assert"
 )
 
 var defaultBuckets = []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000}

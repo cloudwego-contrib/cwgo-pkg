@@ -16,6 +16,7 @@ package kitexobs
 
 import (
 	"context"
+
 	"github.com/bytedance/gopkg/cloud/metainfo"
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/instrumentation/internal"

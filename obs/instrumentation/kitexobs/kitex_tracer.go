@@ -14,10 +14,11 @@ package kitexobs
 
 import (
 	"context"
+	"time"
+
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/pkg/stats"
-	"time"
 )
 
 var _ stats.Tracer = (*KitexTracer)(nil)

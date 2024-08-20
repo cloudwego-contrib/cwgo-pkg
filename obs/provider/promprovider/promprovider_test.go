@@ -16,15 +16,16 @@ package promprovider
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
-	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPromProvider(t *testing.T) {
@@ -57,7 +58,7 @@ func TestPromProvider(t *testing.T) {
 		WithServeMux(mux),
 	)
 	defer provider.Shutdown(context.Background())
-	//assert.NoError(t, err, "Failed to register opsProcessed counter")
+	// assert.NoError(t, err, "Failed to register opsProcessed counter")
 	labels := []label.CwLabel{
 		{Key: "test1", Value: "abc"},
 		{Key: "test2", Value: "def"},
@@ -77,5 +78,4 @@ func TestPromProvider(t *testing.T) {
 	respStr := string(bodyBytes)
 	assert.True(t, strings.Contains(respStr, `test_counter{service="prometheus-test",test1="abc",test2="def"} 6`))
 	assert.True(t, strings.Contains(respStr, `test_histogram_sum{service="prometheus-test",test1="abc",test2="def"} 1e+06`))
-
 }

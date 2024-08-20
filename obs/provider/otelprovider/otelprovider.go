@@ -16,6 +16,8 @@ package otelprovider
 
 import (
 	"context"
+	"time"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/provider"
 	runtimemetrics "go.opentelemetry.io/contrib/instrumentation/runtime"
@@ -26,7 +28,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"time"
 )
 
 var _ provider.Provider = &otelProvider{}

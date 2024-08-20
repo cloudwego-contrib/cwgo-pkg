@@ -16,6 +16,7 @@ package hertzobs
 
 import (
 	"context"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"go.opentelemetry.io/otel"
@@ -119,6 +120,7 @@ func DefaultConfig() *Config {
 		},
 	}
 }
+
 func (c *Config) GetTextMapPropagator() propagation.TextMapPropagator {
 	return c.textMapPropagator
 }

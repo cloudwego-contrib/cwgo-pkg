@@ -17,16 +17,17 @@ package otelslog
 import (
 	"bytes"
 	"context"
+	"log/slog"
+	"os"
+	"strings"
+	"testing"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	cwslog "github.com/cloudwego-contrib/cwgo-pkg/logging/slog"
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"log/slog"
-	"os"
-	"strings"
-	"testing"
 )
 
 func stdoutProvider(ctx context.Context) func() {

@@ -16,9 +16,10 @@ package hertzobs
 
 import (
 	"context"
-	"github.com/bytedance/gopkg/cloud/metainfo"
 	"reflect"
 	"testing"
+
+	"github.com/bytedance/gopkg/cloud/metainfo"
 
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/stretchr/testify/assert"

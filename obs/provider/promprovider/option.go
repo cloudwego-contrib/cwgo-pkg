@@ -15,9 +15,10 @@
 package promprovider
 
 import (
+	"net/http"
+
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
 	"github.com/prometheus/client_golang/prometheus"
-	"net/http"
 )
 
 var defaultBuckets = []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000}
@@ -138,6 +139,7 @@ func WithHttpServer() Option {
 		cfg.enableRPC = false
 	})
 }
+
 func WithRPCServer() Option {
 	return option(func(cfg *config) {
 		cfg.enableRPC = true

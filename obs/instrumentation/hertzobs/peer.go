@@ -16,8 +16,9 @@ package hertzobs
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"
 	"strings"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"
 
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"go.opentelemetry.io/otel/attribute"

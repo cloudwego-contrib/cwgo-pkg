@@ -18,13 +18,14 @@ package prometheus
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
-	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
+	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
 
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

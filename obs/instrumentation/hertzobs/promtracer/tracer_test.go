@@ -18,9 +18,6 @@ package promtracer
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
-	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"io"
 	"log"
 	"math/rand"
@@ -28,6 +25,10 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -48,7 +49,7 @@ func TestServerTracerWorkWithHertz(t *testing.T) {
 			log.Fatal("Unable to start a promhttp server, err: " + err.Error())
 		}
 	}()
-	h := server.Default(server.WithHostPorts("127.0.0.1:8888"), server.WithTracer(NewServerTracer(WithRegistry(registry))))
+	h := server.Default(server.WithHostPorts("127.0.0.1:8888"), server.WithTracer(NewServerTracer()))
 
 	h.GET("/metricGet", func(c context.Context, ctx *app.RequestContext) {
 		ctx.String(200, "hello get")
@@ -118,9 +119,7 @@ func TestWithOption(t *testing.T) {
 
 	h := server.Default(
 		server.WithHostPorts("127.0.0.1:8891"), server.WithTracer(
-			NewServerTracer(
-				WithRegistry(registry),
-			),
+			NewServerTracer(),
 		),
 	)
 
@@ -146,7 +145,6 @@ func TestWithOption(t *testing.T) {
 
 // TestWithBucketsOption test server tracer with buckets option
 func TestWithBucketsOption(t *testing.T) {
-
 	h := server.Default(server.WithHostPorts("127.0.0.1:8895"), server.WithTracer(NewServerTracer()))
 
 	h.GET("/metricGet", func(c context.Context, ctx *app.RequestContext) {

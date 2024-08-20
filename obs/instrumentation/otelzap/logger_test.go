@@ -17,8 +17,9 @@ package otelzap
 import (
 	"bytes"
 	"context"
-	logging "github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"testing"
+
+	logging "github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel"

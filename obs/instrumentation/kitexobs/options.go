@@ -74,6 +74,7 @@ func DefaultConfig() *Config {
 		textMapPropagator: otel.GetTextMapPropagator(),
 	}
 }
+
 func (c Config) GetTextMapPropagator() propagation.TextMapPropagator {
 	return c.textMapPropagator
 }

@@ -18,6 +18,7 @@ package metric
 
 import (
 	"context"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
 )
 
@@ -58,6 +59,7 @@ func (m *MeasureImpl) Record(ctx context.Context, value float64, labels []label.
 func (m *MeasureImpl) ProcessAndInjectLabels(ctx context.Context) context.Context {
 	return m.LabelControl.ProcessAndInjectLabels(ctx)
 }
+
 func (m *MeasureImpl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
 	return m.LabelControl.ProcessAndExtractLabels(ctx)
 }

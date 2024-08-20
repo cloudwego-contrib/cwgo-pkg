@@ -16,8 +16,9 @@ package kitexobs
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"
 	"testing"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"
 
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel/attribute"

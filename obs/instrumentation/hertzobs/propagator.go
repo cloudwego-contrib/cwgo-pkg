@@ -16,6 +16,7 @@ package hertzobs
 
 import (
 	"context"
+
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"go.opentelemetry.io/otel/baggage"
 	"go.opentelemetry.io/otel/propagation"

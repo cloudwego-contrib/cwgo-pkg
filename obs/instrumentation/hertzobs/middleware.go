@@ -16,10 +16,10 @@ package hertzobs
 
 import (
 	"context"
+	"time"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/instrumentation/internal"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"
-
-	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/client"

@@ -18,6 +18,7 @@ package metric
 
 import (
 	"context"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
 	"go.opentelemetry.io/otel/metric"
 )

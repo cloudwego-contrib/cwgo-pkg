@@ -14,6 +14,7 @@ package kitexobs
 
 import (
 	"context"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/instrumentation/internal"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"

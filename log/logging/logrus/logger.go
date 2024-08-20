@@ -43,10 +43,11 @@ package logrus
 
 import (
 	"context"
+	"io"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/sirupsen/logrus"
-	"io"
 )
 
 var _ logging.FullLogger = (*Logger)(nil)

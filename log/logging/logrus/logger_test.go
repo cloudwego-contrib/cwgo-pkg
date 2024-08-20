@@ -16,10 +16,11 @@ package logrus_test
 
 import (
 	"context"
+	"testing"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	cwlogrus "github.com/cloudwego-contrib/cwgo-pkg/logging/logrus"
-	"testing"
 
 	"github.com/sirupsen/logrus"
 )

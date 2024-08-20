@@ -16,6 +16,9 @@ package hertzobs
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/instrumentation/hertzobs/testutil"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/client"
@@ -26,8 +29,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/otel"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"testing"
-	"time"
 )
 
 func TestMetricsExample(t *testing.T) {

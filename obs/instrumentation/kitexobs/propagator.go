@@ -16,6 +16,7 @@ package kitexobs
 
 import (
 	"context"
+
 	"github.com/bytedance/gopkg/cloud/metainfo"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/baggage"

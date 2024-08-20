@@ -15,9 +15,10 @@
 package otelslog
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"log/slog"
 	"strings"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 )
 
 // OtelSeverityText convert otelslog level to otel severityText

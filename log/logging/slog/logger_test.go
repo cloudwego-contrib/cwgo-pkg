@@ -18,12 +18,13 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
-
-	"github.com/stretchr/testify/assert"
 	"log/slog"
 	"os"
 	"testing"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const (

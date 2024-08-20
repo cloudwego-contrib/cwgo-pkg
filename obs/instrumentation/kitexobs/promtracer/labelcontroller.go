@@ -18,6 +18,7 @@ package prometheus
 
 import (
 	"context"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/label"
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/semantic"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -26,8 +27,7 @@ import (
 
 var _ label.LabelControl = PromLabelControl{}
 
-type PromLabelControl struct {
-}
+type PromLabelControl struct{}
 
 func DefaultPromLabelControl() PromLabelControl {
 	return PromLabelControl{}

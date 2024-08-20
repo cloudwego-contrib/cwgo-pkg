@@ -15,11 +15,11 @@
 package otelslog
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
-	cwslog "github.com/cloudwego-contrib/cwgo-pkg/logging/slog"
-
 	"io"
 	"log/slog"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+	cwslog "github.com/cloudwego-contrib/cwgo-pkg/logging/slog"
 )
 
 const (
@@ -57,6 +57,7 @@ func (l *Logger) SetOutput(writer io.Writer) {
 	l.config.logger.SetOutput(writer)
 	l.Logger.SetLogger(log)
 }
+
 func (l *Logger) SetLevel(level logging.Level) {
 	l.Logger.SetLevel(level)
 }

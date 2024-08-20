@@ -20,8 +20,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"testing"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

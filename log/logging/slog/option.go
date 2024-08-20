@@ -15,10 +15,11 @@
 package slog
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"io"
 	"log/slog"
 	"os"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 )
 
 type Option interface {
