@@ -18,7 +18,6 @@ package prometheus
 
 import (
 	"github.com/cloudwego-contrib/cwgo-pkg/obs/meter/metric"
-	prom "github.com/prometheus/client_golang/prometheus"
 )
 
 // Option opts for monitor prometheus
@@ -33,26 +32,14 @@ func (fn option) apply(cfg *config) {
 }
 
 type config struct {
-	registry *prom.Registry
-	measure  metric.Measure
+	measure metric.Measure
 }
 
 func defaultConfig() *config {
-	return &config{
-		registry: prom.NewRegistry(),
-	}
+	return &config{}
 }
 
-// WithRegistry define your custom registry
-func WithRegistry(registry *prom.Registry) Option {
-	return option(func(cfg *config) {
-		if registry != nil {
-			cfg.registry = registry
-		}
-	})
-}
-
-// WithMeasure define your custom registry
+// WithMeasure define your custom measure
 func WithMeasure(measure metric.Measure) Option {
 	return option(func(cfg *config) {
 		cfg.measure = measure
