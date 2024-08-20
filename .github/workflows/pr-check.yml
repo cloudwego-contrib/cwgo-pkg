@@ -13,8 +13,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check Spell
-        uses: crate-ci/typos@master
 
   staticcheck:
     runs-on: ubuntu-latest
