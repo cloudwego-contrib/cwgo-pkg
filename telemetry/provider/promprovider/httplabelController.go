@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package promtracer
+package promprovider
 
 import (
 	"context"
@@ -34,7 +34,7 @@ var _ label.LabelControl = PromLabelControl{}
 
 type PromLabelControl struct{}
 
-func DefaultPromLabelControl() PromLabelControl {
+func DefaultHttpPromLabelControl() PromLabelControl {
 	return PromLabelControl{}
 }
 
@@ -53,11 +53,4 @@ func (p PromLabelControl) ProcessAndExtractLabels(ctx context.Context) []label.C
 	labels[semantic.LabelPath] = defaultValIfEmpty(c.FullPath(), semantic.UnknownLabelValue)
 
 	return label.ToCwLabelFromPromelabel(labels)
-}
-
-func defaultValIfEmpty(val, def string) string {
-	if val == "" {
-		return def
-	}
-	return val
 }

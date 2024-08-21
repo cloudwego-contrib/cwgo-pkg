@@ -23,25 +23,28 @@ import (
 	serverconfig "github.com/cloudwego/hertz/pkg/common/config"
 )
 
-func NewServerTracer(opts ...Option) (serverconfig.Option, *Config) {
-	cfg := NewConfig(opts)
-	st := &HertzTracer{}
+func NewServerOption(opts ...Option) (serverconfig.Option, *Config) {
+	tracer := NewServerTracer(opts...)
+	hertzTracer, ok := tracer.(*HertzTracer)
+	if !ok {
+		cfg := NewConfig(opts)
+		st := &HertzTracer{}
+		serverRequestCountMeasure, err := cfg.meter.Int64Counter(
+			semantic.ServerRequestCount,
+			metric.WithUnit("count"),
+			metric.WithDescription("measures Incoming request count total"),
+		)
+		handleErr(err)
 
-	serverRequestCountMeasure, err := cfg.meter.Int64Counter(
-		semantic.ServerRequestCount,
-		metric.WithUnit("count"),
-		metric.WithDescription("measures Incoming request count total"),
-	)
-	handleErr(err)
-
-	serverLatencyMeasure, err := cfg.meter.Float64Histogram(
-		semantic.ServerLatency,
-		metric.WithUnit("ms"),
-		metric.WithDescription("measures th incoming end to end duration"),
-	)
-	handleErr(err)
-	labelControl := NewOtelLabelControl(cfg.tracer, cfg.shouldIgnore, cfg.serverHttpRouteFormatter)
-	st.Measure = cwmetric.NewMeasure(cwmetric.NewOtelCounter(serverRequestCountMeasure), cwmetric.NewOtelRecorder(serverLatencyMeasure), labelControl)
-
-	return server.WithTracer(st), cfg
+		serverLatencyMeasure, err := cfg.meter.Float64Histogram(
+			semantic.ServerLatency,
+			metric.WithUnit("ms"),
+			metric.WithDescription("measures th incoming end to end duration"),
+		)
+		handleErr(err)
+		labelControl := NewOtelLabelControl(cfg.tracer, cfg.shouldIgnore, cfg.serverHttpRouteFormatter)
+		st.Measure = cwmetric.NewMeasure(cwmetric.NewOtelCounter(serverRequestCountMeasure), cwmetric.NewOtelRecorder(serverLatencyMeasure), labelControl)
+		return server.WithTracer(st), cfg
+	}
+	return server.WithTracer(hertzTracer), hertzTracer.cfg
 }

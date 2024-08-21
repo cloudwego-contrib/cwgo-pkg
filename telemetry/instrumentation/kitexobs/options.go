@@ -15,6 +15,7 @@
 package kitexobs
 
 import (
+	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
@@ -45,6 +46,8 @@ type Config struct {
 	textMapPropagator propagation.TextMapPropagator
 
 	recordSourceOperation bool
+
+	measure cwmetric.Measure
 }
 
 func NewConfig(opts []Option) *Config {
@@ -90,5 +93,12 @@ func WithRecordSourceOperation(recordSourceOperation bool) Option {
 func WithTextMapPropagator(p propagation.TextMapPropagator) Option {
 	return option(func(cfg *Config) {
 		cfg.textMapPropagator = p
+	})
+}
+
+// WithMeasure define your custom measure
+func WithMeasure(measure cwmetric.Measure) Option {
+	return option(func(cfg *Config) {
+		cfg.measure = measure
 	})
 }

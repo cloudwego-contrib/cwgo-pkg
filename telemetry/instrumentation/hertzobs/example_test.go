@@ -40,7 +40,7 @@ func TestMetricsExample(t *testing.T) {
 	otel.SetMeterProvider(meterProvider)
 
 	// server example
-	tracer, cfg := NewServerTracer()
+	tracer, cfg := NewServerOption()
 	h := server.Default(tracer, server.WithHostPorts(":39888"))
 	h.Use(ServerMiddleware(cfg))
 	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {

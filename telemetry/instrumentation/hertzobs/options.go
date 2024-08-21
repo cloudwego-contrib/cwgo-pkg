@@ -17,6 +17,8 @@ package hertzobs
 import (
 	"context"
 
+	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"go.opentelemetry.io/otel"
@@ -60,6 +62,7 @@ type Config struct {
 
 	customResponseHandler app.HandlerFunc
 	shouldIgnore          ConditionFunc
+	measure               cwmetric.Measure
 }
 
 func NewConfig(opts []Option) *Config {
@@ -178,5 +181,12 @@ func WithServerSpanNameFormatter(serverSpanNameFormatter func(c *app.RequestCont
 func WithShouldIgnore(condition ConditionFunc) Option {
 	return option(func(cfg *Config) {
 		cfg.shouldIgnore = condition
+	})
+}
+
+// WithMeasure define your  measure
+func WithMeasure(measure cwmetric.Measure) Option {
+	return option(func(cfg *Config) {
+		cfg.measure = measure
 	})
 }

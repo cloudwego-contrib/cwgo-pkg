@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package prometheus
+package promprovider
 
 import (
 	"context"
@@ -25,19 +25,19 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 )
 
-var _ label.LabelControl = PromLabelControl{}
+var _ label.LabelControl = RPCPromLabelControl{}
 
-type PromLabelControl struct{}
+type RPCPromLabelControl struct{}
 
-func DefaultPromLabelControl() PromLabelControl {
-	return PromLabelControl{}
+func DefaultRPCPromLabelControl() RPCPromLabelControl {
+	return RPCPromLabelControl{}
 }
 
-func (p PromLabelControl) ProcessAndInjectLabels(ctx context.Context) context.Context {
+func (p RPCPromLabelControl) ProcessAndInjectLabels(ctx context.Context) context.Context {
 	return ctx
 }
 
-func (p PromLabelControl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
+func (p RPCPromLabelControl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
 	ri := rpcinfo.GetRPCInfo(ctx)
 	extraLabels := make(prom.Labels)
 	extraLabels[semantic.LabelKeyStatus] = semantic.StatusSucceed

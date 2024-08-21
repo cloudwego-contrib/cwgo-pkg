@@ -41,6 +41,7 @@ const requestContextKey = "requestContext"
 
 type HertzTracer struct {
 	Measure cwmetric.Measure
+	cfg     *Config
 }
 
 func (h HertzTracer) Start(ctx context.Context, c *app.RequestContext) context.Context {

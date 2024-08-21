@@ -80,8 +80,9 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 	}
 	var counter metric.Counter
 	var recorder metric.Recorder
-	if cfg.enableCounter {
-		if cfg.enableRPC {
+	var measure metric.Measure
+	if cfg.enableRPC {
+		if cfg.enableCounter {
 			RPCCounterVec := prometheus.NewCounterVec(
 				prometheus.CounterOpts{
 					Name: cfg.counterName,
@@ -91,20 +92,8 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			)
 			cfg.registry.MustRegister(RPCCounterVec)
 			counter = metric.NewPromCounter(RPCCounterVec)
-		} else {
-			HttpCounterVec := prometheus.NewCounterVec(
-				prometheus.CounterOpts{
-					Name: cfg.counterName,
-					Help: "Total number of HTTPs completed by the server, regardless of success or failure.",
-				},
-				[]string{semantic.LabelHttpMethodKey, semantic.LabelStatusCode, semantic.LabelPath},
-			)
-			cfg.registry.MustRegister(HttpCounterVec)
-			counter = metric.NewPromCounter(HttpCounterVec)
 		}
-	}
-	if cfg.enableRecorder {
-		if cfg.enableRPC {
+		if cfg.enableRecorder {
 			clientHandledHistogramRPC := prometheus.NewHistogramVec(
 				prometheus.HistogramOpts{
 					Name:    cfg.recorderName,
@@ -115,7 +104,21 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			)
 			cfg.registry.MustRegister(clientHandledHistogramRPC)
 			recorder = metric.NewPromRecorder(clientHandledHistogramRPC)
-		} else {
+		}
+		measure = metric.NewMeasure(counter, recorder, DefaultRPCPromLabelControl())
+	} else {
+		if cfg.enableCounter {
+			HttpCounterVec := prometheus.NewCounterVec(
+				prometheus.CounterOpts{
+					Name: cfg.counterName,
+					Help: "Total number of HTTPs completed by the server, regardless of success or failure.",
+				},
+				[]string{semantic.LabelHttpMethodKey, semantic.LabelStatusCode, semantic.LabelPath},
+			)
+			cfg.registry.MustRegister(HttpCounterVec)
+			counter = metric.NewPromCounter(HttpCounterVec)
+		}
+		if cfg.enableRecorder {
 			serverHandledHistogram := prometheus.NewHistogramVec(
 				prometheus.HistogramOpts{
 					Name:    cfg.recorderName,
@@ -126,8 +129,8 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			)
 			cfg.registry.MustRegister(serverHandledHistogram)
 		}
+		measure = metric.NewMeasure(counter, recorder, DefaultHttpPromLabelControl())
 	}
-	measure := metric.NewMeasure(counter, recorder, nil)
 
 	pp := &promProvider{
 		registry: registry,

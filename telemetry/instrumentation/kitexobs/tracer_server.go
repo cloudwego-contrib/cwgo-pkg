@@ -21,12 +21,16 @@ import (
 )
 
 func NewServerOption(opts ...Option) (server.Option, *Config) {
-	cfg := NewConfig(opts)
-	st := &KitexTracer{}
-	serverDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ServerDuration)
-	HandleErr(err)
-	labelcontrol := NewOtelLabelControl(cfg.tracer, cfg.recordSourceOperation)
-	st.Measure = metric.NewMeasure(nil, metric.NewOtelRecorder(serverDurationMeasure), labelcontrol)
-
-	return server.WithTracer(st), cfg
+	tracer := NewServerTracer(opts...)
+	kitexTracer, ok := tracer.(*KitexTracer)
+	if !ok {
+		cfg := NewConfig(opts)
+		st := &KitexTracer{}
+		serverDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ServerDuration)
+		HandleErr(err)
+		labelcontrol := NewOtelLabelControl(cfg.tracer, cfg.recordSourceOperation)
+		st.Measure = metric.NewMeasure(nil, metric.NewOtelRecorder(serverDurationMeasure), labelcontrol)
+		return server.WithTracer(st), cfg
+	}
+	return server.WithTracer(kitexTracer), kitexTracer.cfg
 }

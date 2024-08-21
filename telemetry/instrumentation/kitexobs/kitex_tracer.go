@@ -25,6 +25,7 @@ var _ stats.Tracer = (*KitexTracer)(nil)
 
 type KitexTracer struct {
 	Measure cwmetric.Measure
+	cfg     *Config
 }
 
 func (s *KitexTracer) Start(ctx context.Context) context.Context {

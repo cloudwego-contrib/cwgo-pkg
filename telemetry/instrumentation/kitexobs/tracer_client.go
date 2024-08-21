@@ -21,12 +21,17 @@ import (
 )
 
 func NewClientOption(opts ...Option) (client.Option, *Config) {
-	cfg := NewConfig(opts)
-	ct := &KitexTracer{}
+	tracer := NewClientTracer(opts...)
+	kitexTracer, ok := tracer.(*KitexTracer)
+	if !ok {
+		cfg := NewConfig(opts)
+		ct := &KitexTracer{}
 
-	clientDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ClientDuration)
-	HandleErr(err)
-	labelcontrol := NewOtelLabelControl(cfg.tracer, cfg.recordSourceOperation)
-	ct.Measure = metric.NewMeasure(nil, metric.NewOtelRecorder(clientDurationMeasure), labelcontrol)
-	return client.WithTracer(ct), cfg
+		clientDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ClientDuration)
+		HandleErr(err)
+		labelcontrol := NewOtelLabelControl(cfg.tracer, cfg.recordSourceOperation)
+		ct.Measure = metric.NewMeasure(nil, metric.NewOtelRecorder(clientDurationMeasure), labelcontrol)
+		return client.WithTracer(ct), cfg
+	}
+	return client.WithTracer(kitexTracer), kitexTracer.cfg
 }
