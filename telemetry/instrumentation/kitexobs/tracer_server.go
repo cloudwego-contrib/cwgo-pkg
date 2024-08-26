@@ -15,22 +15,10 @@
 package kitexobs
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"github.com/cloudwego/kitex/server"
 )
 
 func NewServerOption(opts ...Option) (server.Option, *Config) {
-	tracer := NewServerTracer(opts...)
-	kitexTracer, ok := tracer.(*KitexTracer)
-	if !ok {
-		cfg := NewConfig(opts)
-		st := &KitexTracer{}
-		serverDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ServerDuration)
-		HandleErr(err)
-		labelcontrol := NewOtelLabelControl(cfg.tracer, cfg.recordSourceOperation)
-		st.Measure = metric.NewMeasure(nil, metric.NewOtelRecorder(serverDurationMeasure), labelcontrol)
-		return server.WithTracer(st), cfg
-	}
+	kitexTracer := NewServerTracer(opts...)
 	return server.WithTracer(kitexTracer), kitexTracer.cfg
 }

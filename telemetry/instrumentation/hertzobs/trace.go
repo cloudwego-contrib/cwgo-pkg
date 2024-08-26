@@ -19,12 +19,11 @@ package hertzobs
 import (
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
-	"github.com/cloudwego/hertz/pkg/common/tracer"
 	"go.opentelemetry.io/otel/metric"
 )
 
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
-func NewServerTracer(opts ...Option) tracer.Tracer {
+func NewServerTracer(opts ...Option) *HertzTracer {
 	cfg := NewConfig(opts)
 	if cfg.measure == nil {
 		serverRequestCountMeasure, err := cfg.meter.Int64Counter(

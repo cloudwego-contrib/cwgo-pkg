@@ -20,11 +20,10 @@ package kitexobs
 import (
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
-	"github.com/cloudwego/kitex/pkg/stats"
 )
 
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
-func NewServerTracer(options ...Option) stats.Tracer {
+func NewServerTracer(options ...Option) *KitexTracer {
 	cfg := NewConfig(options)
 	if cfg.measure == nil {
 		serverDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ServerDuration)
@@ -39,7 +38,7 @@ func NewServerTracer(options ...Option) stats.Tracer {
 }
 
 // NewClientTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
-func NewClientTracer(options ...Option) stats.Tracer {
+func NewClientTracer(options ...Option) *KitexTracer {
 	cfg := NewConfig(options)
 	if cfg.measure == nil {
 		clientDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ClientDuration)
