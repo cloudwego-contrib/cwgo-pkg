@@ -51,15 +51,15 @@ const (
 	// Required: Always
 	// Examples:
 	// http: 'http'
-	// rpc: 'grpc', 'java_rmi', 'wcf', 'kitexobs'
+	// rpc: 'grpc', 'java_rmi', 'wcf', 'otelkitex'
 	// db: mysql, postgresql
 	// mq: 'rabbitmq', 'activemq', 'AmazonSQS'
 	RequestProtocolKey = attribute.Key("request.protocol")
 
 	// RPCSystemKitexRecvSize recv_size
-	RPCSystemKitexRecvSize = attribute.Key("kitexobs.recv_size")
+	RPCSystemKitexRecvSize = attribute.Key("otelkitex.recv_size")
 	// RPCSystemKitexSendSize send_size
-	RPCSystemKitexSendSize = attribute.Key("kitexobs.send_size")
+	RPCSystemKitexSendSize = attribute.Key("otelkitex.send_size")
 
 	// PeerServiceNamespaceKey peer.service.namespace
 	PeerServiceNamespaceKey = attribute.Key("peer.service.namespace")
@@ -114,5 +114,5 @@ const (
 	ClientLatency      = "http.client.duration"      // measures the duration outbound HTTP requests
 )
 
-// RPCSystemKitex Semantic convention for kitexobs as the remoting system.
-var RPCSystemKitex = semconv.RPCSystemKey.String("kitexobs")
+// RPCSystemKitex Semantic convention for otelkitex as the remoting system.
+var RPCSystemKitex = semconv.RPCSystemKey.String("otelkitex")

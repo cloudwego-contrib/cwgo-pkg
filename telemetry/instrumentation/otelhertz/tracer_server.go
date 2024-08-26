@@ -12,33 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package otellogrus
+package otelhertz
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/logging/logrus"
+	"github.com/cloudwego/hertz/pkg/app/server"
+	serverconfig "github.com/cloudwego/hertz/pkg/common/config"
 )
 
-// Logger an alias to github.com/otelhertz-contrib/logger/otellogrus Logger
-type Logger = logrus.Logger
+func NewServerOption(opts ...Option) (serverconfig.Option, *Config) {
+	hertzTracer := NewServerTracer(opts...)
 
-// NewLogger create logger with otel hook
-func NewLogger(opts ...Option) *Logger {
-	cfg := defaultConfig()
-
-	// apply options
-	for _, opt := range opts {
-		opt.apply(cfg)
-	}
-
-	// default trace hooks
-	cfg.hooks = append(cfg.hooks, NewTraceHook(cfg.traceHookConfig))
-
-	// attach hook
-	for _, hook := range cfg.hooks {
-		cfg.logger.AddHook(hook)
-	}
-
-	return logrus.NewLogger(
-		logrus.WithLogger(cfg.logger),
-	)
+	return server.WithTracer(hertzTracer), hertzTracer.cfg
 }
