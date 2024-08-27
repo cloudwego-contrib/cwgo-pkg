@@ -27,18 +27,12 @@ var _ Measure = &MeasureImpl{}
 type MeasureImpl struct {
 	Counter
 	Recorder
-	label.LabelControl
 }
 
-func (m *MeasureImpl) SetLabelControl(control label.LabelControl) {
-	m.LabelControl = control
-}
-
-func NewMeasure(counter Counter, recorder Recorder, labelcontrol label.LabelControl) Measure {
+func NewMeasure(counter Counter, recorder Recorder) Measure {
 	return &MeasureImpl{
-		Counter:      counter,
-		Recorder:     recorder,
-		LabelControl: labelcontrol,
+		Counter:  counter,
+		Recorder: recorder,
 	}
 }
 
@@ -54,12 +48,4 @@ func (m *MeasureImpl) Add(ctx context.Context, value int, labels []label.CwLabel
 // Recorder interface implementation
 func (m *MeasureImpl) Record(ctx context.Context, value float64, labels []label.CwLabel) error {
 	return m.Recorder.Record(ctx, value, labels)
-}
-
-func (m *MeasureImpl) ProcessAndInjectLabels(ctx context.Context) context.Context {
-	return m.LabelControl.ProcessAndInjectLabels(ctx)
-}
-
-func (m *MeasureImpl) ProcessAndExtractLabels(ctx context.Context) []label.CwLabel {
-	return m.LabelControl.ProcessAndExtractLabels(ctx)
 }

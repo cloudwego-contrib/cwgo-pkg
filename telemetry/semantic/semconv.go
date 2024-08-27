@@ -115,4 +115,4 @@ const (
 )
 
 // RPCSystemKitex Semantic convention for otelkitex as the remoting system.
-var RPCSystemKitex = semconv.RPCSystemKey.String("otelkitex")
+var RPCSystemKitex = semconv.RPCSystemKey.String("kitex")

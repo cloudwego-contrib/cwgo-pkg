@@ -27,12 +27,20 @@ package otelhertz
 
 import (
 	"context"
+	"strconv"
 	"time"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/internal"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/adaptor"
 	"github.com/cloudwego/hertz/pkg/common/tracer"
 	"github.com/cloudwego/hertz/pkg/common/tracer/stats"
+	"go.opentelemetry.io/otel/attribute"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var _ tracer.Tracer = (*HertzTracer)(nil)
@@ -45,8 +53,13 @@ type HertzTracer struct {
 }
 
 func (h HertzTracer) Start(ctx context.Context, c *app.RequestContext) context.Context {
-	ctx = context.WithValue(ctx, requestContextKey, c)
-	return h.Measure.ProcessAndInjectLabels(ctx)
+	if h.cfg.shouldIgnore(ctx, c) {
+		return ctx
+	}
+	tc := &internal.TraceCarrier{}
+	tc.SetTracer(h.cfg.tracer)
+
+	return internal.WithTraceCarrier(ctx, tc)
 }
 
 func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
@@ -63,8 +76,65 @@ func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	elapsedTime := float64(st.GetEvent(stats.HTTPFinish).Time().Sub(httpStart.Time())) / float64(time.Millisecond)
-	labels := h.Measure.ProcessAndExtractLabels(ctx)
+	labels := []label.CwLabel{
+		{
+			Key:   semantic.LabelHttpMethodKey,
+			Value: defaultValIfEmpty(string(c.Request.Method()), semantic.UnknownLabelValue),
+		},
+		{
+			Key:   semantic.LabelKeyStatus,
+			Value: defaultValIfEmpty(strconv.Itoa(c.Response.Header.StatusCode()), semantic.UnknownLabelValue),
+		},
+		{
+			Key:   semantic.LabelPath,
+			Value: defaultValIfEmpty(c.FullPath(), semantic.UnknownLabelValue),
+		},
+	}
+	tc := internal.TraceCarrierFromContext(ctx)
+	var span trace.Span
+	if tc != nil {
+		span = tc.Span()
+		if span != nil && span.IsRecording() {
+			// span attributes from original http request
+			if httpReq, err := adaptor.GetCompatRequest(c.GetRequest()); err == nil {
+				span.SetAttributes(semconv.NetAttributesFromHTTPRequest("tcp", httpReq)...)
+				span.SetAttributes(semconv.EndUserAttributesFromHTTPRequest(httpReq)...)
+				span.SetAttributes(semconv.HTTPServerAttributesFromHTTPRequest("", h.cfg.serverHttpRouteFormatter(c), httpReq)...)
+			}
+
+			// span attributes
+			attrs := []attribute.KeyValue{
+				semconv.HTTPURLKey.String(c.URI().String()),
+				semconv.NetPeerIPKey.String(c.ClientIP()),
+			}
+			span.SetAttributes(attrs...)
+
+			injectStatsEventsToSpan(span, st)
+
+			if panicMsg, panicStack, httpErr := parseHTTPError(ti); httpErr != nil || len(panicMsg) > 0 {
+				recordErrorSpanWithStack(span, httpErr, panicMsg, panicStack)
+			}
+
+			span.End(trace.WithTimestamp(getEndTimeOrNow(ti)))
+
+			metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
+
+			labels = append(labels, label.ToCwLabelsFromOtels(metricsAttributes)...)
+		}
+	}
+	//labels := h.Measure.ProcessAndExtractLabels(ctx)
+	/*	labels := make(prom.Labels)
+		labels[semantic.LabelHttpMethodKey] = defaultValIfEmpty(string(c.Request.Method()), semantic.UnknownLabelValue)
+		labels[semantic.LabelKeyStatus] = defaultValIfEmpty(strconv.Itoa(c.Response.Header.StatusCode()), semantic.UnknownLabelValue)
+		labels[semantic.LabelPath] = defaultValIfEmpty(c.FullPath(), semantic.UnknownLabelValue)*/
 
 	h.Measure.Inc(ctx, labels)
 	h.Measure.Record(ctx, elapsedTime, labels)
+}
+
+func defaultValIfEmpty(val, def string) string {
+	if val == "" {
+		return def
+	}
+	return val
 }

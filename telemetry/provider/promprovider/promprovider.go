@@ -105,7 +105,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			cfg.registry.MustRegister(clientHandledHistogramRPC)
 			recorder = metric.NewPromRecorder(clientHandledHistogramRPC)
 		}
-		measure = metric.NewMeasure(counter, recorder, DefaultRPCPromLabelControl())
+		measure = metric.NewMeasure(counter, recorder)
 	} else {
 		if cfg.enableCounter {
 			HttpCounterVec := prometheus.NewCounterVec(
@@ -129,7 +129,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			)
 			cfg.registry.MustRegister(serverHandledHistogram)
 		}
-		measure = metric.NewMeasure(counter, recorder, DefaultHttpPromLabelControl())
+		measure = metric.NewMeasure(counter, recorder)
 	}
 
 	pp := &promProvider{

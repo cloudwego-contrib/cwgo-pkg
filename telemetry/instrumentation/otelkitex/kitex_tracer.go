@@ -16,6 +16,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/internal"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/pkg/stats"
@@ -24,12 +30,18 @@ import (
 var _ stats.Tracer = (*KitexTracer)(nil)
 
 type KitexTracer struct {
-	Measure cwmetric.Measure
-	cfg     *Config
+	Measure               cwmetric.Measure
+	cfg                   *Config
+	recordSourceOperation bool
 }
 
 func (s *KitexTracer) Start(ctx context.Context) context.Context {
-	return s.Measure.ProcessAndInjectLabels(ctx)
+	tc := &internal.TraceCarrier{}
+	if s.cfg.tracer != nil {
+		tc.SetTracer(s.cfg.tracer)
+	}
+
+	return internal.WithTraceCarrier(ctx, tc)
 }
 
 func (s *KitexTracer) Finish(ctx context.Context) {
@@ -45,7 +57,89 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 	duration := rpcFinish.Time().Sub(rpcStart.Time())
 	elapsedTime := float64(duration) / float64(time.Millisecond)
 
-	labels := s.Measure.ProcessAndExtractLabels(ctx)
+	// promlabels := s.Measure.ProcessAndExtractLabels(ctx)
+	caller := ri.From()
+	callee := ri.To()
+	labels := []label.CwLabel{
+		{
+			Key:   semantic.LabelRPCCallerKey,
+			Value: defaultValIfEmpty(caller.ServiceName(), semantic.UnknownLabelValue),
+		},
+		{
+			Key:   semantic.LabelRPCCalleeKey,
+			Value: defaultValIfEmpty(callee.ServiceName(), semantic.UnknownLabelValue),
+		},
+		{
+			Key:   semantic.LabelRPCMethodKey,
+			Value: defaultValIfEmpty(callee.Method(), semantic.UnknownLabelValue),
+		},
+	}
+	retry := label.CwLabel{
+		Key:   semantic.LabelKeyRetry,
+		Value: semantic.StatusSucceed,
+	}
+	if retriedCnt, ok := callee.Tag(rpcinfo.RetryTag); ok {
+		retry = label.CwLabel{
+			Key:   semantic.LabelKeyRetry,
+			Value: retriedCnt,
+		}
+	}
+	labels = append(labels, retry)
+
+	tc := internal.TraceCarrierFromContext(ctx)
+	var span trace.Span
+	if tc != nil {
+		span = tc.Span()
+		if span != nil && span.IsRecording() {
+			// span attributes
+			attrs := []attribute.KeyValue{
+				semantic.RPCSystemKitex,
+				semantic.RPCSystemKitexRecvSize.Int64(int64(st.RecvSize())),
+				semantic.RPCSystemKitexSendSize.Int64(int64(st.SendSize())),
+				semantic.RequestProtocolKey.String(ri.Config().TransportProtocol().String()),
+			}
+
+			// The source operation dimension maybe cause high cardinality issues
+			if s.recordSourceOperation {
+				attrs = append(attrs, semantic.SourceOperationKey.String(ri.From().Method()))
+			}
+
+			span.SetAttributes(attrs...)
+
+			injectStatsEventsToSpan(span, st)
+
+			if panicMsg, panicStack, rpcErr := parseRPCError(ri); rpcErr != nil || len(panicMsg) > 0 {
+				recordErrorSpanWithStack(span, rpcErr, panicMsg, panicStack)
+			}
+
+			span.End(trace.WithTimestamp(getEndTimeOrNow(ri)))
+			metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
+			spanlabels := label.ToCwLabelsFromOtels(metricsAttributes)
+
+			labels = append(labels, spanlabels...)
+		}
+	}
+	if span == nil || !span.IsRecording() {
+		stateless := label.CwLabel{
+			Key:   semantic.LabelKeyStatus,
+			Value: semantic.StatusSucceed,
+		}
+		if ri.Stats().Error() != nil {
+			stateless = label.CwLabel{
+				Key:   semantic.LabelKeyStatus,
+				Value: semantic.StatusError,
+			}
+		}
+		labels = append(labels, stateless)
+	}
+	// Measure
 	s.Measure.Inc(ctx, labels)
 	s.Measure.Record(ctx, elapsedTime, labels)
+}
+
+func defaultValIfEmpty(val, def string) string {
+	if val == "" {
+		return def
+	}
+	return val
 }

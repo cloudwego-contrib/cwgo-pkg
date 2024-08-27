@@ -23,8 +23,6 @@ import (
 type Measure interface {
 	Counter
 	Recorder
-	label.LabelControl
-	SetLabelControl(label.LabelControl)
 }
 type Counter interface {
 	Inc(ctx context.Context, labels []label.CwLabel) error

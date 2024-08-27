@@ -39,8 +39,8 @@ func NewServerTracer(opts ...Option) *HertzTracer {
 			metric.WithDescription("measures th incoming end to end duration"),
 		)
 		handleErr(err)
-		labelControl := NewOtelLabelControl(cfg.tracer, cfg.shouldIgnore, cfg.serverHttpRouteFormatter)
-		cfg.measure = cwmetric.NewMeasure(cwmetric.NewOtelCounter(serverRequestCountMeasure), cwmetric.NewOtelRecorder(serverLatencyMeasure), labelControl)
+
+		cfg.measure = cwmetric.NewMeasure(cwmetric.NewOtelCounter(serverRequestCountMeasure), cwmetric.NewOtelRecorder(serverLatencyMeasure))
 
 	}
 	return &HertzTracer{
