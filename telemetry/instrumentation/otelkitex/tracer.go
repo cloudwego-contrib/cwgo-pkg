@@ -31,7 +31,7 @@ func NewServerTracer(options ...Option) *KitexTracer {
 		cfg.measure = metric.NewMeasure(nil, metric.NewOtelRecorder(serverDurationMeasure))
 	}
 	return &KitexTracer{
-		Measure: cfg.measure,
+		measure: cfg.measure,
 		cfg:     cfg,
 	}
 }
@@ -45,7 +45,7 @@ func NewClientTracer(options ...Option) *KitexTracer {
 		cfg.measure = metric.NewMeasure(nil, metric.NewOtelRecorder(clientDurationMeasure))
 	}
 	return &KitexTracer{
-		Measure: cfg.measure,
+		measure: cfg.measure,
 		cfg:     cfg,
 	}
 }

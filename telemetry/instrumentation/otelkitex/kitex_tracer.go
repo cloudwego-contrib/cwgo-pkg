@@ -30,11 +30,12 @@ import (
 var _ stats.Tracer = (*KitexTracer)(nil)
 
 type KitexTracer struct {
-	Measure               cwmetric.Measure
+	measure               cwmetric.Measure
 	cfg                   *Config
 	recordSourceOperation bool
 }
 
+// Start record the beginning of an RPC invocation.
 func (s *KitexTracer) Start(ctx context.Context) context.Context {
 	tc := &internal.TraceCarrier{}
 	if s.cfg.tracer != nil {
@@ -44,6 +45,7 @@ func (s *KitexTracer) Start(ctx context.Context) context.Context {
 	return internal.WithTraceCarrier(ctx, tc)
 }
 
+// Finish record after receiving the response of server.
 func (s *KitexTracer) Finish(ctx context.Context) {
 	// rpc info
 	ri := rpcinfo.GetRPCInfo(ctx)
@@ -57,7 +59,6 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 	duration := rpcFinish.Time().Sub(rpcStart.Time())
 	elapsedTime := float64(duration) / float64(time.Millisecond)
 
-	// promlabels := s.Measure.ProcessAndExtractLabels(ctx)
 	caller := ri.From()
 	callee := ri.To()
 	labels := []label.CwLabel{
@@ -76,7 +77,7 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 	}
 	retry := label.CwLabel{
 		Key:   semantic.LabelKeyRetry,
-		Value: semantic.StatusSucceed,
+		Value: "0",
 	}
 	if retriedCnt, ok := callee.Tag(rpcinfo.RetryTag); ok {
 		retry = label.CwLabel{
@@ -87,6 +88,8 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 	labels = append(labels, retry)
 
 	tc := internal.TraceCarrierFromContext(ctx)
+
+	// span
 	var span trace.Span
 	if tc != nil {
 		span = tc.Span()
@@ -132,9 +135,10 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 		}
 		labels = append(labels, stateless)
 	}
-	// Measure
-	s.Measure.Inc(ctx, labels)
-	s.Measure.Record(ctx, elapsedTime, labels)
+
+	// measure
+	s.measure.Inc(ctx, labels)
+	s.measure.Record(ctx, elapsedTime, labels)
 }
 
 func defaultValIfEmpty(val, def string) string {

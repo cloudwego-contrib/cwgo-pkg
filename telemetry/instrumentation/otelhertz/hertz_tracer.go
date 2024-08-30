@@ -48,7 +48,7 @@ var _ tracer.Tracer = (*HertzTracer)(nil)
 const requestContextKey = "requestContext"
 
 type HertzTracer struct {
-	Measure cwmetric.Measure
+	measure cwmetric.Measure
 	cfg     *Config
 }
 
@@ -122,14 +122,8 @@ func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
 			labels = append(labels, label.ToCwLabelsFromOtels(metricsAttributes)...)
 		}
 	}
-	//labels := h.Measure.ProcessAndExtractLabels(ctx)
-	/*	labels := make(prom.Labels)
-		labels[semantic.LabelHttpMethodKey] = defaultValIfEmpty(string(c.Request.Method()), semantic.UnknownLabelValue)
-		labels[semantic.LabelKeyStatus] = defaultValIfEmpty(strconv.Itoa(c.Response.Header.StatusCode()), semantic.UnknownLabelValue)
-		labels[semantic.LabelPath] = defaultValIfEmpty(c.FullPath(), semantic.UnknownLabelValue)*/
-
-	h.Measure.Inc(ctx, labels)
-	h.Measure.Record(ctx, elapsedTime, labels)
+	h.measure.Inc(ctx, labels)
+	h.measure.Record(ctx, elapsedTime, labels)
 }
 
 func defaultValIfEmpty(val, def string) string {

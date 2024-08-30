@@ -44,7 +44,7 @@ func NewServerTracer(opts ...Option) *HertzTracer {
 
 	}
 	return &HertzTracer{
-		Measure: cfg.measure,
+		measure: cfg.measure,
 		cfg:     cfg,
 	}
 }

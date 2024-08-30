@@ -29,14 +29,14 @@ import (
 
 var _ provider.Provider = &promProvider{}
 
-// promProvider 结构体，包含 Prometheus 注册表和 HTTP 服务器
+// promProvider Structure of promProvider, including Prometheus registry and HTTP server
 type promProvider struct {
 	registry *prometheus.Registry
 	server   *http.Server
 	Measure  metric.Measure
 }
 
-// Shutdown 实现 Provider 接口的 Shutdown 方法
+// Shutdown Implement the Shutdown method for the Provider interface
 func (p *promProvider) Shutdown(ctx context.Context) error {
 	// 关闭 HTTP 服务器
 	if err := p.server.Shutdown(ctx); err != nil {
@@ -50,7 +50,7 @@ func (p *promProvider) GetRegistry() *prometheus.Registry {
 	return p.registry
 }
 
-// NewPromProvider 初始化并返回一个新的 promProvider 实例
+// NewPromProvider Initialize and return a new promProvider instance
 func NewPromProvider(addr string, opts ...Option) *promProvider {
 	var registry *prometheus.Registry
 

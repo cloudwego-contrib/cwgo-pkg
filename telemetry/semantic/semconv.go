@@ -19,7 +19,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 )
 
-// RPC Measure Labels
+// RPC measure Labels
 const (
 	LabelRPCMethodKey = "rpc.method"
 	LabelRPCCalleeKey = "rpc.service"
@@ -28,7 +28,7 @@ const (
 	LabelKeyStatus    = "status"
 )
 
-// HTTP Measure Labels
+// HTTP measure Labels
 const (
 	LabelHttpMethodKey = "http.method"
 	LabelStatusCode    = "statusCode"
