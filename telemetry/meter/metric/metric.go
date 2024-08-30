@@ -23,6 +23,7 @@ import (
 type Measure interface {
 	Counter
 	Recorder
+	RetryRecorder
 }
 type Counter interface {
 	Inc(ctx context.Context, labels []label.CwLabel) error
@@ -30,4 +31,8 @@ type Counter interface {
 }
 type Recorder interface {
 	Record(ctx context.Context, value float64, labels []label.CwLabel) error
+}
+
+type RetryRecorder interface {
+	RetryRecord(ctx context.Context, value float64, labels []label.CwLabel) error
 }

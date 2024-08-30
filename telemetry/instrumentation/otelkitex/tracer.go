@@ -28,7 +28,9 @@ func NewServerTracer(options ...Option) *KitexTracer {
 	if cfg.measure == nil {
 		serverDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ServerDuration)
 		HandleErr(err)
-		cfg.measure = metric.NewMeasure(nil, metric.NewOtelRecorder(serverDurationMeasure))
+		serverRetryMeasure, err := cfg.meter.Float64Histogram(semantic.ServerRetry)
+		HandleErr(err)
+		cfg.measure = metric.NewMeasure(nil, metric.NewOtelRecorder(serverDurationMeasure), metric.NewOtelRetryRecorder(serverRetryMeasure))
 	}
 	return &KitexTracer{
 		measure: cfg.measure,
@@ -42,7 +44,9 @@ func NewClientTracer(options ...Option) *KitexTracer {
 	if cfg.measure == nil {
 		clientDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ClientDuration)
 		HandleErr(err)
-		cfg.measure = metric.NewMeasure(nil, metric.NewOtelRecorder(clientDurationMeasure))
+		clientRetryMeasure, err := cfg.meter.Float64Histogram(semantic.ClientRetry)
+		HandleErr(err)
+		cfg.measure = metric.NewMeasure(nil, metric.NewOtelRecorder(clientDurationMeasure), metric.NewOtelRetryRecorder(clientRetryMeasure))
 	}
 	return &KitexTracer{
 		measure: cfg.measure,

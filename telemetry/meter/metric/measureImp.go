@@ -27,12 +27,14 @@ var _ Measure = &MeasureImpl{}
 type MeasureImpl struct {
 	Counter
 	Recorder
+	RetryRecorder
 }
 
-func NewMeasure(counter Counter, recorder Recorder) Measure {
+func NewMeasure(counter Counter, recorder Recorder, retryRecorder RetryRecorder) Measure {
 	return &MeasureImpl{
-		Counter:  counter,
-		Recorder: recorder,
+		Counter:       counter,
+		Recorder:      recorder,
+		RetryRecorder: retryRecorder,
 	}
 }
 
@@ -48,4 +50,8 @@ func (m *MeasureImpl) Add(ctx context.Context, value int, labels []label.CwLabel
 // Recorder interface implementation
 func (m *MeasureImpl) Record(ctx context.Context, value float64, labels []label.CwLabel) error {
 	return m.Recorder.Record(ctx, value, labels)
+}
+
+func (m *MeasureImpl) RetryRecord(ctx context.Context, value float64, labels []label.CwLabel) error {
+	return m.RetryRecorder.RetryRecord(ctx, value, labels)
 }

@@ -67,7 +67,7 @@ func TestMetrics(t *testing.T) {
 		"test1": "abc",
 		"test2": "def",
 	}
-	prommmetric := NewMeasure(NewPromCounter(counter), NewPromRecorder(histogram))
+	prommmetric := NewMeasure(NewPromCounter(counter), NewPromRecorder(histogram), nil)
 	assert.Nil(t, prommmetric.Add(ctx, 6, label.ToCwLabelFromPromelabel(labels)))
 	assert.Nil(t, prommmetric.Record(ctx, float64(100*time.Millisecond.Microseconds()), label.ToCwLabelFromPromelabel(labels)))
 

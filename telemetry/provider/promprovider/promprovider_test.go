@@ -51,7 +51,7 @@ func TestPromProvider(t *testing.T) {
 
 	mux := http.NewServeMux()
 
-	measure := metric.NewMeasure(metric.NewPromCounter(counter), metric.NewPromRecorder(histogram))
+	measure := metric.NewMeasure(metric.NewPromCounter(counter), metric.NewPromRecorder(histogram), nil)
 	provider := NewPromProvider(":9090",
 		WithRegistry(registry),
 		WithMeasure(measure),

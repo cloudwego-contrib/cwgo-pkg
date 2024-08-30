@@ -89,6 +89,7 @@ const (
 	ServerResponseSize    = "rpc.server.response.size"     // measures size of RPC response messages (uncompressed)
 	ServerRequestsPerRPC  = "rpc.server.requests_per_rpc"  // measures the number of messages received per RPC. Should be 1 for all non-streaming RPCs
 	ServerResponsesPerRPC = "rpc.server.responses_per_rpc" // measures the number of messages sent per RPC. Should be 1 for all non-streaming RPCs
+	ServerRetry           = "rpc.server.retry"
 )
 
 // RPC Client meter
@@ -100,6 +101,7 @@ const (
 	ClientResponseSize    = "rpc.client.response.size"     // measures size of RPC response messages (uncompressed)
 	ClientRequestsPerRPC  = "rpc.client.requests_per_rpc"  // measures the number of messages received per RPC. Should be 1 for all non-streaming RPCs
 	ClientResponsesPerRPC = "rpc.client.responses_per_rpc" // measures the number of messages sent per RPC. Should be 1 for all non-streaming RPCs
+	ClientRetry           = "rpc.client.retry"
 )
 
 // Server HTTP meter

@@ -14,6 +14,7 @@ package otelkitex
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/internal"
@@ -75,17 +76,14 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 			Value: defaultValIfEmpty(callee.Method(), semantic.UnknownLabelValue),
 		},
 	}
-	retry := label.CwLabel{
-		Key:   semantic.LabelKeyRetry,
-		Value: "0",
-	}
+
 	if retriedCnt, ok := callee.Tag(rpcinfo.RetryTag); ok {
-		retry = label.CwLabel{
-			Key:   semantic.LabelKeyRetry,
-			Value: retriedCnt,
+		retryAttempts, err := strconv.Atoi(retriedCnt)
+		if err == nil {
+			s.measure.RetryRecord(ctx, float64(retryAttempts), labels)
 		}
+
 	}
-	labels = append(labels, retry)
 
 	tc := internal.TraceCarrierFromContext(ctx)
 

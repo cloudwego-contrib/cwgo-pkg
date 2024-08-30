@@ -80,6 +80,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 	}
 	var counter metric.Counter
 	var recorder metric.Recorder
+	var retryRecorder metric.RetryRecorder
 	var measure metric.Measure
 	if cfg.enableRPC {
 		if cfg.enableCounter {
@@ -88,7 +89,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 					Name: cfg.counterName,
 					Help: fmt.Sprintf("Total number of requires completed by the %s, regardless of success or failure.", cfg.counterName),
 				},
-				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus, semantic.LabelKeyRetry},
+				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus},
 			)
 			cfg.registry.MustRegister(RPCCounterVec)
 			counter = metric.NewPromCounter(RPCCounterVec)
@@ -100,12 +101,23 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 					Help:    fmt.Sprintf("Latency (microseconds) of the %s until it is finished.", cfg.recorderName),
 					Buckets: cfg.buckets,
 				},
-				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus, semantic.LabelKeyRetry},
+				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus},
 			)
 			cfg.registry.MustRegister(clientHandledHistogramRPC)
 			recorder = metric.NewPromRecorder(clientHandledHistogramRPC)
+			// create retry recorder
+			retryHandledHistogramRPC := prometheus.NewHistogramVec(
+				prometheus.HistogramOpts{
+					Name:    fmt.Sprintf("%s_retry_attempts", cfg.recorderName),
+					Help:    fmt.Sprintf("Distribution of retry attempts for %s until it is finished.", cfg.recorderName),
+					Buckets: retryBuckets,
+				},
+				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey},
+			)
+			cfg.registry.MustRegister(clientHandledHistogramRPC)
+			retryRecorder = metric.NewPromRetryRecorder(retryHandledHistogramRPC)
 		}
-		measure = metric.NewMeasure(counter, recorder)
+		measure = metric.NewMeasure(counter, recorder, retryRecorder)
 	} else {
 		if cfg.enableCounter {
 			HttpCounterVec := prometheus.NewCounterVec(
@@ -129,7 +141,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			)
 			cfg.registry.MustRegister(serverHandledHistogram)
 		}
-		measure = metric.NewMeasure(counter, recorder)
+		measure = metric.NewMeasure(counter, recorder, nil)
 	}
 
 	pp := &promProvider{

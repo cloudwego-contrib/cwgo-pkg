@@ -54,12 +54,30 @@ type OtelRecorder struct {
 }
 
 func NewOtelRecorder(histogram metric.Float64Histogram) Recorder {
-	return OtelRecorder{
+	return &OtelRecorder{
 		histogram: histogram,
 	}
 }
 
 func (o OtelRecorder) Record(ctx context.Context, value float64, labels []label.CwLabel) error {
+	otelLabel := label.ToOtelsFromCwLabel(labels)
+	o.histogram.Record(ctx, value, metric.WithAttributes(otelLabel...))
+	return nil
+}
+
+var _ RetryRecorder = &OtelRetryRecorder{}
+
+type OtelRetryRecorder struct {
+	histogram metric.Float64Histogram
+}
+
+func NewOtelRetryRecorder(histogram metric.Float64Histogram) *OtelRetryRecorder {
+	return &OtelRetryRecorder{
+		histogram: histogram,
+	}
+}
+
+func (o OtelRetryRecorder) RetryRecord(ctx context.Context, value float64, labels []label.CwLabel) error {
 	otelLabel := label.ToOtelsFromCwLabel(labels)
 	o.histogram.Record(ctx, value, metric.WithAttributes(otelLabel...))
 	return nil

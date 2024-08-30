@@ -22,6 +22,7 @@ import (
 )
 
 var defaultBuckets = []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000}
+var retryBuckets = []float64{0, 5, 10, 50, 100, 1000, 5000, 10000, 50000}
 
 // Option opts for opentelemetry tracer provider
 type Option interface {
