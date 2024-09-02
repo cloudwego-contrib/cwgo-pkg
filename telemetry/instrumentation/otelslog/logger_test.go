@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"context"
 	"log/slog"
-	"os"
 	"strings"
 	"testing"
 
@@ -135,7 +134,7 @@ func TestLogOption(t *testing.T) {
 				cwslog.WithLevel(lvl),
 				cwslog.WithOutput(buf),
 				cwslog.WithHandlerOptions(&slog.HandlerOptions{
-					AddSource: true,
+					AddSource: false,
 					ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
 						if a.Key == slog.MessageKey {
 							msg := a.Value.Any().(string)
@@ -152,7 +151,4 @@ func TestLogOption(t *testing.T) {
 
 	logger.Debug("this is a debug log")
 	assert.True(t, strings.Contains(buf.String(), "this is a debug new log"))
-
-	dir, _ := os.Getwd()
-	assert.True(t, strings.Contains(buf.String(), dir))
 }

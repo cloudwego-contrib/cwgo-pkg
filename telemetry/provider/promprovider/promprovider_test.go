@@ -23,46 +23,29 @@ import (
 	"time"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPromProvider(t *testing.T) {
 	registry := prometheus.NewRegistry()
-	counter := prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name:        "test_counter",
-			ConstLabels: prometheus.Labels{"service": "prometheus-test"},
-		},
-		[]string{"test1", "test2"},
-	)
-	registry.MustRegister(counter)
-
-	histogram := prometheus.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Name:        "test_histogram",
-			ConstLabels: prometheus.Labels{"service": "prometheus-test"},
-			Buckets:     prometheus.DefBuckets,
-		},
-		[]string{"test1", "test2"},
-	)
-	registry.MustRegister(histogram)
 
 	mux := http.NewServeMux()
 
-	measure := metric.NewMeasure(metric.NewPromCounter(counter), metric.NewPromRecorder(histogram), nil)
 	provider := NewPromProvider(":9090",
 		WithRegistry(registry),
-		WithMeasure(measure),
 		WithServeMux(mux),
+		WithCounter(),
+		WithRecorder(),
 	)
 	defer provider.Shutdown(context.Background())
 	// assert.NoError(t, err, "Failed to register opsProcessed counter")
 	labels := []label.CwLabel{
-		{Key: "test1", Value: "abc"},
-		{Key: "test2", Value: "def"},
+		{Key: "http_method", Value: "/test"},
+		{Key: "statusCode", Value: "200"},
+		{Key: "path", Value: "/cwgo/provider/promProvider"},
 	}
+	measure := provider.Measure
 	// 模拟一些处理
 	assert.True(t, measure.Add(context.Background(), 6, labels) == nil)
 	assert.True(t, measure.Record(context.Background(), float64(time.Second.Microseconds()), labels) == nil)
@@ -76,6 +59,6 @@ func TestPromProvider(t *testing.T) {
 	bodyBytes, err := io.ReadAll(promServerResp.Body)
 	assert.True(t, err == nil)
 	respStr := string(bodyBytes)
-	assert.True(t, strings.Contains(respStr, `test_counter{service="prometheus-test",test1="abc",test2="def"} 6`))
-	assert.True(t, strings.Contains(respStr, `test_histogram_sum{service="prometheus-test",test1="abc",test2="def"} 1e+06`))
+	assert.True(t, strings.Contains(respStr, `counter{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 6`))
+	assert.True(t, strings.Contains(respStr, `recorder_sum{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 1e+06`))
 }

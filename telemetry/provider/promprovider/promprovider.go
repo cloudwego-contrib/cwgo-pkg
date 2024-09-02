@@ -52,13 +52,11 @@ func (p *promProvider) GetRegistry() *prometheus.Registry {
 
 // NewPromProvider Initialize and return a new promProvider instance
 func NewPromProvider(addr string, opts ...Option) *promProvider {
-	var registry *prometheus.Registry
-
+	cfg := newConfig(opts)
+	registry := cfg.registry
 	if registry == nil {
 		registry = prometheus.NewRegistry()
 	}
-
-	cfg := newConfig(opts)
 	server := &http.Server{
 		Addr: addr,
 	}
@@ -66,9 +64,9 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 		cfg.serveMux = http.DefaultServeMux
 	}
 	if !cfg.disableServer {
-		cfg.serveMux.Handle(cfg.path, promhttp.HandlerFor(cfg.registry, promhttp.HandlerOpts{
+		cfg.serveMux.Handle(cfg.path, promhttp.HandlerFor(registry, promhttp.HandlerOpts{
 			ErrorHandling: promhttp.ContinueOnError,
-			Registry:      cfg.registry,
+			Registry:      registry,
 		}))
 		server.Handler = cfg.serveMux
 		go func() {
@@ -91,7 +89,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 				},
 				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus},
 			)
-			cfg.registry.MustRegister(RPCCounterVec)
+			registry.MustRegister(RPCCounterVec)
 			counter = metric.NewPromCounter(RPCCounterVec)
 		}
 		if cfg.enableRecorder {
@@ -103,7 +101,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 				},
 				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus},
 			)
-			cfg.registry.MustRegister(clientHandledHistogramRPC)
+			registry.MustRegister(clientHandledHistogramRPC)
 			recorder = metric.NewPromRecorder(clientHandledHistogramRPC)
 			// create retry recorder
 			retryHandledHistogramRPC := prometheus.NewHistogramVec(
@@ -114,7 +112,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 				},
 				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey},
 			)
-			cfg.registry.MustRegister(clientHandledHistogramRPC)
+			registry.MustRegister(clientHandledHistogramRPC)
 			retryRecorder = metric.NewPromRetryRecorder(retryHandledHistogramRPC)
 		}
 		measure = metric.NewMeasure(counter, recorder, retryRecorder)
@@ -127,11 +125,11 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 				},
 				[]string{semantic.LabelHttpMethodKey, semantic.LabelStatusCode, semantic.LabelPath},
 			)
-			cfg.registry.MustRegister(HttpCounterVec)
+			registry.MustRegister(HttpCounterVec)
 			counter = metric.NewPromCounter(HttpCounterVec)
 		}
 		if cfg.enableRecorder {
-			serverHandledHistogram := prometheus.NewHistogramVec(
+			HttpHandledHistogram := prometheus.NewHistogramVec(
 				prometheus.HistogramOpts{
 					Name:    cfg.recorderName,
 					Help:    "Latency (microseconds) of HTTP that had been application-level handled by the server.",
@@ -139,7 +137,8 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 				},
 				[]string{semantic.LabelHttpMethodKey, semantic.LabelStatusCode, semantic.LabelPath},
 			)
-			cfg.registry.MustRegister(serverHandledHistogram)
+			registry.MustRegister(HttpHandledHistogram)
+			recorder = metric.NewPromRecorder(HttpHandledHistogram)
 		}
 		measure = metric.NewMeasure(counter, recorder, nil)
 	}

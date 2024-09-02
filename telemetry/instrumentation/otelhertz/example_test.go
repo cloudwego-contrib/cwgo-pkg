@@ -62,9 +62,10 @@ func TestMetricsExample(t *testing.T) {
 	_, _, err = c.Get(context.Background(), nil, "http://localhost:39887/ping?foo=bar")
 	assert.NotNil(t, err)
 
-	// diff meter
-	assert.NoError(t, testutil.GatherAndCompare(
+	testerror := testutil.GatherAndCompare(
 		registry, "testdata/hertz_request_metrics.txt",
-		"http_server_request_count_total", "http_client_request_count_total"),
-	)
+		"http_server_request_count_total", "http_client_request_count_total")
+
+	// diff meter
+	assert.NoError(t, testerror)
 }

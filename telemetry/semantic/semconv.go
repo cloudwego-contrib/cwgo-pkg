@@ -21,16 +21,16 @@ import (
 
 // RPC measure Labels
 const (
-	LabelRPCMethodKey = "rpc.method"
-	LabelRPCCalleeKey = "rpc.service"
-	LabelRPCCallerKey = "caller.rpc.service"
+	LabelRPCMethodKey = "rpc_method"
+	LabelRPCCalleeKey = "rpc_service"
+	LabelRPCCallerKey = "caller_rpc_service"
 	LabelKeyRetry     = "retry"
 	LabelKeyStatus    = "status"
 )
 
 // HTTP measure Labels
 const (
-	LabelHttpMethodKey = "http.method"
+	LabelHttpMethodKey = "http_method"
 	LabelStatusCode    = "statusCode"
 	LabelPath          = "path"
 )

@@ -88,6 +88,7 @@ func NewPromRetryRecorder(histogram *prometheus.HistogramVec) *PromRetryRecorder
 		histogram: histogram,
 	}
 }
+
 func (p PromRetryRecorder) RetryRecord(ctx context.Context, value float64, labels []label.CwLabel) error {
 	pLabel := label.ToPromelabelFromCwLabel(labels)
 	histogram, err := p.histogram.GetMetricWith(pLabel)

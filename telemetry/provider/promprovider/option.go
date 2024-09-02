@@ -17,12 +17,13 @@ package promprovider
 import (
 	"net/http"
 
-	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var defaultBuckets = []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000}
-var retryBuckets = []float64{0, 5, 10, 50, 100, 1000, 5000, 10000, 50000}
+var (
+	defaultBuckets = []float64{5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000}
+	retryBuckets   = []float64{0, 5, 10, 50, 100, 1000, 5000, 10000, 50000}
+)
 
 // Option opts for opentelemetry tracer provider
 type Option interface {
@@ -39,7 +40,6 @@ type config struct {
 	buckets  []float64
 	serveMux *http.ServeMux
 	registry *prometheus.Registry
-	measure  cwmetric.Measure
 
 	enableCounter  bool
 	counterName    string
@@ -71,6 +71,7 @@ func defaultConfig() *config {
 		counterName:   "counter",
 		recorderName:  "recorder",
 		enableRPC:     false,
+		path:          "/prometheus",
 	}
 }
 
@@ -113,12 +114,6 @@ func WithRecorder() Option {
 func WithRecorderName(name string) Option {
 	return option(func(cfg *config) {
 		cfg.recorderName = name
-	})
-}
-
-func WithMeasure(measure cwmetric.Measure) Option {
-	return option(func(cfg *config) {
-		cfg.measure = measure
 	})
 }
 

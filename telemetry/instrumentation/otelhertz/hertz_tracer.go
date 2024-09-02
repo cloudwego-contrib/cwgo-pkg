@@ -78,10 +78,6 @@ func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
 	elapsedTime := float64(st.GetEvent(stats.HTTPFinish).Time().Sub(httpStart.Time())) / float64(time.Millisecond)
 	labels := []label.CwLabel{
 		{
-			Key:   semantic.LabelHttpMethodKey,
-			Value: defaultValIfEmpty(string(c.Request.Method()), semantic.UnknownLabelValue),
-		},
-		{
 			Key:   semantic.LabelKeyStatus,
 			Value: defaultValIfEmpty(strconv.Itoa(c.Response.Header.StatusCode()), semantic.UnknownLabelValue),
 		},
@@ -121,6 +117,12 @@ func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
 
 			labels = append(labels, label.ToCwLabelsFromOtels(metricsAttributes)...)
 		}
+	} else {
+		methodLabel := label.CwLabel{
+			Key:   semantic.LabelHttpMethodKey,
+			Value: defaultValIfEmpty(string(c.Request.Method()), semantic.UnknownLabelValue),
+		}
+		labels = append(labels, methodLabel)
 	}
 	h.measure.Inc(ctx, labels)
 	h.measure.Record(ctx, elapsedTime, labels)
