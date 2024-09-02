@@ -16,6 +16,7 @@ package promprovider
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -50,6 +51,7 @@ type config struct {
 	path          string
 
 	enableRPC bool
+	mu        sync.Mutex
 }
 
 func newConfig(opts []Option) *config {

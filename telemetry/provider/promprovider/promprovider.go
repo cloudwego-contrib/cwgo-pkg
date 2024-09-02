@@ -60,9 +60,11 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 	server := &http.Server{
 		Addr: addr,
 	}
+	cfg.mu.Lock()
 	if cfg.serveMux != nil {
 		cfg.serveMux = http.DefaultServeMux
 	}
+	cfg.mu.Unlock()
 	if !cfg.disableServer {
 		cfg.serveMux.Handle(cfg.path, promhttp.HandlerFor(registry, promhttp.HandlerOpts{
 			ErrorHandling: promhttp.ContinueOnError,
