@@ -64,7 +64,6 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 	if cfg.serveMux != nil {
 		cfg.serveMux = http.DefaultServeMux
 	}
-	cfg.mu.Unlock()
 	if !cfg.disableServer {
 		cfg.serveMux.Handle(cfg.path, promhttp.HandlerFor(registry, promhttp.HandlerOpts{
 			ErrorHandling: promhttp.ContinueOnError,
@@ -78,6 +77,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			}
 		}()
 	}
+	cfg.mu.Unlock()
 	var counter metric.Counter
 	var recorder metric.Recorder
 	var retryRecorder metric.RetryRecorder
