@@ -60,7 +60,6 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 	server := &http.Server{
 		Addr: addr,
 	}
-	cfg.mu.Lock()
 	if cfg.serveMux != nil {
 		cfg.serveMux = http.DefaultServeMux
 	}
@@ -77,7 +76,6 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			}
 		}()
 	}
-	cfg.mu.Unlock()
 	var counter metric.Counter
 	var recorder metric.Recorder
 	var retryRecorder metric.RetryRecorder

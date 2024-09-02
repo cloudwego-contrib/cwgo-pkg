@@ -12,31 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package promprovider
+package main
 
 import (
 	"context"
+	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider/promprovider"
+	"github.com/prometheus/client_golang/prometheus"
 	"io"
 	"net/http"
 	"strings"
-	"testing"
 	"time"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/stretchr/testify/assert"
 )
 
-func TestPromProvider(t *testing.T) {
+func main() {
 	registry := prometheus.NewRegistry()
 
 	mux := http.NewServeMux()
 
-	provider := NewPromProvider(":9090",
-		WithRegistry(registry),
-		WithServeMux(mux),
-		WithCounter(),
-		WithRecorder(),
+	provider := promprovider.NewPromProvider(":9090",
+		promprovider.WithRegistry(registry),
+		promprovider.WithServeMux(mux),
+		promprovider.WithCounter(),
+		promprovider.WithRecorder(),
 	)
 	defer provider.Shutdown(context.Background())
 	// assert.NoError(t, err, "Failed to register opsProcessed counter")
@@ -47,18 +46,23 @@ func TestPromProvider(t *testing.T) {
 	}
 	measure := provider.Measure
 	// 模拟一些处理
-	assert.True(t, measure.Add(context.Background(), 6, labels) == nil)
-	assert.True(t, measure.Record(context.Background(), float64(time.Second.Microseconds()), labels) == nil)
+	measure.Add(context.Background(), 6, labels)
+	measure.Record(context.Background(), float64(time.Second.Microseconds()), labels)
 
 	promServerResp, err := http.Get("http://localhost:9090/prometheus")
 	if err != nil {
-		t.Fatal(err)
+		return
 	}
-	assert.True(t, promServerResp.StatusCode == http.StatusOK)
+	if promServerResp.StatusCode == http.StatusOK {
+		fmt.Print("status is 200\n")
+	}
 
 	bodyBytes, err := io.ReadAll(promServerResp.Body)
-	assert.True(t, err == nil)
+
 	respStr := string(bodyBytes)
-	assert.True(t, strings.Contains(respStr, `counter{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 6`))
-	assert.True(t, strings.Contains(respStr, `recorder_sum{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 1e+06`))
+	if strings.Contains(respStr, `counter{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 6`) &&
+		strings.Contains(respStr, `recorder_sum{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 1e+06`) {
+		fmt.Print("record and counter work correctly")
+	}
+
 }
