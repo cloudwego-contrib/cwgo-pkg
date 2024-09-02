@@ -17,13 +17,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider/promprovider"
-	"github.com/prometheus/client_golang/prometheus"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider/promprovider"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func main() {
@@ -58,11 +59,12 @@ func main() {
 	}
 
 	bodyBytes, err := io.ReadAll(promServerResp.Body)
-
+	if err != nil {
+		return
+	}
 	respStr := string(bodyBytes)
 	if strings.Contains(respStr, `counter{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 6`) &&
 		strings.Contains(respStr, `recorder_sum{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 1e+06`) {
 		fmt.Print("record and counter work correctly")
 	}
-
 }
