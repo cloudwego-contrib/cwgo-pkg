@@ -20,8 +20,8 @@ import (
 	"context"
 	"log"
 
+	consul "github.com/cwgo-pkg/registry/consul/consulkitex"
 	consulapi "github.com/hashicorp/consul/api"
-	consul "github.com/kitex-contrib/registry-consul"
 
 	"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/server"

@@ -21,8 +21,9 @@ import (
 	"log"
 	"time"
 
+	consul "github.com/cwgo-pkg/registry/consul/consulkitex"
+
 	"github.com/cloudwego/kitex/client"
-	consul "github.com/kitex-contrib/registry-consul"
 
 	"github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
 	"github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api/hello"

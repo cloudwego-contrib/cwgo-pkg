@@ -22,9 +22,9 @@ import (
 
 	"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/server"
+	consul "github.com/cwgo-pkg/registry/consul/consulkitex"
 	"github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
 	"github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api/hello"
-	consul "github.com/kitex-contrib/registry-consul"
 )
 
 type HelloImpl struct{}
