@@ -1,0 +1,14 @@
+{
+    "Test1": {
+        "limit": {
+            "connection_limit": 300,
+            "qps_limit": 200
+        }
+    },
+    "Test2": {
+        "limit": {
+            "connection_limit": 300,
+            "qps_limit": 200
+        }
+    }
+}

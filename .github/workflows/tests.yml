@@ -4,29 +4,61 @@ on: [ push, pull_request ]
 
 jobs:
   unit-benchmark-test:
-    strategy:
-      matrix:
-        go: [ 1.17, 1.18, 1.19 ]
-        os: [ X64, ARM64 ]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+
+    services:
+      consul:
+        image: 'hashicorp/consul:latest'
+        ports:
+          - '8500:8500'
+      polaris:
+        image: 'polarismesh/polaris-server:latest'
+        ports:
+          - '8091:8091'
+      zookeeper:
+        image: 'zookeeper:3.7.0'
+        ports:
+          - '2181:2181'
+      servicecomb:
+        image: 'servicecomb/service-center:latest'
+        ports:
+          - '30100:30100'
+      etcd:
+        image: bitnami/etcd:latest
+        ports:
+          - "2379:2379"
+          - "2380:2380"
+        env:
+          ALLOW_NONE_AUTHENTICATION: yes
+          ETCD_ADVERTISE_CLIENT_URLS: http://etcd:2379
+      nacos:
+        image: 'nacos/nacos-server:2.0.3'
+        ports:
+          - '8848:8848'
+          - '9848:9848'
+        env:
+          MODE: standalone
+      eureka:
+        image: 'xdockerh/eureka-server:latest'
+        ports:
+          - "8761:8761"
+      redis:
+        image: redis:latest
+        ports:
+          - '6379:6379'
+
+
+
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
+          go-version: 1.18
 
-       # block scenario, comment temporarily
-#      - uses: actions/cache@v3
-#        with:
-#          path: ~/go/pkg/mod
-#          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-#          restore-keys: |
-#            ${{ runner.os }}-go-
 
       - name: Unit Test
-        run: go test -race -covermode=atomic -coverprofile=coverage.out ./...
+        run: make test
 
       - name: Benchmark
         run: go test -bench=. -benchmem -run=none ./...
