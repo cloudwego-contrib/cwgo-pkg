@@ -49,7 +49,7 @@ func TestGetLogger_notSet(t *testing.T) {
 	_, err := GetLogger()
 
 	assert.Error(t, err)
-	assert.Equal(t, "hlog.DefaultLogger is not a otelzerolog logger", err.Error())
+	assert.Equal(t, "cwlog.DefaultLogger is not a otelzerolog logger", err.Error())
 }
 
 func TestGetLogger(t *testing.T) {
