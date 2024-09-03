@@ -6,6 +6,7 @@ use (
 	./log/logging/slog
 	./log/logging/zap
 	./log/logging/zerolog
+	telemetry
 
 )
 
