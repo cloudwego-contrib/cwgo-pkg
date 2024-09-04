@@ -17,6 +17,7 @@ package label
 import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/attribute"
+	"strings"
 )
 
 type CwLabel struct {
@@ -28,7 +29,7 @@ func ToCwLabelsFromOtels(otelAttributes []attribute.KeyValue) []CwLabel {
 	cwLabels := make([]CwLabel, len(otelAttributes))
 	for i, attr := range otelAttributes {
 		cwLabels[i] = CwLabel{
-			Key:   string(attr.Key),
+			Key:   replaceDot(string(attr.Key)),
 			Value: attr.Value.AsString(),
 		}
 	}
@@ -38,7 +39,7 @@ func ToCwLabelsFromOtels(otelAttributes []attribute.KeyValue) []CwLabel {
 func ToOtelsFromCwLabel(cwLabels []CwLabel) []attribute.KeyValue {
 	otelAttributes := make([]attribute.KeyValue, len(cwLabels))
 	for i, label := range cwLabels {
-		otelAttributes[i] = attribute.String(label.Key, label.Value)
+		otelAttributes[i] = attribute.String(replaceUnderscore(label.Key), label.Value)
 	}
 	return otelAttributes
 }
@@ -62,4 +63,11 @@ func ToPromelabelFromCwLabel(labels []CwLabel) prom.Labels {
 		promLabels[label.Key] = label.Value
 	}
 	return promLabels
+}
+
+func replaceUnderscore(input string) string {
+	return strings.ReplaceAll(input, "_", ".")
+}
+func replaceDot(input string) string {
+	return strings.ReplaceAll(input, ".", "_")
 }

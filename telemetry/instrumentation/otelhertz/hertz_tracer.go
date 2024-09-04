@@ -85,6 +85,10 @@ func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
 			Key:   semantic.LabelPath,
 			Value: defaultValIfEmpty(c.FullPath(), semantic.UnknownLabelValue),
 		},
+		{
+			Key:   semantic.LabelHttpMethodKey,
+			Value: defaultValIfEmpty(string(c.Request.Method()), semantic.UnknownLabelValue),
+		},
 	}
 	tc := internal.TraceCarrierFromContext(ctx)
 	var span trace.Span
@@ -117,12 +121,6 @@ func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
 
 			labels = append(labels, label.ToCwLabelsFromOtels(metricsAttributes)...)
 		}
-	} else {
-		methodLabel := label.CwLabel{
-			Key:   semantic.LabelHttpMethodKey,
-			Value: defaultValIfEmpty(string(c.Request.Method()), semantic.UnknownLabelValue),
-		}
-		labels = append(labels, methodLabel)
 	}
 	h.measure.Inc(ctx, labels)
 	h.measure.Record(ctx, elapsedTime, labels)
