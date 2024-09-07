@@ -1,22 +1,25 @@
-// Copyright 2022 CloudWeGo Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright 2024 CloudWeGo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package main
 
 import (
 	"context"
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"io"
 	"net/http"
 	"strings"
@@ -47,8 +50,8 @@ func main() {
 	}
 	measure := provider.Measure
 	// 模拟一些处理
-	measure.Add(context.Background(), 6, labels)
-	measure.Record(context.Background(), float64(time.Second.Microseconds()), labels)
+	measure.Add(context.Background(), semantic.Counter, 6, labels...)
+	measure.Record(context.Background(), semantic.Latency, float64(time.Second.Microseconds()), labels...)
 
 	promServerResp, err := http.Get("http://localhost:9090/prometheus")
 	if err != nil {
@@ -64,7 +67,7 @@ func main() {
 	}
 	respStr := string(bodyBytes)
 	if strings.Contains(respStr, `counter{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 6`) &&
-		strings.Contains(respStr, `recorder_sum{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 1e+06`) {
+		strings.Contains(respStr, `latency_sum{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 1e+06`) {
 		fmt.Print("record and counter work correctly")
 	}
 }

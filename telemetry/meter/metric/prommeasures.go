@@ -35,7 +35,7 @@ func NewPromCounter(counter *prometheus.CounterVec) *PromCounter {
 	}
 }
 
-func (p PromCounter) Inc(ctx context.Context, labels []label.CwLabel) error {
+func (p PromCounter) Inc(ctx context.Context, labels ...label.CwLabel) error {
 	pLabel := label.ToPromelabelFromCwLabel(labels)
 	counter, err := p.counter.GetMetricWith(pLabel)
 	if err != nil {
@@ -45,7 +45,7 @@ func (p PromCounter) Inc(ctx context.Context, labels []label.CwLabel) error {
 	return nil
 }
 
-func (p PromCounter) Add(ctx context.Context, value int, labels []label.CwLabel) error {
+func (p PromCounter) Add(ctx context.Context, value int, labels ...label.CwLabel) error {
 	pLabel := label.ToPromelabelFromCwLabel(labels)
 	counter, err := p.counter.GetMetricWith(pLabel)
 	if err != nil {
@@ -67,29 +67,7 @@ func NewPromRecorder(histogram *prometheus.HistogramVec) *PromRecorder {
 	}
 }
 
-func (p PromRecorder) Record(ctx context.Context, value float64, labels []label.CwLabel) error {
-	pLabel := label.ToPromelabelFromCwLabel(labels)
-	histogram, err := p.histogram.GetMetricWith(pLabel)
-	if err != nil {
-		return err
-	}
-	histogram.Observe(value)
-	return nil
-}
-
-var _ RetryRecorder = &PromRetryRecorder{}
-
-type PromRetryRecorder struct {
-	histogram *prometheus.HistogramVec
-}
-
-func NewPromRetryRecorder(histogram *prometheus.HistogramVec) *PromRetryRecorder {
-	return &PromRetryRecorder{
-		histogram: histogram,
-	}
-}
-
-func (p PromRetryRecorder) RetryRecord(ctx context.Context, value float64, labels []label.CwLabel) error {
+func (p PromRecorder) Record(ctx context.Context, value float64, labels ...label.CwLabel) error {
 	pLabel := label.ToPromelabelFromCwLabel(labels)
 	histogram, err := p.histogram.GetMetricWith(pLabel)
 	if err != nil {

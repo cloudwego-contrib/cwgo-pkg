@@ -16,6 +16,7 @@ package metric
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"io"
 	"net/http"
 	"strings"
@@ -67,9 +68,12 @@ func TestMetrics(t *testing.T) {
 		"test1": "abc",
 		"test2": "def",
 	}
-	prommmetric := NewMeasure(NewPromCounter(counter), NewPromRecorder(histogram), nil)
-	assert.Nil(t, prommmetric.Add(ctx, 6, label.ToCwLabelFromPromelabel(labels)))
-	assert.Nil(t, prommmetric.Record(ctx, float64(100*time.Millisecond.Microseconds()), label.ToCwLabelFromPromelabel(labels)))
+	cwlabels := label.ToCwLabelFromPromelabel(labels)
+	prommmetric := NewMeasure(
+		WithCounter(semantic.Counter, NewPromCounter(counter)),
+		WithRecorder(semantic.Latency, NewPromRecorder(histogram)))
+	assert.Nil(t, prommmetric.Add(ctx, semantic.Counter, 6, cwlabels...))
+	assert.Nil(t, prommmetric.Record(ctx, semantic.Latency, float64(100*time.Millisecond.Microseconds()), cwlabels...))
 
 	res, err := http.Get("http://localhost:9090/metrics-demo")
 

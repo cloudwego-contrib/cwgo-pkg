@@ -35,13 +35,13 @@ func NewOtelCounter(counter metric.Int64Counter) Counter {
 	}
 }
 
-func (o OtelCounter) Inc(ctx context.Context, labels []label.CwLabel) error {
+func (o OtelCounter) Inc(ctx context.Context, labels ...label.CwLabel) error {
 	otelLabel := label.ToOtelsFromCwLabel(labels)
 	o.counter.Add(ctx, 1, metric.WithAttributes(otelLabel...))
 	return nil
 }
 
-func (o OtelCounter) Add(ctx context.Context, value int, labels []label.CwLabel) error {
+func (o OtelCounter) Add(ctx context.Context, value int, labels ...label.CwLabel) error {
 	otelLabel := label.ToOtelsFromCwLabel(labels)
 	o.counter.Add(ctx, int64(value), metric.WithAttributes(otelLabel...))
 	return nil
@@ -59,25 +59,7 @@ func NewOtelRecorder(histogram metric.Float64Histogram) Recorder {
 	}
 }
 
-func (o OtelRecorder) Record(ctx context.Context, value float64, labels []label.CwLabel) error {
-	otelLabel := label.ToOtelsFromCwLabel(labels)
-	o.histogram.Record(ctx, value, metric.WithAttributes(otelLabel...))
-	return nil
-}
-
-var _ RetryRecorder = &OtelRetryRecorder{}
-
-type OtelRetryRecorder struct {
-	histogram metric.Float64Histogram
-}
-
-func NewOtelRetryRecorder(histogram metric.Float64Histogram) *OtelRetryRecorder {
-	return &OtelRetryRecorder{
-		histogram: histogram,
-	}
-}
-
-func (o OtelRetryRecorder) RetryRecord(ctx context.Context, value float64, labels []label.CwLabel) error {
+func (o OtelRecorder) Record(ctx context.Context, value float64, labels ...label.CwLabel) error {
 	otelLabel := label.ToOtelsFromCwLabel(labels)
 	o.histogram.Record(ctx, value, metric.WithAttributes(otelLabel...))
 	return nil

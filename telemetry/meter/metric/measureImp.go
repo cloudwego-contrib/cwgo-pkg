@@ -25,33 +25,29 @@ import (
 var _ Measure = &MeasureImpl{}
 
 type MeasureImpl struct {
-	Counter
-	Recorder
-	RetryRecorder
+	recoders map[string]Recorder
+	counters map[string]Counter
 }
 
-func NewMeasure(counter Counter, recorder Recorder, retryRecorder RetryRecorder) Measure {
+func NewMeasure(opts ...Option) Measure {
+	cfg := newConfig(opts)
 	return &MeasureImpl{
-		Counter:       counter,
-		Recorder:      recorder,
-		RetryRecorder: retryRecorder,
+		counters: cfg.counter,
+		recoders: cfg.recoders,
 	}
+
 }
 
 // Counter interface implementation
-func (m *MeasureImpl) Inc(ctx context.Context, labels []label.CwLabel) error {
-	return m.Counter.Inc(ctx, labels)
+func (m *MeasureImpl) Inc(ctx context.Context, metricType string, labels ...label.CwLabel) error {
+	return m.counters[metricType].Inc(ctx, labels...)
 }
 
-func (m *MeasureImpl) Add(ctx context.Context, value int, labels []label.CwLabel) error {
-	return m.Counter.Add(ctx, value, labels)
+func (m *MeasureImpl) Add(ctx context.Context, metricType string, value int, labels ...label.CwLabel) error {
+	return m.counters[metricType].Add(ctx, value, labels...)
 }
 
 // Recorder interface implementation
-func (m *MeasureImpl) Record(ctx context.Context, value float64, labels []label.CwLabel) error {
-	return m.Recorder.Record(ctx, value, labels)
-}
-
-func (m *MeasureImpl) RetryRecord(ctx context.Context, value float64, labels []label.CwLabel) error {
-	return m.RetryRecorder.RetryRecord(ctx, value, labels)
+func (m *MeasureImpl) Record(ctx context.Context, metricType string, value float64, labels ...label.CwLabel) error {
+	return m.recoders[metricType].Record(ctx, value, labels...)
 }

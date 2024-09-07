@@ -1,16 +1,18 @@
-// Copyright 2022 CloudWeGo Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright 2024 CloudWeGo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package promprovider
 
@@ -46,10 +48,6 @@ func (p *promProvider) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func (p *promProvider) GetRegistry() *prometheus.Registry {
-	return p.registry
-}
-
 // NewPromProvider Initialize and return a new promProvider instance
 func NewPromProvider(addr string, opts ...Option) *promProvider {
 	cfg := newConfig(opts)
@@ -78,7 +76,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 	}
 	var counter metric.Counter
 	var recorder metric.Recorder
-	var retryRecorder metric.RetryRecorder
+	var retryRecorder metric.Recorder
 	var measure metric.Measure
 	if cfg.enableRPC {
 		if cfg.enableCounter {
@@ -113,9 +111,13 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey},
 			)
 			registry.MustRegister(clientHandledHistogramRPC)
-			retryRecorder = metric.NewPromRetryRecorder(retryHandledHistogramRPC)
+			retryRecorder = metric.NewPromRecorder(retryHandledHistogramRPC)
 		}
-		measure = metric.NewMeasure(counter, recorder, retryRecorder)
+		measure = metric.NewMeasure(
+			metric.WithCounter(semantic.Counter, counter),
+			metric.WithRecorder(semantic.Latency, recorder),
+			metric.WithRecorder(semantic.Retry, retryRecorder),
+		)
 	} else {
 		if cfg.enableCounter {
 			HttpCounterVec := prometheus.NewCounterVec(
@@ -140,7 +142,10 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			registry.MustRegister(HttpHandledHistogram)
 			recorder = metric.NewPromRecorder(HttpHandledHistogram)
 		}
-		measure = metric.NewMeasure(counter, recorder, nil)
+		measure = metric.NewMeasure(
+			metric.WithCounter(semantic.Counter, counter),
+			metric.WithRecorder(semantic.Latency, recorder),
+		)
 	}
 
 	pp := &promProvider{

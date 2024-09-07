@@ -122,8 +122,8 @@ func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
 			labels = append(labels, label.ToCwLabelsFromOtels(metricsAttributes)...)
 		}
 	}
-	h.measure.Inc(ctx, labels)
-	h.measure.Record(ctx, elapsedTime, labels)
+	h.measure.Inc(ctx, semantic.Counter, labels...)
+	h.measure.Record(ctx, semantic.Latency, elapsedTime, labels...)
 }
 
 func defaultValIfEmpty(val, def string) string {

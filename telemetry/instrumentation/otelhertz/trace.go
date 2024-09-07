@@ -40,7 +40,10 @@ func NewServerTracer(opts ...Option) *HertzTracer {
 		)
 		handleErr(err)
 
-		cfg.measure = cwmetric.NewMeasure(cwmetric.NewOtelCounter(serverRequestCountMeasure), cwmetric.NewOtelRecorder(serverLatencyMeasure), nil)
+		cfg.measure = cwmetric.NewMeasure(
+			cwmetric.WithCounter(semantic.Counter, cwmetric.NewOtelCounter(serverRequestCountMeasure)),
+			cwmetric.WithRecorder(semantic.Latency, cwmetric.NewOtelRecorder(serverLatencyMeasure)),
+		)
 
 	}
 	return &HertzTracer{

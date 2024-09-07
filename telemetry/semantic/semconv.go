@@ -19,6 +19,12 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 )
 
+const (
+	Counter = "counter"
+	Latency = "latency"
+	Retry   = "retry"
+)
+
 // RPC measure Labels
 const (
 	LabelRPCMethodKey = "rpc_method"
