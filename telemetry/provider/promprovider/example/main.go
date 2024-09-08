@@ -19,11 +19,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider/promprovider"
@@ -38,8 +39,7 @@ func main() {
 	provider := promprovider.NewPromProvider(":9090",
 		promprovider.WithRegistry(registry),
 		promprovider.WithServeMux(mux),
-		promprovider.WithCounter(),
-		promprovider.WithRecorder(),
+		promprovider.WithHttpServer(),
 	)
 	defer provider.Shutdown(context.Background())
 	// assert.NoError(t, err, "Failed to register opsProcessed counter")

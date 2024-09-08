@@ -17,8 +17,9 @@
 package promprovider
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"net/http"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -44,15 +45,10 @@ type config struct {
 	serveMux *http.ServeMux
 	registry *prometheus.Registry
 
-	enableCounter  bool
-	counterName    string
-	enableRecorder bool
-	recorderName   string
-
 	disableServer bool
 	path          string
 
-	enableRPC bool
+	serviceType semantic.ServiceType
 }
 
 func newConfig(opts []Option) *config {
@@ -71,9 +67,7 @@ func defaultConfig() *config {
 		registry:      prometheus.NewRegistry(),
 		serveMux:      http.DefaultServeMux,
 		disableServer: false,
-		counterName:   semantic.Counter,
-		recorderName:  semantic.Latency,
-		enableRPC:     false,
+		serviceType:   semantic.Hertz,
 		path:          "/prometheus",
 	}
 }
@@ -96,30 +90,6 @@ func WithServeMux(serveMux *http.ServeMux) Option {
 	})
 }
 
-func WithCounter() Option {
-	return option(func(cfg *config) {
-		cfg.enableCounter = true
-	})
-}
-
-func WithCounterName(name string) Option {
-	return option(func(cfg *config) {
-		cfg.counterName = name
-	})
-}
-
-func WithRecorder() Option {
-	return option(func(cfg *config) {
-		cfg.enableRecorder = true
-	})
-}
-
-func WithRecorderName(name string) Option {
-	return option(func(cfg *config) {
-		cfg.recorderName = name
-	})
-}
-
 // WithDisableServer disable prometheus server
 func WithDisableServer(disable bool) Option {
 	return option(func(cfg *config) {
@@ -135,13 +105,13 @@ func WithPath(path string) Option {
 
 func WithHttpServer() Option {
 	return option(func(cfg *config) {
-		cfg.enableRPC = false
+		cfg.serviceType = semantic.Hertz
 	})
 }
 
 func WithRPCServer() Option {
 	return option(func(cfg *config) {
-		cfg.enableRPC = true
+		cfg.serviceType = semantic.Kitex
 	})
 }
 

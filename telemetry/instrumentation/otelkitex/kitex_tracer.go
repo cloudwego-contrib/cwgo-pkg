@@ -85,6 +85,10 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 
 	}
 
+	if s.cfg.labelFunc != nil {
+		labels = append(labels, s.cfg.labelFunc(ri)...)
+	}
+
 	tc := internal.TraceCarrierFromContext(ctx)
 
 	// span

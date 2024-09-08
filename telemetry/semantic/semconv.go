@@ -19,6 +19,13 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 )
 
+type ServiceType string
+
+const (
+	Hertz = ServiceType("hertz")
+	Kitex = ServiceType("Kitex")
+)
+
 const (
 	Counter = "counter"
 	Latency = "latency"

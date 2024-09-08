@@ -15,7 +15,9 @@
 package otelkitex
 
 import (
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
+	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
@@ -37,10 +39,13 @@ func (fn option) apply(cfg *Config) {
 	fn(cfg)
 }
 
+type LabelFunc func(info rpcinfo.RPCInfo) []label.CwLabel
+
 type Config struct {
 	tracer trace.Tracer
 	meter  metric.Meter
 
+	labelFunc         LabelFunc
 	tracerProvider    trace.TracerProvider
 	meterProvider     metric.MeterProvider
 	textMapPropagator propagation.TextMapPropagator
@@ -100,5 +105,11 @@ func WithTextMapPropagator(p propagation.TextMapPropagator) Option {
 func WithMeasure(measure cwmetric.Measure) Option {
 	return option(func(cfg *Config) {
 		cfg.measure = measure
+	})
+}
+
+func WithLabelFunc(labelFunc LabelFunc) Option {
+	return option(func(cfg *Config) {
+		cfg.labelFunc = labelFunc
 	})
 }

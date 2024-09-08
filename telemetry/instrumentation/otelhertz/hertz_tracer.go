@@ -90,6 +90,11 @@ func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
 			Value: defaultValIfEmpty(string(c.Request.Method()), semantic.UnknownLabelValue),
 		},
 	}
+
+	if h.cfg.labelFunc != nil {
+		labels = append(labels, h.cfg.labelFunc(c)...)
+	}
+
 	tc := internal.TraceCarrierFromContext(ctx)
 	var span trace.Span
 	if tc != nil {

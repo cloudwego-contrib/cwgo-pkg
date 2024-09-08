@@ -16,12 +16,13 @@ package metric
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"

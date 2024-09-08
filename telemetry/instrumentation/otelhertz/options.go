@@ -17,6 +17,7 @@ package otelhertz
 import (
 	"context"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 
 	"github.com/cloudwego/hertz/pkg/app"
@@ -53,6 +54,8 @@ type Config struct {
 
 	clientSpanNameFormatter func(req *protocol.Request) string
 	serverSpanNameFormatter func(c *app.RequestContext) string
+
+	labelFunc func(c *app.RequestContext) []label.CwLabel
 
 	tracerProvider    trace.TracerProvider
 	meterProvider     metric.MeterProvider
@@ -188,5 +191,11 @@ func WithShouldIgnore(condition ConditionFunc) Option {
 func WithMeasure(measure cwmetric.Measure) Option {
 	return option(func(cfg *Config) {
 		cfg.measure = measure
+	})
+}
+
+func WithLabelFunc(getLabelFromRequest func(c *app.RequestContext) []label.CwLabel) Option {
+	return option(func(cfg *Config) {
+		cfg.labelFunc = getLabelFromRequest
 	})
 }

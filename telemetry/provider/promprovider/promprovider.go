@@ -74,74 +74,71 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 			}
 		}()
 	}
-	var counter metric.Counter
-	var recorder metric.Recorder
-	var retryRecorder metric.Recorder
+
 	var measure metric.Measure
-	if cfg.enableRPC {
-		if cfg.enableCounter {
-			RPCCounterVec := prometheus.NewCounterVec(
-				prometheus.CounterOpts{
-					Name: cfg.counterName,
-					Help: fmt.Sprintf("Total number of requires completed by the %s, regardless of success or failure.", cfg.counterName),
-				},
-				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus},
-			)
-			registry.MustRegister(RPCCounterVec)
-			counter = metric.NewPromCounter(RPCCounterVec)
-		}
-		if cfg.enableRecorder {
-			clientHandledHistogramRPC := prometheus.NewHistogramVec(
-				prometheus.HistogramOpts{
-					Name:    cfg.recorderName,
-					Help:    fmt.Sprintf("Latency (microseconds) of the %s until it is finished.", cfg.recorderName),
-					Buckets: cfg.buckets,
-				},
-				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus},
-			)
-			registry.MustRegister(clientHandledHistogramRPC)
-			recorder = metric.NewPromRecorder(clientHandledHistogramRPC)
-			// create retry recorder
-			retryHandledHistogramRPC := prometheus.NewHistogramVec(
-				prometheus.HistogramOpts{
-					Name:    fmt.Sprintf("%s_retry_attempts", cfg.recorderName),
-					Help:    fmt.Sprintf("Distribution of retry attempts for %s until it is finished.", cfg.recorderName),
-					Buckets: retryBuckets,
-				},
-				[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey},
-			)
-			registry.MustRegister(clientHandledHistogramRPC)
-			retryRecorder = metric.NewPromRecorder(retryHandledHistogramRPC)
-		}
+	if cfg.serviceType == semantic.Kitex {
+
+		RPCCounterVec := prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Name: semantic.Counter,
+				Help: fmt.Sprintf("Total number of requires completed by the %s, regardless of success or failure.", semantic.Counter),
+			},
+			[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus},
+		)
+		registry.MustRegister(RPCCounterVec)
+		counter := metric.NewPromCounter(RPCCounterVec)
+
+		clientHandledHistogramRPC := prometheus.NewHistogramVec(
+			prometheus.HistogramOpts{
+				Name:    semantic.Latency,
+				Help:    fmt.Sprintf("Latency (microseconds) of the %s until it is finished.", semantic.Latency),
+				Buckets: cfg.buckets,
+			},
+			[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus},
+		)
+		registry.MustRegister(clientHandledHistogramRPC)
+		recorder := metric.NewPromRecorder(clientHandledHistogramRPC)
+		// create retry recorder
+		retryHandledHistogramRPC := prometheus.NewHistogramVec(
+			prometheus.HistogramOpts{
+				Name:    fmt.Sprintf("%s_retry_attempts", semantic.Retry),
+				Help:    fmt.Sprintf("Distribution of retry attempts for %s until it is finished.", semantic.Retry),
+				Buckets: retryBuckets,
+			},
+			[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey},
+		)
+		registry.MustRegister(clientHandledHistogramRPC)
+		retryRecorder := metric.NewPromRecorder(retryHandledHistogramRPC)
+
 		measure = metric.NewMeasure(
 			metric.WithCounter(semantic.Counter, counter),
 			metric.WithRecorder(semantic.Latency, recorder),
 			metric.WithRecorder(semantic.Retry, retryRecorder),
 		)
-	} else {
-		if cfg.enableCounter {
-			HttpCounterVec := prometheus.NewCounterVec(
-				prometheus.CounterOpts{
-					Name: cfg.counterName,
-					Help: "Total number of HTTPs completed by the server, regardless of success or failure.",
-				},
-				[]string{semantic.LabelHttpMethodKey, semantic.LabelStatusCode, semantic.LabelPath},
-			)
-			registry.MustRegister(HttpCounterVec)
-			counter = metric.NewPromCounter(HttpCounterVec)
-		}
-		if cfg.enableRecorder {
-			HttpHandledHistogram := prometheus.NewHistogramVec(
-				prometheus.HistogramOpts{
-					Name:    cfg.recorderName,
-					Help:    "Latency (microseconds) of HTTP that had been application-level handled by the server.",
-					Buckets: cfg.buckets,
-				},
-				[]string{semantic.LabelHttpMethodKey, semantic.LabelStatusCode, semantic.LabelPath},
-			)
-			registry.MustRegister(HttpHandledHistogram)
-			recorder = metric.NewPromRecorder(HttpHandledHistogram)
-		}
+	} else if cfg.serviceType == semantic.Hertz {
+
+		HttpCounterVec := prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Name: semantic.Counter,
+				Help: "Total number of HTTPs completed by the server, regardless of success or failure.",
+			},
+			[]string{semantic.LabelHttpMethodKey, semantic.LabelStatusCode, semantic.LabelPath},
+		)
+		registry.MustRegister(HttpCounterVec)
+		counter := metric.NewPromCounter(HttpCounterVec)
+
+		HttpHandledHistogram := prometheus.NewHistogramVec(
+			prometheus.HistogramOpts{
+				Name:    semantic.Latency,
+				Help:    "Latency (microseconds) of HTTP that had been application-level handled by the server.",
+				Buckets: cfg.buckets,
+			},
+			[]string{semantic.LabelHttpMethodKey, semantic.LabelStatusCode, semantic.LabelPath},
+		)
+		registry.MustRegister(HttpHandledHistogram)
+
+		recorder := metric.NewPromRecorder(HttpHandledHistogram)
+
 		measure = metric.NewMeasure(
 			metric.WithCounter(semantic.Counter, counter),
 			metric.WithRecorder(semantic.Latency, recorder),

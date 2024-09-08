@@ -35,7 +35,6 @@ func NewMeasure(opts ...Option) Measure {
 		counters: cfg.counter,
 		recoders: cfg.recoders,
 	}
-
 }
 
 // Counter interface implementation

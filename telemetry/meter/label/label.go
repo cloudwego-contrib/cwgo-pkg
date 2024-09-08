@@ -15,9 +15,10 @@
 package label
 
 import (
+	"strings"
+
 	prom "github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/attribute"
-	"strings"
 )
 
 type CwLabel struct {
@@ -68,6 +69,7 @@ func ToPromelabelFromCwLabel(labels []CwLabel) prom.Labels {
 func replaceUnderscore(input string) string {
 	return strings.ReplaceAll(input, "_", ".")
 }
+
 func replaceDot(input string) string {
 	return strings.ReplaceAll(input, ".", "_")
 }
