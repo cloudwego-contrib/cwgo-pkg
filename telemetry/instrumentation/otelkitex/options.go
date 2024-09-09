@@ -39,13 +39,11 @@ func (fn option) apply(cfg *Config) {
 	fn(cfg)
 }
 
-type LabelFunc func(info rpcinfo.RPCInfo) []label.CwLabel
-
 type Config struct {
 	tracer trace.Tracer
 	meter  metric.Meter
 
-	labelFunc         LabelFunc
+	labelFunc         func(info rpcinfo.RPCInfo) []label.CwLabel
 	tracerProvider    trace.TracerProvider
 	meterProvider     metric.MeterProvider
 	textMapPropagator propagation.TextMapPropagator
@@ -108,7 +106,7 @@ func WithMeasure(measure cwmetric.Measure) Option {
 	})
 }
 
-func WithLabelFunc(labelFunc LabelFunc) Option {
+func WithLabelFunc(labelFunc func(info rpcinfo.RPCInfo) []label.CwLabel) Option {
 	return option(func(cfg *Config) {
 		cfg.labelFunc = labelFunc
 	})
