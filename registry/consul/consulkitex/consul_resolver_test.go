@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/cwgo-pkg/registry/consul/internal"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/internal"
 )
 
 func TestSplitTags(t *testing.T) {

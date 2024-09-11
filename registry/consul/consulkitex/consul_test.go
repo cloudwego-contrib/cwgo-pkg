@@ -26,7 +26,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cwgo-pkg/registry/consul/internal"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/internal"
 
 	"github.com/cloudwego/kitex/pkg/discovery"
 	"github.com/cloudwego/kitex/pkg/registry"

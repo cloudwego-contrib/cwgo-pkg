@@ -19,8 +19,8 @@ package consul
 import (
 	"fmt"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/internal"
 	"github.com/cloudwego/kitex/pkg/registry"
-	"github.com/cwgo-pkg/registry/consul/internal"
 )
 
 func getServiceId(info *registry.Info) (string, error) {

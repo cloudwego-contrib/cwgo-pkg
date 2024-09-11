@@ -32,8 +32,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/internal"
-
 	"github.com/cloudwego/kitex/pkg/discovery"
 	"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -556,7 +554,7 @@ func TestEtcdResolverWithEtcdPrefix(t *testing.T) {
 				},
 			}
 			require.Equal(t, expected, result)
-			prefix := internal.ServiceKeyPrefix(rs.(*etcdResolver).GetPrefix(), info.ServiceName)
+			prefix := serviceKeyPrefix(rs.(*etcdResolver).GetPrefix(), info.ServiceName)
 			println(prefix)
 			require.Equal(t, fmt.Sprintf(tpl+"/%v/", info.ServiceName), prefix)
 		}
@@ -615,7 +613,7 @@ func TestEtcdResolverWithEtcdPrefix2(t *testing.T) {
 				},
 			}
 			require.Equal(t, expected, result)
-			prefix := internal.ServiceKeyPrefix(rs.(*etcdResolver).GetPrefix(), info.ServiceName)
+			prefix := serviceKeyPrefix(rs.(*etcdResolver).GetPrefix(), info.ServiceName)
 			println(prefix)
 			require.Equal(t, fmt.Sprintf("kitex/registry-etcd/%v/", info.ServiceName), prefix)
 		}

@@ -20,13 +20,13 @@ import (
 	"context"
 	"log"
 
-	consul "github.com/cwgo-pkg/registry/consul/consulkitex"
+	consul "github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex"
 	consulapi "github.com/hashicorp/consul/api"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api/hello"
 	"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/server"
-	"github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
-	"github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api/hello"
 )
 
 type HelloImpl struct{}

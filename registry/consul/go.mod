@@ -1,4 +1,4 @@
-module github.com/cwgo-pkg/registry/consul
+module github.com/cloudwego-contrib/cwgo-pkg/registry/consul
 
 go 1.16
 

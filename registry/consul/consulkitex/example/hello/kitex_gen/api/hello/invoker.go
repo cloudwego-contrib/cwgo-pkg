@@ -3,8 +3,8 @@
 package hello
 
 import (
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
 	server "github.com/cloudwego/kitex/server"
-	"github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
 )
 
 // NewInvoker creates a server.Invoker with the given handler and options.

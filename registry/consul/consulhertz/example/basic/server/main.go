@@ -20,7 +20,7 @@ import (
 	"net"
 	"sync"
 
-	"github.com/cwgo-pkg/registry/consul/consulhertz"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulhertz"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"

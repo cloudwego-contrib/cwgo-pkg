@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/cwgo-pkg/registry/consul/internal"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/internal"
 
 	"github.com/cloudwego/hertz/pkg/app/client/discovery"
 	"github.com/hashicorp/consul/api"

@@ -5,9 +5,9 @@ package hello
 import (
 	"context"
 
+	api "github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
-	api "github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
 )
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.

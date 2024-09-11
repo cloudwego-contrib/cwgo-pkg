@@ -20,11 +20,11 @@ import (
 	"context"
 	"log"
 
+	consul "github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api/hello"
 	"github.com/cloudwego/kitex/pkg/registry"
 	"github.com/cloudwego/kitex/server"
-	consul "github.com/cwgo-pkg/registry/consul/consulkitex"
-	"github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
-	"github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api/hello"
 )
 
 type HelloImpl struct{}

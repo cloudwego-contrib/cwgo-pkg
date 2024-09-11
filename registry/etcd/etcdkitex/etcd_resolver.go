@@ -85,7 +85,7 @@ func (e *etcdResolver) Target(ctx context.Context, target rpcinfo.EndpointInfo) 
 
 // Resolve implements the Resolver interface.
 func (e *etcdResolver) Resolve(ctx context.Context, desc string) (discovery.Result, error) {
-	prefix := internal.ServiceKeyPrefix(e.prefix, desc)
+	prefix := serviceKeyPrefix(e.prefix, desc)
 	resp, err := e.etcdClient.Get(ctx, prefix, clientv3.WithPrefix())
 	if err != nil {
 		return discovery.Result{}, err

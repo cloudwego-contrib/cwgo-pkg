@@ -2,8 +2,8 @@
 package hello
 
 import (
+	api "github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
 	server "github.com/cloudwego/kitex/server"
-	api "github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
 )
 
 // NewServer creates a server.Server with the given handler and options.

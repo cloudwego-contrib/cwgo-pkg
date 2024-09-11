@@ -18,6 +18,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"io/ioutil" //nolint
 	"time"
 
@@ -93,4 +94,9 @@ func WithDefaultWeight(defaultWeight int) Option {
 	return func(cfg *Config) {
 		cfg.DefaultWeight = defaultWeight
 	}
+}
+
+func serviceKeyPrefix(prefix string, serviceName string) string {
+	prefix = prefix + "/%v/"
+	return fmt.Sprintf(prefix, serviceName)
 }

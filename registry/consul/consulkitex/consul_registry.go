@@ -20,8 +20,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/internal"
 	"github.com/cloudwego/kitex/pkg/registry"
-	"github.com/cwgo-pkg/registry/consul/internal"
 	"github.com/hashicorp/consul/api"
 )
 

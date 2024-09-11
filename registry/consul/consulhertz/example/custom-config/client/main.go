@@ -22,7 +22,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/cwgo-pkg/registry/consul/consulhertz"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulhertz"
 
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/app/client/discovery"

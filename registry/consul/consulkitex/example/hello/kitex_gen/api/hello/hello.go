@@ -5,9 +5,9 @@ package hello
 import (
 	"context"
 
+	api "github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
-	api "github.com/cwgo-pkg/registry/consul/consulkitex/example/hello/kitex_gen/api"
 )
 
 func serviceInfo() *kitex.ServiceInfo {
