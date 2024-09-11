@@ -946,8 +946,6 @@ github.com/jung-kurt/gofpdf v1.0.3-0.20190309125859-24315acbbda5/go.mod h1:7Id9E
 github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51/go.mod h1:CzGEWj7cYgsdH8dAjBGEr58BoE7ScuLd+fwFZ44+/x8=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
-github.com/kitex-contrib/config-apollo v0.0.1 h1:9RWRy3n/bXdlk/J8faO4iPjhSjSowaI9N4YY340TkI0=
-github.com/kitex-contrib/config-apollo v0.0.1/go.mod h1:u9a9W/WHtQpJrfttzS9WllRErQU6nsLfM9mWh4vChpA=
 github.com/kitex-contrib/monitor-prometheus v0.1.0/go.mod h1:ZHWQOKRHnN1Bw+PgVYeOXmB9l4+k8dlOJ9wx2xz76NU=
 github.com/kitex-contrib/obs-opentelemetry v0.2.3/go.mod h1:pTXgnFrhyEGwSSYF4kpbELPgjoz0XBmhl54PaPjCH/w=
 github.com/kitex-contrib/obs-opentelemetry/logging/logrus v0.0.0-20230819133448-76093321aa8e/go.mod h1:Kf0zvMUYs1/xlqrqthhJCw4RVyWZoAsfeAWUDN6en6U=

@@ -12,6 +12,8 @@ require (
 	go.etcd.io/etcd/server/v3 v3.5.12
 )
 
+replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
+
 require (
 	github.com/apache/thrift v0.20.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect

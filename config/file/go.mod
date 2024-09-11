@@ -2,6 +2,8 @@ module github.com/cloudwego-contrib/cwgo-pkg/config/file
 
 go 1.21
 
+replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
+
 require (
 	github.com/bytedance/sonic v1.11.2
 	github.com/cloudwego/kitex v0.9.1

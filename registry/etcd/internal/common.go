@@ -28,13 +28,13 @@ type InstanceInfo struct {
 }
 
 func ServiceKeyPrefix(prefix string, serviceName string) string {
-	prefix = prefix + "/%v/"
-	return fmt.Sprintf(prefix, serviceName)
+	prefix = prefix + "/" + serviceName
+	return prefix
 }
 
 // ServiceKey generates the key used to stored in etcd.
 func ServiceKey(prefix string, serviceName, addr string) string {
-	return ServiceKeyPrefix(prefix, serviceName) + addr
+	return ServiceKeyPrefix(prefix, serviceName) + "/" + addr
 }
 
 func GetLocalIPv4Host() (string, error) {

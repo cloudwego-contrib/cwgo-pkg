@@ -228,7 +228,6 @@ func TestResolver(t *testing.T) {
 	}
 }
 
-// TestEtcdRegistryWithHertz Test etcd registry complete workflow(service registry|service de-registry|service resolver)with hertz.
 func TestEtcdRegistryWithHertz(t *testing.T) {
 	address := "127.0.0.1:1234"
 	r, _ := NewEtcdRegistry([]string{"127.0.0.1:2379"})
@@ -267,7 +266,7 @@ func TestEtcdRegistryWithHertz(t *testing.T) {
 	assert.Nil(t, opt.RegistryInfo.Tags)
 
 	if err := h.Shutdown(context.Background()); err != nil {
-		t.Errorf("HERTZ: Shutdown cwerror=%v", err)
+		t.Errorf("HERTZ: Shutdown error=%v", err)
 	}
 	time.Sleep(5 * time.Second)
 

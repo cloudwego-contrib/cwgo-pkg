@@ -153,7 +153,7 @@ func TestConsulRegister(t *testing.T) {
 	}
 
 	var (
-		testSvcName   = "etcdhertz.test.demo1"
+		testSvcName   = "hertz.test.demo1"
 		testSvcPort   = fmt.Sprintf("%d", 8581)
 		testSvcAddr   = net.JoinHostPort(localIpAddr, testSvcPort)
 		testSvcWeight = 777
@@ -200,7 +200,7 @@ func TestConsulDiscovery(t *testing.T) {
 	}
 
 	var (
-		testSvcName   = "etcdhertz.test.demo2"
+		testSvcName   = "hertz.test.demo2"
 		testSvcPort   = fmt.Sprintf("%d", 8582)
 		testSvcAddr   = net.JoinHostPort(localIpAddr, testSvcPort)
 		testSvcWeight = 777
@@ -256,7 +256,7 @@ func TestConsulDeregister(t *testing.T) {
 	}
 
 	var (
-		testSvcName   = "etcdhertz.test.demo3"
+		testSvcName   = "hertz.test.demo3"
 		testSvcPort   = fmt.Sprintf("%d", 8583)
 		testSvcAddr   = net.JoinHostPort(localIpAddr, testSvcPort)
 		testSvcWeight = 777

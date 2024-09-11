@@ -34,10 +34,10 @@ import (
 
 const scAddr = "127.0.0.1:30100"
 
-// TestServiceCombRegistryWithHertz Test servicecomb registry-etcdhertz complete with etcdhertz.
+// TestServiceCombRegistryWithHertz Test servicecomb registry-hertz complete with hertz.
 func TestServiceCombRegistryWithHertz(t *testing.T) {
 	addr := "127.0.0.1:8710"
-	serviceName := "etcdhertz.servicecomb.test"
+	serviceName := "hertz.servicecomb.test"
 	r, err := NewDefaultSCRegistry([]string{scAddr})
 	assert.Nil(t, err)
 	h := server.Default(
@@ -87,7 +87,7 @@ func TestServiceCombRegistryWithHertz(t *testing.T) {
 	assert.Equal(t, "", string(body1))
 }
 
-// TestServiceCombDiscovery Test servicecomb registry-etcdhertz and deregistry.
+// TestServiceCombDiscovery Test servicecomb registry-hertz and deregistry.
 func TestServiceCombDiscovery(t *testing.T) {
 	// register
 	r, err := NewDefaultSCRegistry([]string{scAddr})
