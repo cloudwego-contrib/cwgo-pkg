@@ -16,16 +16,39 @@
 
 package options
 
-import "github.com/hashicorp/consul/api"
-
 type Options struct {
-	Check *api.AgentServiceCheck
+	AppId             string
+	VersionRule       string
+	HostName          string
+	HeartbeatInterval int32
 }
 
-// Option is the option of Consul.
+// Option is ServiceComb option.
 type Option func(o *Options)
 
-// WithCheck is consul registry-etcdhertz option to set AgentServiceCheck.
-func WithCheck(check *api.AgentServiceCheck) Option {
-	return func(o *Options) { o.Check = check }
+// WithAppId with app id option
+func WithAppId(appId string) Option {
+	return func(o *Options) {
+		o.AppId = appId
+	}
+}
+
+// WithVersionRule with version rule option
+func WithVersionRule(versionRule string) Option {
+	return func(o *Options) {
+		o.VersionRule = versionRule
+	}
+}
+
+// WithHostName with host name option
+func WithHostName(hostName string) Option {
+	return func(o *Options) {
+		o.HostName = hostName
+	}
+}
+
+func WithHeartbeatInterval(second int32) Option {
+	return func(o *Options) {
+		o.HeartbeatInterval = second
+	}
 }

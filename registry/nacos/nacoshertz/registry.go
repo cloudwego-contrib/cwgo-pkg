@@ -16,6 +16,7 @@ package nacos
 
 import (
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"strconv"
 
@@ -29,33 +30,9 @@ import (
 
 var _ registry.Registry = (*nacosRegistry)(nil)
 
-type (
-	nacosRegistry struct {
-		client naming_client.INamingClient
-		opts   registryOptions
-	}
-
-	registryOptions struct {
-		cluster string
-		group   string
-	}
-
-	// RegistryOption Option is nacos registry-etcdhertz option.
-	RegistryOption func(o *registryOptions)
-)
-
-// WithRegistryCluster with cluster option.
-func WithRegistryCluster(cluster string) RegistryOption {
-	return func(o *registryOptions) {
-		o.cluster = cluster
-	}
-}
-
-// WithRegistryGroup with group option.
-func WithRegistryGroup(group string) RegistryOption {
-	return func(o *registryOptions) {
-		o.group = group
-	}
+type nacosRegistry struct {
+	client naming_client.INamingClient
+	opts   options.Options
 }
 
 func (n *nacosRegistry) Register(info *registry.Info) error {
@@ -78,8 +55,8 @@ func (n *nacosRegistry) Register(info *registry.Info) error {
 		Ip:          host,
 		Port:        uint64(p),
 		ServiceName: info.ServiceName,
-		GroupName:   n.opts.group,
-		ClusterName: n.opts.cluster,
+		GroupName:   n.opts.Group,
+		ClusterName: n.opts.Cluster,
 		Weight:      float64(info.Weight),
 		Enable:      true,
 		Healthy:     true,
@@ -128,8 +105,8 @@ func (n *nacosRegistry) Deregister(info *registry.Info) error {
 		Ip:          host,
 		Port:        uint64(portInt),
 		ServiceName: info.ServiceName,
-		GroupName:   n.opts.group,
-		Cluster:     n.opts.cluster,
+		GroupName:   n.opts.Group,
+		Cluster:     n.opts.Cluster,
 		Ephemeral:   true,
 	})
 	if success {
@@ -142,7 +119,7 @@ func (n *nacosRegistry) Deregister(info *registry.Info) error {
 }
 
 // NewDefaultNacosRegistry create a default service registry-etcdhertz using nacos.
-func NewDefaultNacosRegistry(opts ...RegistryOption) (registry.Registry, error) {
+func NewDefaultNacosRegistry(opts ...options.Option) (registry.Registry, error) {
 	client, err := common.NewDefaultNacosConfig()
 	if err != nil {
 		return nil, err
@@ -151,10 +128,10 @@ func NewDefaultNacosRegistry(opts ...RegistryOption) (registry.Registry, error) 
 }
 
 // NewNacosRegistry create a new registry-etcdhertz using nacos.
-func NewNacosRegistry(client naming_client.INamingClient, opts ...RegistryOption) registry.Registry {
-	opt := registryOptions{
-		cluster: "DEFAULT",
-		group:   "DEFAULT_GROUP",
+func NewNacosRegistry(client naming_client.INamingClient, opts ...options.Option) registry.Registry {
+	opt := options.Options{
+		Cluster: "DEFAULT",
+		Group:   "DEFAULT_GROUP",
 	}
 	for _, option := range opts {
 		option(&opt)

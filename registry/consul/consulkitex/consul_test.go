@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 	"log"
 	"net"
 	"strconv"
@@ -83,7 +84,7 @@ func TestNewConsulRegisterWithConfig(t *testing.T) {
 		Address:   consulAddr,
 		WaitTime:  5 * time.Second,
 		Namespace: "TEST-NS",
-	}, WithCheck(&consulapi.AgentServiceCheck{
+	}, options.WithCheck(&consulapi.AgentServiceCheck{
 		Interval:                       "7s",
 		Timeout:                        "5s",
 		DeregisterCriticalServiceAfter: "15s",

@@ -17,6 +17,7 @@ package consulhertz
 import (
 	"context"
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 	"log"
 	"net"
 	"testing"
@@ -122,7 +123,7 @@ func TestNewConsulRegisterWithCheckOption(t *testing.T) {
 	check.Interval = "10s"
 	check.DeregisterCriticalServiceAfter = "1m"
 
-	consulResolver := NewConsulRegister(cli, WithCheck(check))
+	consulResolver := NewConsulRegister(cli, options.WithCheck(check))
 	assert.NotNil(t, consulResolver)
 }
 

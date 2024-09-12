@@ -16,6 +16,7 @@ package nacos
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"strings"
 	"testing"
 	"time"
@@ -153,7 +154,7 @@ func TestMultiInstancesWithDefRegistry(t *testing.T) {
 		clusterName = "TheCluster"
 		groupName   = "TheGroup"
 	)
-	got, err := NewDefaultNacosRegistry(WithRegistryCluster(clusterName), WithRegistryGroup(groupName))
+	got, err := NewDefaultNacosRegistry(options.WithCluster(clusterName), options.WithGroup(groupName))
 	assert.Nil(t, err)
 
 	time.Sleep(time.Second)
@@ -216,7 +217,7 @@ func TestMultipleInstances(t *testing.T) {
 	)
 
 	time.Sleep(time.Second)
-	got := NewNacosRegistry(namingClient, WithRegistryCluster(clusterName), WithRegistryGroup(groupName))
+	got := NewNacosRegistry(namingClient, options.WithCluster(clusterName), options.WithGroup(groupName))
 	if !assert.NotNil(t, got) {
 		t.Errorf("err: new registry-etcdhertz fail")
 		return
@@ -377,7 +378,7 @@ func TestResolverDifferentGroup(t *testing.T) {
 		ctx.String(200, "pong1")
 	})
 
-	opts2 = append(opts2, server.WithRegistry(NewNacosRegistry(namingClient, WithRegistryGroup("OTHER")), &registry.Info{
+	opts2 = append(opts2, server.WithRegistry(NewNacosRegistry(namingClient, options.WithGroup("OTHER")), &registry.Info{
 		ServiceName: "demo.etcdhertz-contrib.test1",
 		Addr:        utils.NewNetAddr("tcp", "127.0.0.1:7001"),
 		Weight:      10,

@@ -19,6 +19,7 @@ package consul
 import (
 	"errors"
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/internal"
 	"github.com/cloudwego/kitex/pkg/registry"
@@ -27,9 +28,10 @@ import (
 
 type consulRegistry struct {
 	consulClient *api.Client
-	opts         options
+	opts         options.Options
 }
 
+/*
 type options struct {
 	check *api.AgentServiceCheck
 }
@@ -40,7 +42,7 @@ type Option func(o *options)
 // WithCheck is consul registry option to set AgentServiceCheck.
 func WithCheck(check *api.AgentServiceCheck) Option {
 	return func(o *options) { o.check = check }
-}
+}*/
 
 const kvJoinChar = ":"
 
@@ -49,7 +51,7 @@ var _ registry.Registry = (*consulRegistry)(nil)
 var errIllegalTagChar = errors.New("illegal tag character")
 
 // NewConsulRegister create a new registry using consul.
-func NewConsulRegister(address string, opts ...Option) (registry.Registry, error) {
+func NewConsulRegister(address string, opts ...options.Option) (registry.Registry, error) {
 	config := api.DefaultConfig()
 	config.Address = address
 	client, err := api.NewClient(config)
@@ -57,8 +59,8 @@ func NewConsulRegister(address string, opts ...Option) (registry.Registry, error
 		return nil, err
 	}
 
-	op := options{
-		check: internal.DefaultCheck(),
+	op := options.Options{
+		Check: internal.DefaultCheck(),
 	}
 
 	for _, option := range opts {
@@ -69,14 +71,14 @@ func NewConsulRegister(address string, opts ...Option) (registry.Registry, error
 }
 
 // NewConsulRegisterWithConfig create a new registry using consul, with a custom config.
-func NewConsulRegisterWithConfig(config *api.Config, opts ...Option) (*consulRegistry, error) {
+func NewConsulRegisterWithConfig(config *api.Config, opts ...options.Option) (*consulRegistry, error) {
 	client, err := api.NewClient(config)
 	if err != nil {
 		return nil, err
 	}
 
-	op := options{
-		check: internal.DefaultCheck(),
+	op := options.Options{
+		Check: internal.DefaultCheck(),
 	}
 
 	for _, option := range opts {
@@ -118,12 +120,12 @@ func (c *consulRegistry) Register(info *registry.Info) error {
 			Passing: info.Weight,
 			Warning: info.Weight,
 		},
-		Check: c.opts.check,
+		Check: c.opts.Check,
 	}
 
-	if c.opts.check != nil {
-		c.opts.check.TCP = fmt.Sprintf("%s:%d", host, port)
-		svcInfo.Check = c.opts.check
+	if c.opts.Check != nil {
+		c.opts.Check.TCP = fmt.Sprintf("%s:%d", host, port)
+		svcInfo.Check = c.opts.Check
 	}
 
 	return c.consulClient.Agent().ServiceRegister(svcInfo)

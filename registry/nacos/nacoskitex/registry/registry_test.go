@@ -15,6 +15,7 @@
 package registry
 
 import (
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"testing"
 	"time"
@@ -56,7 +57,7 @@ func TestNewNacosRegistry(t *testing.T) {
 		t.Errorf("err:%v", err)
 		return
 	}
-	got := NewNacosRegistry(client, WithCluster("DEFAULT"), WithGroup("DEFAULT_GROUP"))
+	got := NewNacosRegistry(client, options.WithCluster("DEFAULT"), options.WithGroup("DEFAULT_GROUP"))
 	assert.NotNil(t, got)
 }
 
@@ -94,7 +95,7 @@ func TestNacosRegistryRegister(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := NewNacosRegistry(tt.fields.cli, WithCluster("DEFAULT"), WithGroup("DEFAULT_GROUP"))
+			n := NewNacosRegistry(tt.fields.cli, options.WithCluster("DEFAULT"), options.WithGroup("DEFAULT_GROUP"))
 			if err := n.Register(tt.args.info); (err != nil) != tt.wantErr {
 				t.Errorf("Register() cwerror = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -136,7 +137,7 @@ func TestNacosRegistryDeregister(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := NewNacosRegistry(tt.fields.cli, WithCluster("DEFAULT"), WithGroup("DEFAULT_GROUP"))
+			n := NewNacosRegistry(tt.fields.cli, options.WithCluster("DEFAULT"), options.WithGroup("DEFAULT_GROUP"))
 			if err := n.Deregister(tt.args.info); (err != nil) != tt.wantErr {
 				t.Errorf("Deregister() cwerror = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -157,7 +158,7 @@ func TestNacosMultipleInstances(t *testing.T) {
 		return
 	}
 	time.Sleep(time.Second)
-	got := NewNacosRegistry(client, WithCluster(clusterName), WithGroup(groupName))
+	got := NewNacosRegistry(client, options.WithCluster(clusterName), options.WithGroup(groupName))
 	if !assert.NotNil(t, got) {
 		t.Errorf("err: new registry fail")
 		return
@@ -234,7 +235,7 @@ func TestNacosMultipleInstancesWithDefaultNacosRegistry(t *testing.T) {
 		clusterName = "TheCluster"
 		groupName   = "TheGroup"
 	)
-	got, err := NewDefaultNacosRegistry(WithCluster(clusterName), WithGroup(groupName))
+	got, err := NewDefaultNacosRegistry(options.WithCluster(clusterName), options.WithGroup(groupName))
 	assert.Nil(t, err)
 	if !assert.NotNil(t, got) {
 		t.Errorf("err: new registry fail")

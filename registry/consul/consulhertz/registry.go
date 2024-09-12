@@ -17,6 +17,7 @@ package consulhertz
 import (
 	"errors"
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 	"net"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/internal"
@@ -38,12 +39,12 @@ var (
 
 type consulRegistry struct {
 	consulClient *api.Client
-	opts         options
+	opts         options.Options
 }
 
 var _ registry.Registry = (*consulRegistry)(nil)
 
-type options struct {
+/*type options struct {
 	check *api.AgentServiceCheck
 }
 
@@ -53,12 +54,12 @@ type Option func(o *options)
 // WithCheck is consul registry-etcdhertz option to set AgentServiceCheck.
 func WithCheck(check *api.AgentServiceCheck) Option {
 	return func(o *options) { o.check = check }
-}
+}*/
 
 // NewConsulRegister create a new registry-etcdhertz using consul.
-func NewConsulRegister(consulClient *api.Client, opts ...Option) registry.Registry {
-	op := options{
-		check: internal.DefaultCheck(),
+func NewConsulRegister(consulClient *api.Client, opts ...options.Option) registry.Registry {
+	op := options.Options{
+		Check: internal.DefaultCheck(),
 	}
 
 	for _, opt := range opts {
@@ -98,11 +99,11 @@ func (c *consulRegistry) Register(info *registry.Info) error {
 			Passing: info.Weight,
 			Warning: info.Weight,
 		},
-		Check: c.opts.check,
+		Check: c.opts.Check,
 	}
-	if c.opts.check != nil {
-		c.opts.check.TCP = net.JoinHostPort(host, fmt.Sprintf("%d", port))
-		svcInfo.Check = c.opts.check
+	if c.opts.Check != nil {
+		c.opts.Check.TCP = net.JoinHostPort(host, fmt.Sprintf("%d", port))
+		svcInfo.Check = c.opts.Check
 	}
 
 	return c.consulClient.Agent().ServiceRegister(svcInfo)

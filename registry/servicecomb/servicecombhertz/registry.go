@@ -18,6 +18,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/options"
 	"net"
 	"sync"
 	"time"
@@ -38,53 +39,58 @@ type scHeartbeat struct {
 	instanceKey string
 }
 
-type registryOptions struct {
-	appId             string
-	versionRule       string
-	hostName          string
-	heartbeatInterval int32
-}
+/*
+	type registryOptions struct {
+		appId             string
+		versionRule       string
+		hostName          string
+		heartbeatInterval int32
+	}
 
 // RegistryOption is ServiceComb option.
 type RegistryOption func(o *registryOptions)
 
 // WithAppId with app id option
-func WithAppId(appId string) RegistryOption {
-	return func(o *registryOptions) {
-		o.appId = appId
+
+	func WithAppId(appId string) RegistryOption {
+		return func(o *registryOptions) {
+			o.appId = appId
+		}
 	}
-}
 
 // WithRegistryVersionRule with version rule option
-func WithRegistryVersionRule(versionRule string) RegistryOption {
-	return func(o *registryOptions) {
-		o.versionRule = versionRule
+
+	func WithRegistryVersionRule(versionRule string) RegistryOption {
+		return func(o *registryOptions) {
+			o.versionRule = versionRule
+		}
 	}
-}
 
 // WithRegistryHostName with host name option
-func WithRegistryHostName(hostName string) RegistryOption {
-	return func(o *registryOptions) {
-		o.hostName = hostName
+
+	func WithRegistryHostName(hostName string) RegistryOption {
+		return func(o *registryOptions) {
+			o.hostName = hostName
+		}
 	}
-}
 
 // WithRegistryHeartbeatInterval with heart beat second
-func WithRegistryHeartbeatInterval(second int32) RegistryOption {
-	return func(o *registryOptions) {
-		o.heartbeatInterval = second
-	}
-}
 
+	func WithRegistryHeartbeatInterval(second int32) RegistryOption {
+		return func(o *registryOptions) {
+			o.heartbeatInterval = second
+		}
+	}
+*/
 type serviceCombRegistry struct {
 	cli         *sc.Client
-	opts        registryOptions
+	opts        options.Options
 	lock        *sync.RWMutex
 	registryIns map[string]*scHeartbeat
 }
 
 // NewDefaultSCRegistry create a new default ServiceComb registry-etcdhertz
-func NewDefaultSCRegistry(endPoints []string, opts ...RegistryOption) (registry.Registry, error) {
+func NewDefaultSCRegistry(endPoints []string, opts ...options.Option) (registry.Registry, error) {
 	client, err := sc.NewClient(sc.Options{
 		Endpoints: endPoints,
 	})
@@ -95,12 +101,12 @@ func NewDefaultSCRegistry(endPoints []string, opts ...RegistryOption) (registry.
 }
 
 // NewSCRegistry create a new ServiceComb registry-etcdhertz
-func NewSCRegistry(client *sc.Client, opts ...RegistryOption) registry.Registry {
-	op := registryOptions{
-		appId:             "DEFAULT",
-		versionRule:       "1.0.0",
-		hostName:          "DEFAULT",
-		heartbeatInterval: 5,
+func NewSCRegistry(client *sc.Client, opts ...options.Option) registry.Registry {
+	op := options.Options{
+		AppId:             "DEFAULT",
+		VersionRule:       "1.0.0",
+		HostName:          "DEFAULT",
+		HeartbeatInterval: 5,
 	}
 	for _, opt := range opts {
 		opt(&op)
@@ -133,8 +139,8 @@ func (scr *serviceCombRegistry) Register(info *registry.Info) error {
 
 	serviceID, err := scr.cli.RegisterService(&discovery.MicroService{
 		ServiceName: info.ServiceName,
-		AppId:       scr.opts.appId,
-		Version:     scr.opts.versionRule,
+		AppId:       scr.opts.AppId,
+		Version:     scr.opts.VersionRule,
 		Status:      sc.MSInstanceUP,
 	})
 	if err != nil {
@@ -146,14 +152,14 @@ func (scr *serviceCombRegistry) Register(info *registry.Info) error {
 		Interval: 30,
 		Times:    3,
 	}
-	if scr.opts.heartbeatInterval > 0 {
-		healthCheck.Interval = scr.opts.heartbeatInterval
+	if scr.opts.HeartbeatInterval > 0 {
+		healthCheck.Interval = scr.opts.HeartbeatInterval
 	}
 
 	instanceId, err := scr.cli.RegisterMicroServiceInstance(&discovery.MicroServiceInstance{
 		ServiceId:   serviceID,
 		Endpoints:   []string{addr},
-		HostName:    scr.opts.hostName,
+		HostName:    scr.opts.HostName,
 		HealthCheck: healthCheck,
 		Status:      sc.MSInstanceUP,
 		Properties:  info.Tags,
@@ -187,7 +193,7 @@ func (scr *serviceCombRegistry) Deregister(info *registry.Info) error {
 		return err
 	}
 
-	serviceId, err := scr.cli.GetMicroServiceID(scr.opts.appId, info.ServiceName, scr.opts.versionRule, "")
+	serviceId, err := scr.cli.GetMicroServiceID(scr.opts.AppId, info.ServiceName, scr.opts.VersionRule, "")
 	if err != nil {
 		return fmt.Errorf("get service-id cwerror: %w", err)
 	}
@@ -201,7 +207,7 @@ func (scr *serviceCombRegistry) Deregister(info *registry.Info) error {
 	}
 
 	instanceId := ""
-	instances, err := scr.cli.FindMicroServiceInstances("", scr.opts.appId, info.ServiceName, scr.opts.versionRule, sc.WithoutRevision())
+	instances, err := scr.cli.FindMicroServiceInstances("", scr.opts.AppId, info.ServiceName, scr.opts.VersionRule, sc.WithoutRevision())
 	if err != nil {
 		return fmt.Errorf("get instances cwerror: %w", err)
 	}
@@ -230,7 +236,7 @@ func (scr *serviceCombRegistry) Deregister(info *registry.Info) error {
 }
 
 func (scr *serviceCombRegistry) heartBeat(ctx context.Context, serviceId, instanceId string) {
-	ticker := time.NewTicker(time.Second * time.Duration(scr.opts.heartbeatInterval))
+	ticker := time.NewTicker(time.Second * time.Duration(scr.opts.HeartbeatInterval))
 	for {
 		select {
 		case <-ctx.Done():

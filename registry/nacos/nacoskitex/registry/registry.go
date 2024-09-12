@@ -17,6 +17,7 @@ package registry
 import (
 	"errors"
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"strconv"
 
@@ -26,31 +27,13 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/vo"
 )
 
-type options struct {
-	cluster string
-	group   string
-}
-
-// Option is nacos option.
-type Option func(o *options)
-
-// WithCluster with cluster option.
-func WithCluster(cluster string) Option {
-	return func(o *options) { o.cluster = cluster }
-}
-
-// WithGroup with group option.
-func WithGroup(group string) Option {
-	return func(o *options) { o.group = group }
-}
-
 type nacosRegistry struct {
 	cli  naming_client.INamingClient
-	opts options
+	opts options.Options
 }
 
 // NewDefaultNacosRegistry create a default service registry using nacos.
-func NewDefaultNacosRegistry(opts ...Option) (registry.Registry, error) {
+func NewDefaultNacosRegistry(opts ...options.Option) (registry.Registry, error) {
 	cli, err := nacos.NewDefaultNacosClient()
 	if err != nil {
 		return nil, err
@@ -59,10 +42,10 @@ func NewDefaultNacosRegistry(opts ...Option) (registry.Registry, error) {
 }
 
 // NewNacosRegistry create a new registry using nacos.
-func NewNacosRegistry(cli naming_client.INamingClient, opts ...Option) registry.Registry {
-	op := options{
-		cluster: "DEFAULT",
-		group:   "DEFAULT_GROUP",
+func NewNacosRegistry(cli naming_client.INamingClient, opts ...options.Option) registry.Registry {
+	op := options.Options{
+		Cluster: "DEFAULT",
+		Group:   "DEFAULT_GROUP",
 	}
 	for _, option := range opts {
 		option(&op)
@@ -100,8 +83,8 @@ func (n *nacosRegistry) Register(info *registry.Info) error {
 		Enable:      true,
 		Healthy:     true,
 		Metadata:    mergeTags(info.Tags, nacos.Tags),
-		GroupName:   n.opts.group,
-		ClusterName: n.opts.cluster,
+		GroupName:   n.opts.Group,
+		ClusterName: n.opts.Cluster,
 		Ephemeral:   true,
 	})
 	if e != nil {
@@ -165,8 +148,8 @@ func (n *nacosRegistry) Deregister(info *registry.Info) error {
 		Port:        uint64(p),
 		ServiceName: info.ServiceName,
 		Ephemeral:   true,
-		GroupName:   n.opts.group,
-		Cluster:     n.opts.cluster,
+		GroupName:   n.opts.Group,
+		Cluster:     n.opts.Cluster,
 	}); err != nil {
 		return err
 	}
