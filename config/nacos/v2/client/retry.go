@@ -16,6 +16,7 @@ package client
 import (
 	"github.com/cloudwego-contrib/cwgo-pkg/config/nacos/v2/nacos"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/nacos/v2/utils"
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/retry"
@@ -58,7 +59,7 @@ func initRetryContainer(param vo.ConfigParam, dest string,
 ) *retry.Container {
 	retryContainer := retry.NewRetryContainerWithPercentageLimit()
 
-	ts := utils.ThreadSafeSet{}
+	ts := cwutils.ThreadSafeSet{}
 
 	onChangeCallback := func(data string, parser nacos.ConfigParser) {
 		// the key is method name, wildcard "*" can match anything.
@@ -69,7 +70,7 @@ func initRetryContainer(param vo.ConfigParam, dest string,
 			return
 		}
 
-		set := utils.Set{}
+		set := cwutils.Set{}
 		for method, policy := range rcs {
 			set[method] = true
 			if policy.BackupPolicy != nil && policy.FailurePolicy != nil {

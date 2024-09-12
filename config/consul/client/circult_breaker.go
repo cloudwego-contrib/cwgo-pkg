@@ -15,6 +15,7 @@
 package client
 
 import (
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"strings"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/config/consul/consul"
@@ -28,7 +29,7 @@ import (
 
 // WithCircuitBreaker sets the circuit breaker policy from consul configuration center.
 func WithCircuitBreaker(dest, src string, consulClient consul.Client, uniqueID int64, opts utils.Options) []client.Option {
-	param, err := consulClient.ClientConfigParam(&consul.ConfigParamConfig{
+	param, err := consulClient.ClientConfigParam(&cwutils.ConfigParamConfig{
 		Category:          circuitBreakerConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -76,14 +77,14 @@ func genServiceCBKey(toService, method string) string {
 	return buf.String()
 }
 
-func initCircuitBreaker(configType consul.ConfigType, key, dest, src string,
+func initCircuitBreaker(configType cwutils.ConfigType, key, dest, src string,
 	consulClient consul.Client, uniqueID int64,
 ) *circuitbreak.CBSuite {
 	cb := circuitbreak.NewCBSuite(genServiceCBKeyWithRPCInfo)
-	lcb := utils.ThreadSafeSet{}
+	lcb := cwutils.ThreadSafeSet{}
 
-	onChangeCallback := func(data string, parser consul.ConfigParser) {
-		set := utils.Set{}
+	onChangeCallback := func(data string, parser cwutils.ConfigParser) {
+		set := cwutils.Set{}
 		configs := map[string]circuitbreak.CBConfig{}
 		err := parser.Decode(configType, data, &configs)
 		if err != nil {

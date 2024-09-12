@@ -14,8 +14,6 @@
 
 package zookeeper
 
-import "encoding/json"
-
 const ( //`{{$Prefix}}/{{$ClientName}}/{{$ServerName}}/{{$ConfigCategory}}`
 	ZookeeperDefaultServer     = "127.0.0.1:2181"
 	ZookeeperDefaultClientPath = "{{.ClientServiceName}}/{{.ServerServiceName}}/{{.Category}}"
@@ -25,27 +23,3 @@ const ( //`{{$Prefix}}/{{$ClientName}}/{{$ServerName}}/{{$ConfigCategory}}`
 
 // CustomFunction use for customize the config parameters.
 type CustomFunction func(*ConfigParam)
-
-// ConfigParamConfig use for render the path info by go template, ref: https://pkg.go.dev/text/template
-// The fixed key shows as below.
-type ConfigParamConfig struct {
-	Category          string
-	ClientServiceName string
-	ServerServiceName string
-}
-
-// ConfigParser the parser for zookeeper config.
-type ConfigParser interface {
-	Decode(data string, config interface{}) error
-}
-type parser struct{}
-
-// Decode decodes the data to struct in specified format.
-func (p *parser) Decode(data string, config interface{}) error {
-	return json.Unmarshal([]byte(data), config)
-}
-
-// DefaultConfigParser default zookeeper config parser.
-func defaultConfigParser() ConfigParser {
-	return &parser{}
-}

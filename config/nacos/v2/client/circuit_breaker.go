@@ -15,6 +15,7 @@
 package client
 
 import (
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"strings"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/config/nacos/v2/nacos"
@@ -82,10 +83,10 @@ func initCircuitBreaker(param vo.ConfigParam, dest, src string,
 	nacosClient nacos.Client, uniqueID int64,
 ) *circuitbreak.CBSuite {
 	cb := circuitbreak.NewCBSuite(genServiceCBKeyWithRPCInfo)
-	lcb := utils.ThreadSafeSet{}
+	lcb := cwutils.ThreadSafeSet{}
 
 	onChangeCallback := func(data string, parser nacos.ConfigParser) {
-		set := utils.Set{}
+		set := cwutils.Set{}
 		configs := map[string]circuitbreak.CBConfig{}
 		err := parser.Decode(param.Type, data, &configs)
 		if err != nil {

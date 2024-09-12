@@ -2,8 +2,6 @@ module github.com/cloudwego-contrib/cwgo-pkg/config/etcd
 
 go 1.21
 
-
-
 require (
 	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b
 	github.com/cloudwego/configmanager v0.2.0

@@ -15,6 +15,7 @@
 package apollo
 
 import (
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"sync"
 	"testing"
 	"time"
@@ -107,7 +108,7 @@ func TestRegisterAndDeregister(t *testing.T) {
 			Key:       "k1",
 			nameSpace: "n1",
 			Cluster:   "c1",
-		}, func(s string, cp ConfigParser) {
+		}, func(s string, cp cwutils.ConfigParser) {
 			gotlock.Lock()
 			defer gotlock.Unlock()
 			ids, ok := gots[configkey]
@@ -133,7 +134,7 @@ func TestRegisterAndDeregister(t *testing.T) {
 			Key:       "k1",
 			nameSpace: "n1",
 			Cluster:   "c1",
-		}, func(s string, cp ConfigParser) {
+		}, func(s string, cp cwutils.ConfigParser) {
 			gotlock.Lock()
 			defer gotlock.Unlock()
 			klog.Info("onchange callback2:", s)

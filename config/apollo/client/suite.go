@@ -15,13 +15,13 @@
 package client
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/apollo"
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/apollo/apollo"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/utils"
 	"github.com/cloudwego/kitex/client"
 )
 
 type ApolloClientSuite struct {
-	apolloClient apollo.Client
+	apolloClient cwutils.Client
 	service      string
 	client       string
 	opts         utils.Options
@@ -29,7 +29,7 @@ type ApolloClientSuite struct {
 
 type ClientSuiteOption func(*ApolloClientSuite)
 
-func NewSuite(service, client string, cli apollo.Client,
+func NewSuite(service, client string, cli cwutils.Client,
 	options ...utils.Option,
 ) *ApolloClientSuite {
 	client_suite := &ApolloClientSuite{

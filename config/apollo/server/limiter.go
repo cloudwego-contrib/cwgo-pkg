@@ -15,6 +15,7 @@
 package server
 
 import (
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"sync/atomic"
 
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -30,7 +31,7 @@ import (
 func WithLimiter(dest string, apolloClient apollo.Client,
 	opts utils.Options,
 ) server.Option {
-	param, err := apolloClient.ServerConfigParam(&apollo.ConfigParamConfig{
+	param, err := apolloClient.ServerConfigParam(&cwutils.ConfigParamConfig{
 		Category:          apollo.LimiterConfigName,
 		ServerServiceName: dest,
 	})
@@ -55,7 +56,7 @@ func initLimitOptions(param apollo.ConfigParam, dest string, apolloClient apollo
 		u.UpdateLimit(opt)
 		updater.Store(u)
 	}
-	onChangeCallback := func(data string, parser apollo.ConfigParser) {
+	onChangeCallback := func(data string, parser cwutils.ConfigParser) {
 		lc := &limiter.LimiterConfig{}
 		err := parser.Decode(param.Type, data, lc)
 		if err != nil {

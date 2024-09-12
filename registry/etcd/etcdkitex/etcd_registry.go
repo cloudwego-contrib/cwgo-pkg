@@ -107,6 +107,7 @@ func NewEtcdRegistryWithRetry(endpoints []string, retryConfig *retry.Config, opt
 		return nil, err
 	}
 	return &etcdRegistry{
+		prefix:      cfg.Prefix,
 		etcdClient:  etcdClient,
 		leaseTTL:    getTTL(),
 		retryConfig: retryConfig,

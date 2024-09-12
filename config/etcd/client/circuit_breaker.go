@@ -16,6 +16,7 @@ package client
 
 import (
 	"context"
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"strings"
 
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -29,7 +30,7 @@ import (
 
 // WithCircuitBreaker sets the circuit breaker policy from etcd configuration center.
 func WithCircuitBreaker(dest, src string, etcdClient etcd.Client, uniqueID int64, opts utils.Options) []client.Option {
-	param, err := etcdClient.ClientConfigParam(&etcd.ConfigParamConfig{
+	param, err := etcdClient.ClientConfigParam(&cwutils.ConfigParamConfig{
 		Category:          circuitBreakerConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -81,14 +82,14 @@ func initCircuitBreaker(key, dest, src string,
 	etcdClient etcd.Client, uniqueID int64,
 ) *circuitbreak.CBSuite {
 	cb := circuitbreak.NewCBSuite(genServiceCBKeyWithRPCInfo)
-	lcb := utils.ThreadSafeSet{}
+	lcb := cwutils.ThreadSafeSet{}
 
-	onChangeCallback := func(restoreDefault bool, data string, parser etcd.ConfigParser) {
-		set := utils.Set{}
+	onChangeCallback := func(restoreDefault bool, data string, parser cwutils.ConfigParser) {
+		set := cwutils.Set{}
 		configs := map[string]circuitbreak.CBConfig{}
 
 		if !restoreDefault {
-			err := parser.Decode(data, &configs)
+			err := parser.Decode(cwutils.JSON, data, &configs)
 			if err != nil {
 				klog.Warnf("[etcd] %s client etcd circuit breaker: unmarshal data %s failed: %s, skip...", key, data, err)
 				return

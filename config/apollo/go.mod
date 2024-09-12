@@ -10,6 +10,7 @@ require (
 	github.com/shima-park/agollo v1.2.14
 	go.uber.org/atomic v1.11.0
 	gopkg.in/go-playground/assert.v1 v1.2.1
+
 )
 
 require (

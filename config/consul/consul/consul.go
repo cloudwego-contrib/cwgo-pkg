@@ -17,6 +17,7 @@ package consul
 import (
 	"bytes"
 	"context"
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"html/template"
 	"strconv"
 	"sync"
@@ -31,7 +32,7 @@ import (
 const WatchByKey = "key"
 
 type Key struct {
-	Type   ConfigType
+	Type   cwutils.ConfigType
 	Prefix string
 	Path   string
 }
@@ -45,10 +46,10 @@ type ListenConfig struct {
 	Partition  string
 }
 type Client interface {
-	SetParser(configParser ConfigParser)
-	ClientConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error)
-	ServerConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error)
-	RegisterConfigCallback(key string, uniqueID int64, callback func(string, ConfigParser))
+	SetParser(configParser cwutils.ConfigParser)
+	ClientConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
+	ServerConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
+	RegisterConfigCallback(key string, uniqueID int64, callback func(string, cwutils.ConfigParser))
 	DeregisterConfig(key string, uniqueID int64)
 }
 
@@ -63,13 +64,13 @@ type Options struct {
 	Token            string
 	Partition        string
 	LoggerConfig     *zap.Config
-	ConfigParser     ConfigParser
+	ConfigParser     cwutils.ConfigParser
 }
 
 type client struct {
 	consulCli          *api.Client
 	lconfig            *ListenConfig
-	parser             ConfigParser
+	parser             cwutils.ConfigParser
 	consulTimeout      time.Duration
 	prefixTemplate     *template.Template
 	serverPathTemplate *template.Template
@@ -86,7 +87,7 @@ func NewClient(opts Options) (Client, error) {
 		opts.Prefix = ConsulDefaultConfiGPrefix
 	}
 	if opts.ConfigParser == nil {
-		opts.ConfigParser = defaultConfigParse()
+		opts.ConfigParser = cwutils.DefaultConfigParse()
 	}
 	if opts.TimeOut == 0 {
 		opts.TimeOut = ConsulDefaultTimeout
@@ -144,15 +145,15 @@ func NewClient(opts Options) (Client, error) {
 }
 
 // SetParser support customise parser
-func (c *client) SetParser(parser ConfigParser) {
+func (c *client) SetParser(parser cwutils.ConfigParser) {
 	c.parser = parser
 }
 
-func (c *client) ClientConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
+func (c *client) ClientConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
 	return c.configParam(cpc, c.clientPathTemplate, cfs...)
 }
 
-func (c *client) ServerConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
+func (c *client) ServerConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
 	return c.configParam(cpc, c.serverPathTemplate, cfs...)
 }
 
@@ -161,8 +162,8 @@ func (c *client) ServerConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction
 //  1. Prefix: KitexConfig by default.
 //  2. ServerPath: {{.ServerServiceName}}/{{.Category}} by default.
 //     ClientPath: {{.ClientServiceName}}/{{.ServerServiceName}}/{{.Category}} by default.
-func (c *client) configParam(cpc *ConfigParamConfig, t *template.Template, cfs ...CustomFunction) (Key, error) {
-	param := Key{Type: JSON}
+func (c *client) configParam(cpc *cwutils.ConfigParamConfig, t *template.Template, cfs ...CustomFunction) (Key, error) {
+	param := Key{Type: cwutils.JSON}
 	var err error
 	param.Path, err = c.render(cpc, t)
 	if err != nil {
@@ -179,7 +180,7 @@ func (c *client) configParam(cpc *ConfigParamConfig, t *template.Template, cfs .
 	return param, nil
 }
 
-func (c *client) render(cpc *ConfigParamConfig, t *template.Template) (string, error) {
+func (c *client) render(cpc *cwutils.ConfigParamConfig, t *template.Template) (string, error) {
 	var tpl bytes.Buffer
 	err := t.Execute(&tpl, cpc)
 	if err != nil {
@@ -189,7 +190,7 @@ func (c *client) render(cpc *ConfigParamConfig, t *template.Template) (string, e
 }
 
 // RegisterConfigCallback register the callback function to consul client.
-func (c *client) RegisterConfigCallback(key string, uniqueID int64, callback func(string, ConfigParser)) {
+func (c *client) RegisterConfigCallback(key string, uniqueID int64, callback func(string, cwutils.ConfigParser)) {
 	go func() {
 		clientCtx, cancel := context.WithCancel(context.Background())
 		params := make(map[string]interface{})

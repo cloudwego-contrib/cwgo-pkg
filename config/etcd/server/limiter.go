@@ -16,6 +16,7 @@ package server
 
 import (
 	"context"
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"sync/atomic"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/config/etcd/utils"
@@ -30,7 +31,7 @@ import (
 
 // WithLimiter sets the limiter config from etcd configuration center.
 func WithLimiter(dest string, etcdClient etcd.Client, uniqueID int64, opts utils.Options) server.Option {
-	param, err := etcdClient.ServerConfigParam(&etcd.ConfigParamConfig{
+	param, err := etcdClient.ServerConfigParam(&cwutils.ConfigParamConfig{
 		Category:          limiterConfigName,
 		ServerServiceName: dest,
 	})
@@ -55,11 +56,11 @@ func initLimitOptions(key string, uniqueID int64, etcdClient etcd.Client) *limit
 		u.UpdateLimit(opt)
 		updater.Store(u)
 	}
-	onChangeCallback := func(restoreDefault bool, data string, parser etcd.ConfigParser) {
+	onChangeCallback := func(restoreDefault bool, data string, parser cwutils.ConfigParser) {
 		lc := &limiter.LimiterConfig{}
 
 		if !restoreDefault {
-			err := parser.Decode(data, lc)
+			err := parser.Decode(cwutils.JSON, data, lc)
 			if err != nil {
 				klog.Warnf("[etcd] %s server etcd limiter config: unmarshal data %s failed: %s, skip...", key, data, err)
 				return

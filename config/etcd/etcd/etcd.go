@@ -17,6 +17,7 @@ package etcd
 import (
 	"bytes"
 	"context"
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"strconv"
 	"sync"
 	"text/template"
@@ -36,17 +37,17 @@ type Key struct {
 }
 
 type Client interface {
-	SetParser(ConfigParser)
-	ClientConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error)
-	ServerConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error)
-	RegisterConfigCallback(ctx context.Context, key string, clientId int64, callback func(restoreDefault bool, data string, parser ConfigParser))
+	SetParser(cwutils.ConfigParser)
+	ClientConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
+	ServerConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
+	RegisterConfigCallback(ctx context.Context, key string, clientId int64, callback func(restoreDefault bool, data string, parser cwutils.ConfigParser))
 	DeregisterConfig(key string, uniqueId int64)
 }
 
 type client struct {
 	ecli *clientv3.Client
 	// support customise parser
-	parser             ConfigParser
+	parser             cwutils.ConfigParser
 	etcdTimeout        time.Duration
 	prefixTemplate     *template.Template
 	serverPathTemplate *template.Template
@@ -63,7 +64,7 @@ type Options struct {
 	ClientPathFormat string
 	Timeout          time.Duration
 	LoggerConfig     *zap.Config
-	ConfigParser     ConfigParser
+	ConfigParser     cwutils.ConfigParser
 }
 
 // NewClient Create a default etcd client
@@ -74,7 +75,7 @@ func NewClient(opts Options) (Client, error) {
 		opts.Node = []string{EtcdDefaultNode}
 	}
 	if opts.ConfigParser == nil {
-		opts.ConfigParser = defaultConfigParse()
+		opts.ConfigParser = cwutils.DefaultConfigParse()
 	}
 	if opts.Prefix == "" {
 		opts.Prefix = EtcdDefaultConfigPrefix
@@ -119,15 +120,15 @@ func NewClient(opts Options) (Client, error) {
 	return c, nil
 }
 
-func (c *client) SetParser(parser ConfigParser) {
+func (c *client) SetParser(parser cwutils.ConfigParser) {
 	c.parser = parser
 }
 
-func (c *client) ClientConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
+func (c *client) ClientConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
 	return c.configParam(cpc, c.clientPathTemplate, cfs...)
 }
 
-func (c *client) ServerConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
+func (c *client) ServerConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
 	return c.configParam(cpc, c.serverPathTemplate, cfs...)
 }
 
@@ -136,7 +137,7 @@ func (c *client) ServerConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction
 //  1. Prefix: KitexConfig by default.
 //  2. ServerPath: {{.ServerServiceName}}/{{.Category}} by default.
 //     ClientPath: {{.ClientServiceName}}/{{.ServerServiceName}}/{{.Category}} by default.
-func (c *client) configParam(cpc *ConfigParamConfig, t *template.Template, cfs ...CustomFunction) (Key, error) {
+func (c *client) configParam(cpc *cwutils.ConfigParamConfig, t *template.Template, cfs ...CustomFunction) (Key, error) {
 	param := Key{}
 
 	var err error
@@ -155,7 +156,7 @@ func (c *client) configParam(cpc *ConfigParamConfig, t *template.Template, cfs .
 	return param, nil
 }
 
-func (c *client) render(cpc *ConfigParamConfig, t *template.Template) (string, error) {
+func (c *client) render(cpc *cwutils.ConfigParamConfig, t *template.Template) (string, error) {
 	var tpl bytes.Buffer
 	err := t.Execute(&tpl, cpc)
 	if err != nil {
@@ -165,7 +166,7 @@ func (c *client) render(cpc *ConfigParamConfig, t *template.Template) (string, e
 }
 
 // RegisterConfigCallback register the callback function to etcd client.
-func (c *client) RegisterConfigCallback(ctx context.Context, key string, uniqueID int64, callback func(bool, string, ConfigParser)) {
+func (c *client) RegisterConfigCallback(ctx context.Context, key string, uniqueID int64, callback func(bool, string, cwutils.ConfigParser)) {
 	go func() {
 		clientCtx, cancel := context.WithCancel(context.Background())
 		c.registerCancelFunc(key, uniqueID, cancel)

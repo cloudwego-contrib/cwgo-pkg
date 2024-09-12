@@ -15,11 +15,11 @@
 package client
 
 import (
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"strings"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/apollo"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/utils"
-
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/circuitbreak"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -30,7 +30,7 @@ import (
 func WithCircuitBreaker(dest, src string, apolloClient apollo.Client,
 	opts utils.Options,
 ) []client.Option {
-	param, err := apolloClient.ClientConfigParam(&apollo.ConfigParamConfig{
+	param, err := apolloClient.ClientConfigParam(&cwutils.ConfigParamConfig{
 		Category:          apollo.CircuitBreakerConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -83,10 +83,10 @@ func initCircuitBreaker(param apollo.ConfigParam, dest, src string,
 	apolloClient apollo.Client, uniqueID int64,
 ) *circuitbreak.CBSuite {
 	cb := circuitbreak.NewCBSuite(genServiceCBKeyWithRPCInfo)
-	lcb := utils.ThreadSafeSet{}
+	lcb := cwutils.ThreadSafeSet{}
 
-	onChangeCallback := func(data string, parser apollo.ConfigParser) {
-		set := utils.Set{}
+	onChangeCallback := func(data string, parser cwutils.ConfigParser) {
+		set := cwutils.Set{}
 		configs := map[string]circuitbreak.CBConfig{}
 		err := parser.Decode(param.Type, data, &configs)
 		if err != nil {

@@ -17,6 +17,7 @@ package client
 import (
 	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/apollo"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/utils"
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -27,7 +28,7 @@ import (
 func WithRPCTimeout(dest, src string, apolloClient apollo.Client,
 	opts utils.Options,
 ) []client.Option {
-	param, err := apolloClient.ClientConfigParam(&apollo.ConfigParamConfig{
+	param, err := apolloClient.ClientConfigParam(&cwutils.ConfigParamConfig{
 		Category:          apollo.RpcTimeoutConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -55,7 +56,7 @@ func initRPCTimeoutContainer(param apollo.ConfigParam, dest string,
 ) rpcinfo.TimeoutProvider {
 	rpcTimeoutContainer := rpctimeout.NewContainer()
 
-	onChangeCallback := func(data string, parser apollo.ConfigParser) {
+	onChangeCallback := func(data string, parser cwutils.ConfigParser) {
 		configs := map[string]*rpctimeout.RPCTimeout{}
 		err := parser.Decode(param.Type, data, &configs)
 		if err != nil {

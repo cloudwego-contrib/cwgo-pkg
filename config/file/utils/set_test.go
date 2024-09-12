@@ -15,6 +15,7 @@
 package utils
 
 import (
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"sort"
 	"testing"
 
@@ -22,21 +23,21 @@ import (
 )
 
 func TestSet(t *testing.T) {
-	ts := &ThreadSafeSet{}
-	m1 := Set{
+	ts := &cwutils.ThreadSafeSet{}
+	m1 := cwutils.Set{
 		"h1": true,
 		"h2": true,
 	}
 	got := ts.DiffAndEmplace(m1)
 	assert.Equal(t, []string([]string{}), got)
-	assert.Equal(t, m1, ts.s)
+	assert.Equal(t, m1, ts.GetSet())
 
-	m2 := Set{
+	m2 := cwutils.Set{
 		"h3": true,
 		"h4": true,
 	}
 	got = ts.DiffAndEmplace(m2)
 	sort.Strings(got)
 	assert.Equal(t, []string([]string{"h1", "h2"}), got)
-	assert.Equal(t, m2, ts.s)
+	assert.Equal(t, m2, ts.GetSet())
 }

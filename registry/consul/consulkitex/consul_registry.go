@@ -25,20 +25,14 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
-type options struct {
-	check *api.AgentServiceCheck
-}
-
 type consulRegistry struct {
 	consulClient *api.Client
 	opts         options
 }
 
-const kvJoinChar = ":"
-
-var _ registry.Registry = (*consulRegistry)(nil)
-
-var errIllegalTagChar = errors.New("illegal tag character")
+type options struct {
+	check *api.AgentServiceCheck
+}
 
 // Option is consul option.
 type Option func(o *options)
@@ -47,6 +41,12 @@ type Option func(o *options)
 func WithCheck(check *api.AgentServiceCheck) Option {
 	return func(o *options) { o.check = check }
 }
+
+const kvJoinChar = ":"
+
+var _ registry.Registry = (*consulRegistry)(nil)
+
+var errIllegalTagChar = errors.New("illegal tag character")
 
 // NewConsulRegister create a new registry using consul.
 func NewConsulRegister(address string, opts ...Option) (registry.Registry, error) {

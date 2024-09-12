@@ -249,7 +249,7 @@ func TestEtcdRegistryWithHertz(t *testing.T) {
 
 	// register
 	newClient, _ := client.NewClient()
-	resolver, _ := NewEtcdResolver([]string{"127.0.0.1:2379"})
+	resolver, _ := NewEtcdResolver([]string{"127.0.0.1:20000"})
 	newClient.Use(sd.Discovery(resolver))
 
 	addr := fmt.Sprintf("http://" + srvName + "/ping")
