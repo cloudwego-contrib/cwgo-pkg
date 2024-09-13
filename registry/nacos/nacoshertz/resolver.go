@@ -35,7 +35,7 @@ type (
 		group   string
 	}
 
-	// ResolverOption Option is nacos registry-etcdhertz option.
+	// ResolverOption Option is nacos registry-hertz option.
 	ResolverOption func(o *resolverOptions)
 
 	nacosResolver struct {
