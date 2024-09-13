@@ -17,6 +17,7 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoskitex/v2/nacos"
 	"github.com/cloudwego/kitex/pkg/discovery"
@@ -27,31 +28,13 @@ import (
 
 var _ discovery.Resolver = (*nacosResolver)(nil)
 
-type options struct {
-	cluster string
-	group   string
-}
-
-// Option is nacos option.
-type Option func(o *options)
-
-// WithCluster with cluster option.
-func WithCluster(cluster string) Option {
-	return func(o *options) { o.cluster = cluster }
-}
-
-// WithGroup with group option.
-func WithGroup(group string) Option {
-	return func(o *options) { o.group = group }
-}
-
 type nacosResolver struct {
 	cli  naming_client.INamingClient
-	opts options
+	opts options.ResolverOptions
 }
 
 // NewDefaultNacosResolver create a default service resolver using nacos.
-func NewDefaultNacosResolver(opts ...Option) (discovery.Resolver, error) {
+func NewDefaultNacosResolver(opts ...options.ResolverOption) (discovery.Resolver, error) {
 	cli, err := nacos.NewDefaultNacosClient()
 	if err != nil {
 		return nil, err
@@ -60,10 +43,10 @@ func NewDefaultNacosResolver(opts ...Option) (discovery.Resolver, error) {
 }
 
 // NewNacosResolver create a service resolver using nacos.
-func NewNacosResolver(cli naming_client.INamingClient, opts ...Option) discovery.Resolver {
-	op := options{
-		cluster: "DEFAULT",
-		group:   "DEFAULT_GROUP",
+func NewNacosResolver(cli naming_client.INamingClient, opts ...options.ResolverOption) discovery.Resolver {
+	op := options.ResolverOptions{
+		Cluster: "DEFAULT",
+		Group:   "DEFAULT_GROUP",
 	}
 	for _, option := range opts {
 		option(&op)
@@ -81,8 +64,8 @@ func (n *nacosResolver) Resolve(_ context.Context, desc string) (discovery.Resul
 	res, err := n.cli.SelectInstances(vo.SelectInstancesParam{
 		ServiceName: desc,
 		HealthyOnly: true,
-		GroupName:   n.opts.group,
-		Clusters:    []string{n.opts.cluster},
+		GroupName:   n.opts.Group,
+		Clusters:    []string{n.opts.Cluster},
 	})
 	if err != nil {
 		return discovery.Result{}, err
@@ -120,5 +103,5 @@ func (n *nacosResolver) Diff(cacheKey string, prev, next discovery.Result) (disc
 
 // Name returns the name of the resolver.
 func (n *nacosResolver) Name() string {
-	return "nacos" + ":" + n.opts.cluster + ":" + n.opts.group
+	return "nacos" + ":" + n.opts.Cluster + ":" + n.opts.Group
 }

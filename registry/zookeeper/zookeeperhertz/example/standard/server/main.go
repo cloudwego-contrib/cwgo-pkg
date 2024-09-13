@@ -49,7 +49,7 @@ func main() {
 		h := server.Default(
 			server.WithHostPorts(addr),
 			server.WithRegistry(r, &registry.Info{
-				ServiceName: "etcdhertz.test.demo1",
+				ServiceName: "hertz.test.demo1",
 				Addr:        utils.NewNetAddr("tcp", addr),
 				Weight:      10,
 				Tags:        tags,
@@ -74,7 +74,7 @@ func main() {
 		h := server.Default(
 			server.WithHostPorts(addr),
 			server.WithRegistry(r, &registry.Info{
-				ServiceName: "etcdhertz.test.demo2",
+				ServiceName: "hertz.test.demo2",
 				Addr:        utils.NewNetAddr("tcp", addr),
 				Weight:      10,
 				Tags:        tags,

@@ -231,7 +231,7 @@ func TestConsulDiscovery(t *testing.T) {
 	// wait for health check passing
 	time.Sleep(time.Second * 6)
 
-	// build a etcdhertz client with the consul resolver
+	// build a hertz client with the consul resolver
 	cli, err := client.NewClient()
 	if err != nil {
 		panic(err)
@@ -300,7 +300,7 @@ func TestConsulDeregister(t *testing.T) {
 		return
 	}
 
-	// wait for etcdhertz to deregister
+	// wait for hertz to deregister
 	time.Sleep(time.Second * 2)
 
 	// resolve again

@@ -16,16 +16,24 @@
 
 package options
 
-import "github.com/hashicorp/consul/api"
-
-type Options struct {
-	Check *api.AgentServiceCheck
+type ResolverOptions struct {
+	Cluster string
+	Group   string
 }
 
-// Option is the option of Consul.
-type Option func(o *Options)
+// ResolverOption Option is nacos registry-hertz option.
+type ResolverOption func(o *ResolverOptions)
 
-// WithCheck is consul registry-hertz option to set AgentServiceCheck.
-func WithCheck(check *api.AgentServiceCheck) Option {
-	return func(o *Options) { o.Check = check }
+// WithResolverCluster with cluster option.
+func WithResolverCluster(cluster string) ResolverOption {
+	return func(o *ResolverOptions) {
+		o.Cluster = cluster
+	}
+}
+
+// WithResolverGroup with group option.
+func WithResolverGroup(group string) ResolverOption {
+	return func(o *ResolverOptions) {
+		o.Group = group
+	}
 }

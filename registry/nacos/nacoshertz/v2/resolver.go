@@ -16,6 +16,7 @@ package nacos
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"net/url"
 	"strconv"
@@ -30,7 +31,7 @@ var _ discovery.Resolver
 
 type nacosResolver struct {
 	client naming_client.INamingClient
-	opts   resolverOptions
+	opts   options.ResolverOptions
 }
 
 func (n *nacosResolver) Target(_ context.Context, target *discovery.TargetInfo) string {
@@ -72,8 +73,8 @@ func (n *nacosResolver) Resolve(_ context.Context, desc string) (discovery.Resul
 	res, err := n.client.SelectInstances(vo.SelectInstancesParam{
 		ServiceName: serviceName,
 		HealthyOnly: true,
-		GroupName:   n.opts.group,
-		Clusters:    []string{n.opts.cluster},
+		GroupName:   n.opts.Group,
+		Clusters:    []string{n.opts.Cluster},
 	})
 	if err != nil {
 		return discovery.Result{}, err
@@ -101,11 +102,11 @@ func (n *nacosResolver) Resolve(_ context.Context, desc string) (discovery.Resul
 }
 
 func (n *nacosResolver) Name() string {
-	return "nacos" + ":" + n.opts.cluster + ":" + n.opts.group
+	return "nacos" + ":" + n.opts.Cluster + ":" + n.opts.Group
 }
 
 // NewDefaultNacosResolver create a default service resolver using nacos.
-func NewDefaultNacosResolver(opts ...ResolverOption) (discovery.Resolver, error) {
+func NewDefaultNacosResolver(opts ...options.ResolverOption) (discovery.Resolver, error) {
 	client, err := newDefaultNacosConfig()
 	if err != nil {
 		return nil, err
@@ -114,10 +115,10 @@ func NewDefaultNacosResolver(opts ...ResolverOption) (discovery.Resolver, error)
 }
 
 // NewNacosResolver create a service resolver using nacos.
-func NewNacosResolver(cli naming_client.INamingClient, opts ...ResolverOption) discovery.Resolver {
-	opt := resolverOptions{
-		cluster: "DEFAULT",
-		group:   "DEFAULT_GROUP",
+func NewNacosResolver(cli naming_client.INamingClient, opts ...options.ResolverOption) discovery.Resolver {
+	opt := options.ResolverOptions{
+		Cluster: "DEFAULT",
+		Group:   "DEFAULT_GROUP",
 	}
 	for _, option := range opts {
 		option(&opt)

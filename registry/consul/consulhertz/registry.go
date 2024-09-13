@@ -51,12 +51,12 @@ var _ registry.Registry = (*consulRegistry)(nil)
 // Option is the option of Consul.
 type Option func(o *options)
 
-// WithCheck is consul registry-etcdhertz option to set AgentServiceCheck.
+// WithCheck is consul registry-hertz option to set AgentServiceCheck.
 func WithCheck(check *api.AgentServiceCheck) Option {
 	return func(o *options) { o.check = check }
 }*/
 
-// NewConsulRegister create a new registry-etcdhertz using consul.
+// NewConsulRegister create a new registry-hertz using consul.
 func NewConsulRegister(consulClient *api.Client, opts ...options.Option) registry.Registry {
 	op := options.Options{
 		Check: internal.DefaultCheck(),
@@ -72,7 +72,7 @@ func NewConsulRegister(consulClient *api.Client, opts ...options.Option) registr
 // Register register a service to consul.
 func (c *consulRegistry) Register(info *registry.Info) error {
 	if err := validateRegistryInfo(info); err != nil {
-		return fmt.Errorf("validating registry-etcdhertz info failed, err: %w", err)
+		return fmt.Errorf("validating registry-hertz info failed, err: %w", err)
 	}
 	host, port, err := internal.ParseAddr(info.Addr)
 	if err != nil {
@@ -113,7 +113,7 @@ func (c *consulRegistry) Register(info *registry.Info) error {
 func (c *consulRegistry) Deregister(info *registry.Info) error {
 	err := validateRegistryInfo(info)
 	if err != nil {
-		return fmt.Errorf("validating registry-etcdhertz info failed, err: %w", err)
+		return fmt.Errorf("validating registry-hertz info failed, err: %w", err)
 	}
 
 	svcID, err := getServiceId(info)

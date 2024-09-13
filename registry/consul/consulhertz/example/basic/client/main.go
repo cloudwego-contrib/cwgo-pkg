@@ -39,7 +39,7 @@ func main() {
 	// build a consul resolver with the consul client
 	r := consul.NewConsulResolver(consulClient)
 
-	// build a etcdhertz client with the consul resolver
+	// build a hertz client with the consul resolver
 	cli, err := client.NewClient()
 	if err != nil {
 		panic(err)

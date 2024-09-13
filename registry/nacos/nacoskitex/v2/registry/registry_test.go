@@ -16,6 +16,7 @@ package registry
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"testing"
 	"time"
@@ -92,7 +93,7 @@ func TestNacosRegistryRegister(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := NewNacosRegistry(tt.fields.cli, WithCluster("DEFAULT"), WithGroup("DEFAULT_GROUP"))
+			n := NewNacosRegistry(tt.fields.cli, options.WithCluster("DEFAULT"), options.WithGroup("DEFAULT_GROUP"))
 			if err := n.Register(tt.args.info); (err != nil) != tt.wantErr {
 				t.Errorf("Register() cwerror = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -134,7 +135,7 @@ func TestNacosRegistryDeregister(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := NewNacosRegistry(tt.fields.cli, WithCluster("DEFAULT"), WithGroup("DEFAULT_GROUP"))
+			n := NewNacosRegistry(tt.fields.cli, options.WithCluster("DEFAULT"), options.WithGroup("DEFAULT_GROUP"))
 			if err := n.Deregister(tt.args.info); (err != nil) != tt.wantErr {
 				t.Errorf("Deregister() cwerror = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -149,7 +150,7 @@ func TestNacosMultipleInstancesWithDefaultNacosRegistry(t *testing.T) {
 		clusterName = "TheCluster"
 		groupName   = "TheGroup"
 	)
-	got, err := NewDefaultNacosRegistry(WithCluster(clusterName), WithGroup(groupName))
+	got, err := NewDefaultNacosRegistry(options.WithCluster(clusterName), options.WithGroup(groupName))
 	assert.Nil(t, err)
 	if !assert.NotNil(t, got) {
 		t.Errorf("err: new registry fail")
@@ -229,7 +230,7 @@ func (h *HelloImpl) Echo(_ context.Context, req *api.Request) (resp *api.Respons
 func TestResolverDifferentGroup(t *testing.T) {
 	r, err := NewDefaultNacosRegistry()
 	assert.Nil(t, err)
-	r2, err := NewDefaultNacosRegistry(WithGroup("OTHER"))
+	r2, err := NewDefaultNacosRegistry(options.WithGroup("OTHER"))
 	assert.Nil(t, err)
 
 	svr := hello.NewServer(
@@ -270,7 +271,7 @@ func TestResolverDifferentGroup(t *testing.T) {
 
 	resolver1, err := resolver.NewDefaultNacosResolver()
 	assert.Nil(t, err)
-	resolver2, err := resolver.NewDefaultNacosResolver(resolver.WithGroup("OTHER"))
+	resolver2, err := resolver.NewDefaultNacosResolver(options.WithResolverGroup("OTHER"))
 	assert.Nil(t, err)
 
 	client1 := hello.MustNewClient(

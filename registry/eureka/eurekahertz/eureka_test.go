@@ -47,7 +47,7 @@ func TestEurekaRegistryAndDeRegistry(t *testing.T) {
 			// register single instance
 			info: []*registry.Info{
 				{
-					ServiceName: "etcdhertz.discovery.single",
+					ServiceName: "hertz.discovery.single",
 					Addr:        &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8890},
 					Weight:      10,
 					Tags:        map[string]string{"region": "eu-south-1"},
@@ -55,7 +55,7 @@ func TestEurekaRegistryAndDeRegistry(t *testing.T) {
 			},
 			wantErr: false,
 			target: discovery.TargetInfo{
-				Host: "etcdhertz.discovery.single",
+				Host: "hertz.discovery.single",
 				Tags: nil,
 			},
 		},
@@ -63,13 +63,13 @@ func TestEurekaRegistryAndDeRegistry(t *testing.T) {
 			// register multiple instances
 			info: []*registry.Info{
 				{
-					ServiceName: "etcdhertz.discovery.multiple",
+					ServiceName: "hertz.discovery.multiple",
 					Addr:        &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8890},
 					Weight:      15,
 					Tags:        nil,
 				},
 				{
-					ServiceName: "etcdhertz.discovery.multiple",
+					ServiceName: "hertz.discovery.multiple",
 					Addr:        &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8891},
 					Weight:      20,
 					Tags:        nil,
@@ -77,7 +77,7 @@ func TestEurekaRegistryAndDeRegistry(t *testing.T) {
 			},
 			wantErr: false,
 			target: discovery.TargetInfo{
-				Host: "etcdhertz.discovery.multiple",
+				Host: "hertz.discovery.multiple",
 				Tags: nil,
 			},
 		},
@@ -148,13 +148,13 @@ func TestEurekaRegistryAndDeRegistry(t *testing.T) {
 // TestEurekaRegisterWithDefaultWeight test if the default weight has been assigned to instance.
 func TestEurekaRegisterWithDefaultWeight(t *testing.T) {
 	info := &registry.Info{
-		ServiceName: "etcdhertz.discovery.default_weight",
+		ServiceName: "hertz.discovery.default_weight",
 		Addr:        &net.TCPAddr{Port: 8890},
 		Tags:        nil,
 	}
 
 	target := discovery.TargetInfo{
-		Host: "etcdhertz.discovery.default_weight",
+		Host: "hertz.discovery.default_weight",
 		Tags: nil,
 	}
 
@@ -226,11 +226,11 @@ func TestEurekaRegistryWithInvalidInstanceInfo(t *testing.T) {
 	}
 }
 
-// TestRegistryAndResolver test eureka registry-etcdhertz workflow(service registry-etcdhertz|service de-registry-etcdhertz|service resolver)with etcdhertz.
+// TestRegistryAndResolver test eureka registry-hertz workflow(service registry-hertz|service de-registry-hertz|service resolver)with hertz.
 func TestEurekaRegistryAndResolverWithHertz(t *testing.T) {
 	eurekaServer := []string{"http://127.0.0.1:8761/eureka"}
 	address := "127.0.0.1:1234"
-	serviceName := "etcdhertz.discovery.eureka"
+	serviceName := "hertz.discovery.eureka"
 	info := &registry.Info{
 		ServiceName: serviceName,
 		Addr:        utils.NewNetAddr("tcp", address),

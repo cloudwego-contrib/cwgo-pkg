@@ -16,6 +16,7 @@ package nacos
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"strings"
 	"testing"
 	"time"
@@ -111,25 +112,25 @@ func TestRegistryAndDeregister(t *testing.T) {
 	err = register.Deregister(&infos[0])
 	assert.Nil(t, err)
 
-	// registry-etcdhertz info cwerror
+	// registry-hertz info cwerror
 	err = register.Register(&infos[1])
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "valid parse registry-etcdhertz info cwerror")
+	assert.Contains(t, err.Error(), "valid parse registry-hertz info cwerror")
 
-	// registry-etcdhertz info addr cwerror
+	// registry-hertz info addr cwerror
 	err = register.Register(&infos[2])
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "parse registry-etcdhertz info addr cwerror")
+	assert.Contains(t, err.Error(), "parse registry-hertz info addr cwerror")
 
 	// port cwerror
 	err = register.Register(&infos[3])
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "parse registry-etcdhertz info port cwerror")
+	assert.Contains(t, err.Error(), "parse registry-hertz info port cwerror")
 
 	// addr nil
 	err = register.Register(&infos[4])
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "valid parse registry-etcdhertz info cwerror")
+	assert.Contains(t, err.Error(), "valid parse registry-hertz info cwerror")
 
 	// instance cwerror
 	err = register.Register(&infos[5])
@@ -137,7 +138,7 @@ func TestRegistryAndDeregister(t *testing.T) {
 	assert.Contains(t, err.Error(), "register instance cwerror")
 }
 
-// TestMultipleInstances test registry-etcdhertz multiple service,then deregister one
+// TestMultipleInstances test registry-hertz multiple service,then deregister one
 func TestMultipleInstances(t *testing.T) {
 	var (
 		svcName     = "_MultipleInstances"
@@ -147,8 +148,8 @@ func TestMultipleInstances(t *testing.T) {
 
 	got := NewNacosRegistry(
 		namingClient,
-		WithRegistryCluster(clusterName),
-		WithRegistryGroup(groupName),
+		options.WithCluster(clusterName),
+		options.WithGroup(groupName),
 	)
 	err := got.Register(&registry.Info{
 		ServiceName: svcName,
@@ -190,7 +191,7 @@ func TestResolverResolve(t *testing.T) {
 	h := server.Default(
 		server.WithHostPorts("127.0.0.1:8080"),
 		server.WithRegistry(NewNacosRegistry(namingClient), &registry.Info{
-			ServiceName: "demo.etcdhertz-contrib.local",
+			ServiceName: "demo.hertz-contrib.local",
 			Addr:        utils.NewNetAddr("tcp", "127.0.0.1:8080"),
 			Weight:      10,
 		}),
@@ -220,7 +221,7 @@ func TestResolverResolve(t *testing.T) {
 			name: "common",
 			args: args{
 				ctx:  context.Background(),
-				desc: "demo.etcdhertz-contrib.local",
+				desc: "demo.hertz-contrib.local",
 			},
 			fields: fields{cli: namingClient},
 		},
@@ -251,7 +252,7 @@ func TestResolverResolve(t *testing.T) {
 	}
 
 	err := NewNacosRegistry(namingClient).Deregister(&registry.Info{
-		ServiceName: "demo.etcdhertz-contrib.local",
+		ServiceName: "demo.hertz-contrib.local",
 		Addr:        utils.NewNetAddr("tcp", "127.0.0.1:8080"),
 		Weight:      10,
 	})
@@ -280,7 +281,7 @@ func TestResolverDifferentGroup(t *testing.T) {
 	var opts2 []config.Option
 
 	opts1 = append(opts1, server.WithRegistry(NewNacosRegistry(namingClient), &registry.Info{
-		ServiceName: "demo.etcdhertz-contrib.test1",
+		ServiceName: "demo.hertz-contrib.test1",
 		Addr:        utils.NewNetAddr("tcp", "127.0.0.1:7000"),
 		Weight:      10,
 		Tags:        nil,
@@ -291,8 +292,8 @@ func TestResolverDifferentGroup(t *testing.T) {
 		ctx.String(200, "pong1")
 	})
 
-	opts2 = append(opts2, server.WithRegistry(NewNacosRegistry(namingClient, WithRegistryGroup("OTHER")), &registry.Info{
-		ServiceName: "demo.etcdhertz-contrib.test1",
+	opts2 = append(opts2, server.WithRegistry(NewNacosRegistry(namingClient, options.WithGroup("OTHER")), &registry.Info{
+		ServiceName: "demo.hertz-contrib.test1",
 		Addr:        utils.NewNetAddr("tcp", "127.0.0.1:7001"),
 		Weight:      10,
 		Tags:        nil,
@@ -332,7 +333,7 @@ func TestResolverDifferentGroup(t *testing.T) {
 	ctx2, cancelFunc2 := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancelFunc2()
 
-	cli2.Use(sd.Discovery(NewNacosResolver(namingClient, WithResolverGroup("OTHER"))))
+	cli2.Use(sd.Discovery(NewNacosResolver(namingClient, options.WithResolverGroup("OTHER"))))
 	status2, body2, err2 := cli2.Get(ctx2, nil,
 		"http://demo.hertz-contrib.test1/ping", config.WithSD(true))
 	assert.Nil(t, err2)
@@ -422,7 +423,7 @@ func TestCompareMaps(t *testing.T) {
 	}
 }
 
-// TestHertzAppWithNacosRegistry test a client call a etcdhertz app with NacosRegistry
+// TestHertzAppWithNacosRegistry test a client call a hertz app with NacosRegistry
 func TestHertzAppWithNacosRegistry(t *testing.T) {
 	register := NewNacosRegistry(namingClient)
 	address := "127.0.0.1:4576"
@@ -435,7 +436,7 @@ func TestHertzAppWithNacosRegistry(t *testing.T) {
 		Weight:      10,
 		Tags:        nil,
 	}))
-	// run a etcdhertz app,registry-etcdhertz src info into NacosRegistry
+	// run a hertz app,registry-hertz src info into NacosRegistry
 	srv := server.New(opts...)
 	srv.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
 		ctx.String(200, "pong")

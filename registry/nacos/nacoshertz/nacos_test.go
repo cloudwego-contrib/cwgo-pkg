@@ -419,7 +419,7 @@ func TestResolverDifferentGroup(t *testing.T) {
 	ctx2, cancelFunc2 := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancelFunc2()
 
-	cli2.Use(sd.Discovery(NewNacosResolver(namingClient, WithResolverGroup("OTHER"))))
+	cli2.Use(sd.Discovery(NewNacosResolver(namingClient, options.WithResolverGroup("OTHER"))))
 	status2, body2, err2 := cli2.Get(ctx2, nil,
 		"http://demo.hertz-contrib.test1/ping", config.WithSD(true))
 	assert.Nil(t, err2)

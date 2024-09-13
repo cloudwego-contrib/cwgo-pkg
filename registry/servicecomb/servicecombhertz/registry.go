@@ -89,7 +89,7 @@ type serviceCombRegistry struct {
 	registryIns map[string]*scHeartbeat
 }
 
-// NewDefaultSCRegistry create a new default ServiceComb registry-etcdhertz
+// NewDefaultSCRegistry create a new default ServiceComb registry-hertz
 func NewDefaultSCRegistry(endPoints []string, opts ...options.Option) (registry.Registry, error) {
 	client, err := sc.NewClient(sc.Options{
 		Endpoints: endPoints,
@@ -100,7 +100,7 @@ func NewDefaultSCRegistry(endPoints []string, opts ...options.Option) (registry.
 	return NewSCRegistry(client, opts...), nil
 }
 
-// NewSCRegistry create a new ServiceComb registry-etcdhertz
+// NewSCRegistry create a new ServiceComb registry-hertz
 func NewSCRegistry(client *sc.Client, opts ...options.Option) registry.Registry {
 	op := options.Options{
 		AppId:             "DEFAULT",
@@ -255,13 +255,13 @@ func (scr *serviceCombRegistry) heartBeat(ctx context.Context, serviceId, instan
 
 func (scr *serviceCombRegistry) validRegistryInfo(info *registry.Info) error {
 	if info == nil {
-		return errors.New("registry-etcdhertz.Info can not be empty")
+		return errors.New("registry-hertz.Info can not be empty")
 	}
 	if info.ServiceName == "" {
-		return errors.New("registry-etcdhertz.Info ServiceName can not be empty")
+		return errors.New("registry-hertz.Info ServiceName can not be empty")
 	}
 	if info.Addr == nil {
-		return errors.New("registry-etcdhertz.Info Addr can not be empty")
+		return errors.New("registry-hertz.Info Addr can not be empty")
 	}
 	return nil
 }

@@ -33,7 +33,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	// build a etcdhertz client with the servicecomb resolver
+	// build a hertz client with the servicecomb resolver
 	cli, err := client.NewClient()
 	if err != nil {
 		panic(err)

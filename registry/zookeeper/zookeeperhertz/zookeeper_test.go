@@ -33,7 +33,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestZookeeperRegistryWithHertz Test zookeeper registry-etcdhertz complete workflow(service registry-etcdhertz|service de-registry-etcdhertz|service resolver)with etcdhertz.
+// TestZookeeperRegistryWithHertz Test zookeeper registry-hertz complete workflow(service registry-etcdhertz|service de-registry-etcdhertz|service resolver)with etcdhertz.
 func TestZookeeperRegistryWithHertz(t *testing.T) {
 	address := "127.0.0.1:8888"
 	r, _ := NewZookeeperRegistry([]string{"127.0.0.1:2181"}, 40*time.Second)

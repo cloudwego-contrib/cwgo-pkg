@@ -43,7 +43,7 @@ func main() {
 	}
 
 	Info := &registry.Info{
-		ServiceName: "etcdhertz.test.demo",
+		ServiceName: "hertz.test.demo",
 		Addr:        utils.NewNetAddr("tcp", "127.0.0.1:8888"),
 		Tags: map[string]string{
 			"namespace": Namespace,

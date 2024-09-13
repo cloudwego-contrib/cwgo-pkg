@@ -38,7 +38,7 @@ var (
 	heartbeatTime               = 5 * time.Second
 )
 
-// Registry is extension interface of Hertz registry-etcdhertz.Registry.
+// Registry is extension interface of Hertz registry-hertz.Registry.
 type Registry interface {
 	registry.Registry
 
@@ -50,7 +50,7 @@ type polarisHeartbeat struct {
 	instanceKey string
 }
 
-// polarisRegistry is a registry-etcdhertz using polaris.
+// polarisRegistry is a registry-hertz using polaris.
 type polarisRegistry struct {
 	consumer    api.ConsumerAPI
 	provider    api.ProviderAPI
@@ -58,7 +58,7 @@ type polarisRegistry struct {
 	registryIns map[string]*polarisHeartbeat
 }
 
-// NewPolarisRegistry creates a polaris based registry-etcdhertz.
+// NewPolarisRegistry creates a polaris based registry-hertz.
 func NewPolarisRegistry(configFile ...string) (Registry, error) {
 	sdkCtx, err := common.GetPolarisConfig(configFile...)
 	if err != nil {
@@ -75,7 +75,7 @@ func NewPolarisRegistry(configFile ...string) (Registry, error) {
 	return pRegistry, nil
 }
 
-// Register registers a server with given registry-etcdhertz info.
+// Register registers a server with given registry-hertz info.
 func (svr *polarisRegistry) Register(info *registry.Info) error {
 	if err := validateInfo(info); err != nil {
 		return err

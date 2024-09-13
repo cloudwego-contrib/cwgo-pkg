@@ -34,12 +34,12 @@ import (
 )
 
 const (
-	serviceName = "registry-etcdhertz-test"
+	serviceName = "registry-hertz-test"
 	namespace   = "default"
 	address     = "127.0.0.1:8888"
 )
 
-// TestPolarisRegistryWithHertz test polaris registry-etcdhertz complete workflow(service registry-etcdhertz|service de-registry-etcdhertz|service resolver)with etcdhertz.
+// TestPolarisRegistryWithHertz test polaris registry-hertz complete workflow(service registry-hertz|service de-registry-hertz|service resolver)with hertz.
 func TestPolarisRegistryWithHertz(t *testing.T) {
 	r, err := NewPolarisRegistry()
 	if err != nil {

@@ -29,7 +29,7 @@ func main() {
 	h := server.Default(
 		server.WithHostPorts(addr),
 		server.WithRegistry(r, &registry.Info{
-			ServiceName: "etcdhertz.discovery.eureka",
+			ServiceName: "hertz.discovery.eureka",
 			Addr:        utils.NewNetAddr("tcp", addr),
 			Weight:      10,
 			Tags:        nil,
@@ -100,8 +100,8 @@ go run ./example/client/main.go
 ```
 
 ```go
-2022/08/28 22:16:59 Getting app hertz.discovery.eureka from url http://127.0.0.1:8761/eureka/apps/etcdhertz.discovery.eureka
-2022/08/28 22:16:59 Got eureka response from url=http://127.0.0.1:8761/eureka/apps/etcdhertz.discovery.eureka
+2022/08/28 22:16:59 Getting app hertz.discovery.eureka from url http://127.0.0.1:8761/eureka/apps/hertz.discovery.eureka
+2022/08/28 22:16:59 Got eureka response from url=http://127.0.0.1:8761/eureka/apps/hertz.discovery.eureka
 2022/08/28 22:16:59.443078 main.go:41: [Info] code=200,body={"ping":"pong2"}
 2022/08/28 22:16:59.443258 main.go:41: [Info] code=200,body={"ping":"pong2"}
 2022/08/28 22:16:59.443405 main.go:41: [Info] code=200,body={"ping":"pong2"}
@@ -169,7 +169,7 @@ func main() {
 	h := server.Default(
 		server.WithHostPorts(addr),
 		server.WithRegistry(r, &registry.Info{
-			ServiceName: "etcdhertz.discovery.eureka",
+			ServiceName: "hertz.discovery.eureka",
 			Addr:        utils.NewNetAddr("tcp", addr),
 			Weight:      10,
 			Tags:        nil,

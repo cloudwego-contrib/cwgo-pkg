@@ -16,6 +16,7 @@ package nacos
 
 import (
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"strconv"
 
@@ -31,12 +32,12 @@ var _ registry.Registry = (*nacosRegistry)(nil)
 type (
 	nacosRegistry struct {
 		client naming_client.INamingClient
-		opts   registryOptions
+		opts   options.Options
 	}
 )
 
-// NewDefaultNacosRegistry create a default service registry-etcdhertz using nacos.
-func NewDefaultNacosRegistry(opts ...RegistryOption) (registry.Registry, error) {
+// NewDefaultNacosRegistry create a default service registry-etchertz using nacos.
+func NewDefaultNacosRegistry(opts ...options.Option) (registry.Registry, error) {
 	client, err := newDefaultNacosConfig()
 	if err != nil {
 		return nil, err
@@ -44,11 +45,11 @@ func NewDefaultNacosRegistry(opts ...RegistryOption) (registry.Registry, error) 
 	return NewNacosRegistry(client, opts...), nil
 }
 
-// NewNacosRegistry create a new registry-etcdhertz using nacos.
-func NewNacosRegistry(client naming_client.INamingClient, opts ...RegistryOption) registry.Registry {
-	opt := registryOptions{
-		cluster: "DEFAULT",
-		group:   "DEFAULT_GROUP",
+// NewNacosRegistry create a new registry-hertz using nacos.
+func NewNacosRegistry(client naming_client.INamingClient, opts ...options.Option) registry.Registry {
+	opt := options.Options{
+		Cluster: "DEFAULT",
+		Group:   "DEFAULT_GROUP",
 	}
 	for _, option := range opts {
 		option(&opt)
@@ -58,16 +59,16 @@ func NewNacosRegistry(client naming_client.INamingClient, opts ...RegistryOption
 
 func (n *nacosRegistry) Register(info *registry.Info) error {
 	if err := n.validRegistryInfo(info); err != nil {
-		return fmt.Errorf("valid parse registry-etcdhertz info cwerror: %w", err)
+		return fmt.Errorf("valid parse registry-hertz info cwerror: %w", err)
 	}
 
 	host, port, err := net.SplitHostPort(info.Addr.String())
 	if err != nil {
-		return fmt.Errorf("parse registry-etcdhertz info addr cwerror: %w", err)
+		return fmt.Errorf("parse registry-hertz info addr cwerror: %w", err)
 	}
 	p, err := strconv.Atoi(port)
 	if err != nil {
-		return fmt.Errorf("parse registry-etcdhertz info port cwerror: %w", err)
+		return fmt.Errorf("parse registry-hertz info port cwerror: %w", err)
 	}
 	if host == "" || host == "::" {
 		host = utils.LocalIP()
@@ -76,8 +77,8 @@ func (n *nacosRegistry) Register(info *registry.Info) error {
 		Ip:          host,
 		Port:        uint64(p),
 		ServiceName: info.ServiceName,
-		GroupName:   n.opts.group,
-		ClusterName: n.opts.cluster,
+		GroupName:   n.opts.Group,
+		ClusterName: n.opts.Cluster,
 		Weight:      float64(info.Weight),
 		Enable:      true,
 		Ephemeral:   true,
@@ -96,7 +97,7 @@ func (n *nacosRegistry) Register(info *registry.Info) error {
 
 func (n *nacosRegistry) Deregister(info *registry.Info) error {
 	if err := n.validRegistryInfo(info); err != nil {
-		return fmt.Errorf("valid parse registry-etcdhertz info cwerror: %w", err)
+		return fmt.Errorf("valid parse registry-hertz info cwerror: %w", err)
 	}
 	host, port, err := net.SplitHostPort(info.Addr.String())
 	if err != nil {
@@ -104,7 +105,7 @@ func (n *nacosRegistry) Deregister(info *registry.Info) error {
 	}
 	portInt, err := strconv.Atoi(port)
 	if err != nil {
-		return fmt.Errorf("parse registry-etcdhertz info port cwerror: %w", err)
+		return fmt.Errorf("parse registry-hertz info port cwerror: %w", err)
 	}
 	if host == "" || host == "::" {
 		host = utils.LocalIP()
@@ -113,8 +114,8 @@ func (n *nacosRegistry) Deregister(info *registry.Info) error {
 		Ip:          host,
 		Port:        uint64(portInt),
 		ServiceName: info.ServiceName,
-		GroupName:   n.opts.group,
-		Cluster:     n.opts.cluster,
+		GroupName:   n.opts.Group,
+		Cluster:     n.opts.Cluster,
 		Ephemeral:   true,
 	})
 	if success {
@@ -128,13 +129,13 @@ func (n *nacosRegistry) Deregister(info *registry.Info) error {
 
 func (n *nacosRegistry) validRegistryInfo(info *registry.Info) error {
 	if info == nil {
-		return fmt.Errorf("*registry-etcdhertz.Info can not be empty")
+		return fmt.Errorf("*registry-hertz.Info can not be empty")
 	}
 	if info.ServiceName == "" {
-		return fmt.Errorf("*registry-etcdhertz.Info ServiceName can not be empty")
+		return fmt.Errorf("*registry-hertz.Info ServiceName can not be empty")
 	}
 	if info.Addr == nil {
-		return fmt.Errorf("*registry-etcdhertz.Info GetAddr can not be empty")
+		return fmt.Errorf("*registry-hertz.Info GetAddr can not be empty")
 	}
 	return nil
 }

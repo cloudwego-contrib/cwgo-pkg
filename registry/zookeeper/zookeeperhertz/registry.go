@@ -42,7 +42,7 @@ type zookeeperRegistry struct {
 
 func (z *zookeeperRegistry) Register(info *registry.Info) error {
 	if err := z.validRegistryInfo(info); err != nil {
-		return fmt.Errorf("valid parse registry-etcdhertz info cwerror: %w", err)
+		return fmt.Errorf("valid parse registry-hertz info cwerror: %w", err)
 	}
 	path, err := buildPath(info)
 	if err != nil {
@@ -57,7 +57,7 @@ func (z *zookeeperRegistry) Register(info *registry.Info) error {
 
 func (z *zookeeperRegistry) Deregister(info *registry.Info) error {
 	if err := z.validRegistryInfo(info); err != nil {
-		return fmt.Errorf("valid parse registry-etcdhertz info cwerror: %w", err)
+		return fmt.Errorf("valid parse registry-hertz info cwerror: %w", err)
 	}
 
 	path, err := buildPath(info)
@@ -93,13 +93,13 @@ func NewZookeeperRegistryWithAuth(servers []string, sessionTimeout time.Duration
 
 func (z *zookeeperRegistry) validRegistryInfo(info *registry.Info) error {
 	if info == nil {
-		return errors.New("registry-etcdhertz.Info can not be empty")
+		return errors.New("registry-hertz.Info can not be empty")
 	}
 	if info.ServiceName == "" {
-		return errors.New("registry-etcdhertz.Info ServiceName can not be empty")
+		return errors.New("registry-hertz.Info ServiceName can not be empty")
 	}
 	if info.Addr == nil {
-		return errors.New("registry-etcdhertz.Info Addr can not be empty")
+		return errors.New("registry-hertz.Info Addr can not be empty")
 	}
 	return nil
 }
@@ -112,10 +112,10 @@ func buildPath(info *registry.Info) (string, error) {
 	}
 	host, port, err := net.SplitHostPort(info.Addr.String())
 	if err != nil {
-		return "", fmt.Errorf("parse registry-etcdhertz info addr cwerror")
+		return "", fmt.Errorf("parse registry-hertz info addr cwerror")
 	}
 	if port == "" {
-		return "", fmt.Errorf("registry-etcdhertz info addr missing port")
+		return "", fmt.Errorf("registry-hertz info addr missing port")
 	}
 	if host == "" || host == "::" {
 		host = utils.LocalIP()

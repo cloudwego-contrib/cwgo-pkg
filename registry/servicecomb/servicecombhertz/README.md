@@ -14,7 +14,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/cloudwego/etcdhertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/etcdhertz/pkg/app/server"
 	"github.com/cloudwego/etcdhertz/pkg/app/server/registry-etcdhertz"
 	"github.com/cloudwego/etcdhertz/pkg/common/utils"

@@ -46,7 +46,7 @@ type eurekaRegistry struct {
 	heatBeatInterval time.Duration
 }
 
-// NewEurekaRegistry creates a eureka registry-etcdhertz.
+// NewEurekaRegistry creates a eureka registry-hertz.
 func NewEurekaRegistry(servers []string, heatBeatInterval time.Duration) *eurekaRegistry {
 	conn := fargo.NewConn(servers...)
 
@@ -58,7 +58,7 @@ func NewEurekaRegistry(servers []string, heatBeatInterval time.Duration) *eureka
 	}
 }
 
-// NewEurekaRegistryFromConfig creates a eureka registry-etcdhertz.
+// NewEurekaRegistryFromConfig creates a eureka registry-hertz.
 func NewEurekaRegistryFromConfig(config fargo.Config, heatBeatInterval time.Duration) *eurekaRegistry {
 	conn := fargo.NewConnFromConfig(config)
 
@@ -70,7 +70,7 @@ func NewEurekaRegistryFromConfig(config fargo.Config, heatBeatInterval time.Dura
 	}
 }
 
-// NewEurekaRegistryFromConn creates a eureka registry-etcdhertz.
+// NewEurekaRegistryFromConn creates a eureka registry-hertz.
 func NewEurekaRegistryFromConn(conn fargo.EurekaConnection, heatBeatInterval time.Duration) *eurekaRegistry {
 	return &eurekaRegistry{
 		eurekaConn:       &conn,
@@ -80,7 +80,7 @@ func NewEurekaRegistryFromConn(conn fargo.EurekaConnection, heatBeatInterval tim
 	}
 }
 
-// Deregister deregister a server with given registry-etcdhertz info.
+// Deregister deregister a server with given registry-hertz info.
 func (e *eurekaRegistry) Deregister(info *registry.Info) error {
 	instance, err := e.eurekaInstance(info)
 	if err != nil {
@@ -108,7 +108,7 @@ func (e *eurekaRegistry) Deregister(info *registry.Info) error {
 	return nil
 }
 
-// Register a server with given registry-etcdhertz info.
+// Register a server with given registry-hertz info.
 func (e *eurekaRegistry) Register(info *registry.Info) error {
 	instance, err := e.eurekaInstance(info)
 	if err != nil {
@@ -157,7 +157,7 @@ func (e *eurekaRegistry) eurekaInstance(info *registry.Info) (*fargo.Instance, e
 		return nil, err
 	}
 	if portStr == "" {
-		return nil, fmt.Errorf("registry-etcdhertz info addr missing port")
+		return nil, fmt.Errorf("registry-hertz info addr missing port")
 	}
 	if host == "" || host == "::" {
 		host = utils.LocalIP()
