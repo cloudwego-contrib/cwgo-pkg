@@ -39,49 +39,6 @@ type scHeartbeat struct {
 	instanceKey string
 }
 
-/*
-	type registryOptions struct {
-		appId             string
-		versionRule       string
-		hostName          string
-		heartbeatInterval int32
-	}
-
-// RegistryOption is ServiceComb option.
-type RegistryOption func(o *registryOptions)
-
-// WithAppId with app id option
-
-	func WithAppId(appId string) RegistryOption {
-		return func(o *registryOptions) {
-			o.appId = appId
-		}
-	}
-
-// WithRegistryVersionRule with version rule option
-
-	func WithRegistryVersionRule(versionRule string) RegistryOption {
-		return func(o *registryOptions) {
-			o.versionRule = versionRule
-		}
-	}
-
-// WithRegistryHostName with host name option
-
-	func WithRegistryHostName(hostName string) RegistryOption {
-		return func(o *registryOptions) {
-			o.hostName = hostName
-		}
-	}
-
-// WithRegistryHeartbeatInterval with heart beat second
-
-	func WithRegistryHeartbeatInterval(second int32) RegistryOption {
-		return func(o *registryOptions) {
-			o.heartbeatInterval = second
-		}
-	}
-*/
 type serviceCombRegistry struct {
 	cli         *sc.Client
 	opts        options.Options

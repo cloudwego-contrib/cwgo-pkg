@@ -17,42 +17,20 @@ package servicecombhertz
 import (
 	"context"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/options"
+
 	"github.com/cloudwego/hertz/pkg/app/client/discovery"
 	"github.com/go-chassis/sc-client"
 )
 
 var _ discovery.Resolver = (*serviceCombResolver)(nil)
 
-type resolverOptions struct {
-	appId       string
-	versionRule string
-	consumerId  string
-}
-
-// ResolverOption is service-comb resolver option.
-type ResolverOption func(o *resolverOptions)
-
-// WithResolverAppId with appId option.
-func WithResolverAppId(appId string) ResolverOption {
-	return func(o *resolverOptions) { o.appId = appId }
-}
-
-// WithResolverVersionRule with versionRule option.
-func WithResolverVersionRule(versionRule string) ResolverOption {
-	return func(o *resolverOptions) { o.versionRule = versionRule }
-}
-
-// WithResolverConsumerId with consumerId option.
-func WithResolverConsumerId(consumerId string) ResolverOption {
-	return func(o *resolverOptions) { o.consumerId = consumerId }
-}
-
 type serviceCombResolver struct {
 	cli  *sc.Client
-	opts resolverOptions
+	opts options.ResolverOptions
 }
 
-func NewDefaultSCResolver(endPoints []string, opts ...ResolverOption) (discovery.Resolver, error) {
+func NewDefaultSCResolver(endPoints []string, opts ...options.ResolverOption) (discovery.Resolver, error) {
 	client, err := sc.NewClient(sc.Options{
 		Endpoints: endPoints,
 	})
@@ -63,11 +41,11 @@ func NewDefaultSCResolver(endPoints []string, opts ...ResolverOption) (discovery
 	return NewSCResolver(client, opts...), nil
 }
 
-func NewSCResolver(cli *sc.Client, opts ...ResolverOption) discovery.Resolver {
-	op := resolverOptions{
-		appId:       "DEFAULT",
-		versionRule: "latest",
-		consumerId:  "",
+func NewSCResolver(cli *sc.Client, opts ...options.ResolverOption) discovery.Resolver {
+	op := options.ResolverOptions{
+		AppId:       "DEFAULT",
+		VersionRule: "latest",
+		ConsumerId:  "",
 	}
 	for _, option := range opts {
 		option(&op)
@@ -85,7 +63,7 @@ func (*serviceCombResolver) Target(_ context.Context, target *discovery.TargetIn
 
 // Resolve a service info by desc.
 func (scr *serviceCombResolver) Resolve(_ context.Context, desc string) (discovery.Result, error) {
-	res, err := scr.cli.FindMicroServiceInstances(scr.opts.consumerId, scr.opts.appId, desc, scr.opts.versionRule, sc.WithoutRevision())
+	res, err := scr.cli.FindMicroServiceInstances(scr.opts.ConsumerId, scr.opts.AppId, desc, scr.opts.VersionRule, sc.WithoutRevision())
 	if err != nil {
 		return discovery.Result{}, err
 	}
@@ -111,5 +89,5 @@ func (scr *serviceCombResolver) Resolve(_ context.Context, desc string) (discove
 
 // Name returns the name of the resolver.
 func (scr *serviceCombResolver) Name() string {
-	return "sc-resolver" + ":" + scr.opts.appId + ":" + scr.opts.versionRule
+	return "sc-resolver" + ":" + scr.opts.AppId + ":" + scr.opts.VersionRule
 }

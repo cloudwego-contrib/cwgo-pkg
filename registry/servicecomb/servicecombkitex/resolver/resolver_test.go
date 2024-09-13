@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/options"
 	scregistry "github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/servicecombkitex/registry"
 	"github.com/go-chassis/sc-client"
 
@@ -53,7 +54,7 @@ func init() {
 		return
 	}
 	time.Sleep(time.Second)
-	err = scregistry.NewSCRegistry(cli, scregistry.WithAppId(AppId), scregistry.WithVersionRule(Version), scregistry.WithHostName(HostName)).Register(svcInfo)
+	err = scregistry.NewSCRegistry(cli, options.WithAppId(AppId), options.WithVersionRule(Version), options.WithHostName(HostName)).Register(svcInfo)
 	if err != nil {
 		return
 	}

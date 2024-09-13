@@ -17,6 +17,7 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/servicecombkitex/servicecomb"
 
@@ -25,36 +26,12 @@ import (
 	"github.com/go-chassis/sc-client"
 )
 
-type options struct {
-	appId       string
-	versionRule string
-	consumerId  string
-}
-
-// Option is service-comb resolver option.
-type Option func(o *options)
-
-// WithAppId with appId option.
-func WithAppId(appId string) Option {
-	return func(o *options) { o.appId = appId }
-}
-
-// WithVersionRule with versionRule option.
-func WithVersionRule(versionRule string) Option {
-	return func(o *options) { o.versionRule = versionRule }
-}
-
-// WithConsumerId with consumerId option.
-func WithConsumerId(consumerId string) Option {
-	return func(o *options) { o.consumerId = consumerId }
-}
-
 type serviceCombResolver struct {
 	cli  *sc.Client
-	opts options
+	opts options.ResolverOptions
 }
 
-func NewDefaultSCResolver(opts ...Option) (discovery.Resolver, error) {
+func NewDefaultSCResolver(opts ...options.ResolverOption) (discovery.Resolver, error) {
 	client, err := servicecomb.NewDefaultSCClient()
 	if err != nil {
 		return nil, err
@@ -62,11 +39,11 @@ func NewDefaultSCResolver(opts ...Option) (discovery.Resolver, error) {
 	return NewSCResolver(client, opts...), nil
 }
 
-func NewSCResolver(cli *sc.Client, opts ...Option) discovery.Resolver {
-	op := options{
-		appId:       "DEFAULT",
-		versionRule: "latest",
-		consumerId:  "",
+func NewSCResolver(cli *sc.Client, opts ...options.ResolverOption) discovery.Resolver {
+	op := options.ResolverOptions{
+		AppId:       "DEFAULT",
+		VersionRule: "latest",
+		ConsumerId:  "",
 	}
 	for _, option := range opts {
 		option(&op)
@@ -84,7 +61,7 @@ func (scr *serviceCombResolver) Target(_ context.Context, target rpcinfo.Endpoin
 
 // Resolve a service info by desc.
 func (scr *serviceCombResolver) Resolve(_ context.Context, desc string) (discovery.Result, error) {
-	res, err := scr.cli.FindMicroServiceInstances(scr.opts.consumerId, scr.opts.appId, desc, scr.opts.versionRule, sc.WithoutRevision())
+	res, err := scr.cli.FindMicroServiceInstances(scr.opts.ConsumerId, scr.opts.AppId, desc, scr.opts.VersionRule, sc.WithoutRevision())
 	if err != nil {
 		return discovery.Result{}, err
 	}
@@ -118,5 +95,5 @@ func (scr *serviceCombResolver) Diff(cacheKey string, prev, next discovery.Resul
 
 // Name returns the name of the resolver.
 func (scr *serviceCombResolver) Name() string {
-	return "sc-resolver" + ":" + scr.opts.appId + ":" + scr.opts.versionRule
+	return "sc-resolver" + ":" + scr.opts.AppId + ":" + scr.opts.VersionRule
 }

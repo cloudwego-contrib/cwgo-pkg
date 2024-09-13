@@ -36,43 +36,6 @@ type scHeartbeat struct {
 	instanceKey string
 }
 
-/*type options struct {
-	appId             string
-	versionRule       string
-	hostName          string
-	heartbeatInterval int32
-}
-
-// Option is ServiceComb option.
-type Option func(o *options)
-
-// WithAppId with app id option
-func WithAppId(appId string) Option {
-	return func(o *options) {
-		o.appId = appId
-	}
-}
-
-// WithVersionRule with version rule option
-func WithVersionRule(versionRule string) Option {
-	return func(o *options) {
-		o.versionRule = versionRule
-	}
-}
-
-// WithHostName with host name option
-func WithHostName(hostName string) Option {
-	return func(o *options) {
-		o.hostName = hostName
-	}
-}
-
-func WithHeartbeatInterval(second int32) Option {
-	return func(o *options) {
-		o.heartbeatInterval = second
-	}
-}*/
-
 type serviceCombRegistry struct {
 	cli         *sc.Client
 	opts        options.Options
