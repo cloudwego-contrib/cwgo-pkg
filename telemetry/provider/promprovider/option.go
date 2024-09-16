@@ -47,6 +47,7 @@ type config struct {
 
 	disableServer bool
 	path          string
+	name          string
 
 	serviceType semantic.ServiceType
 }
@@ -121,5 +122,11 @@ func WithHistogramBuckets(buckets []float64) Option {
 		if len(buckets) > 0 {
 			cfg.buckets = buckets
 		}
+	})
+}
+
+func WithServiceName(name string) Option {
+	return option(func(cfg *config) {
+		cfg.name = name
 	})
 }

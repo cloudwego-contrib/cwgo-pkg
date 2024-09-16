@@ -15,6 +15,7 @@
 package otelprovider
 
 import (
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/contrib/propagators/ot"
 	"go.opentelemetry.io/otel/attribute"
@@ -55,6 +56,10 @@ type config struct {
 	textMapPropagator propagation.TextMapPropagator
 
 	meterProvider *metric.MeterProvider
+
+	serviceType semantic.ServiceType
+
+	instanceType string
 }
 
 func newConfig(opts []Option) *config {
@@ -78,6 +83,7 @@ func defaultConfig() *config {
 			propagation.Baggage{},
 			propagation.TraceContext{},
 		),
+		serviceType: semantic.Hertz,
 	}
 }
 
@@ -190,5 +196,29 @@ func WithSdkTracerProvider(sdkTracerProvider *sdktrace.TracerProvider) Option {
 func WithMeterProvider(meterProvider *metric.MeterProvider) Option {
 	return option(func(cfg *config) {
 		cfg.meterProvider = meterProvider
+	})
+}
+
+func WithHttpServer() Option {
+	return option(func(cfg *config) {
+		cfg.serviceType = semantic.Hertz
+	})
+}
+
+func WithRPCServer() Option {
+	return option(func(cfg *config) {
+		cfg.serviceType = semantic.Kitex
+	})
+}
+
+func WithServer() Option {
+	return option(func(cfg *config) {
+		cfg.instanceType = "server"
+	})
+}
+
+func WithClient() Option {
+	return option(func(cfg *config) {
+		cfg.instanceType = "client"
 	})
 }

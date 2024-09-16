@@ -15,8 +15,10 @@
 package otelkitex
 
 import (
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/metric"
@@ -41,7 +43,6 @@ func (fn option) apply(cfg *Config) {
 
 type Config struct {
 	tracer trace.Tracer
-	meter  metric.Meter
 
 	labelFunc         func(info rpcinfo.RPCInfo) []label.CwLabel
 	tracerProvider    trace.TracerProvider
@@ -55,19 +56,13 @@ type Config struct {
 
 func NewConfig(opts []Option) *Config {
 	cfg := DefaultConfig()
-
 	for _, opt := range opts {
 		opt.apply(cfg)
 	}
 
-	cfg.meter = cfg.meterProvider.Meter(
-		instrumentationName,
-		metric.WithInstrumentationVersion(SemVersion()),
-	)
-
 	cfg.tracer = cfg.tracerProvider.Tracer(
 		instrumentationName,
-		trace.WithInstrumentationVersion(SemVersion()),
+		trace.WithInstrumentationVersion(semantic.SemVersion()),
 	)
 
 	return cfg
@@ -78,6 +73,7 @@ func DefaultConfig() *Config {
 		tracerProvider:    otel.GetTracerProvider(),
 		meterProvider:     otel.GetMeterProvider(),
 		textMapPropagator: otel.GetTextMapPropagator(),
+		measure:           global.GetTracerMeasure(),
 	}
 }
 

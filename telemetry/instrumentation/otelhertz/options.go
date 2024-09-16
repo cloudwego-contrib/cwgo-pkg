@@ -16,6 +16,8 @@ package otelhertz
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
@@ -47,7 +49,6 @@ type ConditionFunc func(ctx context.Context, c *app.RequestContext) bool
 
 type Config struct {
 	tracer trace.Tracer
-	meter  metric.Meter
 
 	clientHttpRouteFormatter func(req *protocol.Request) string
 	serverHttpRouteFormatter func(c *app.RequestContext) string
@@ -75,14 +76,9 @@ func NewConfig(opts []Option) *Config {
 		opt.apply(cfg)
 	}
 
-	cfg.meter = cfg.meterProvider.Meter(
-		instrumentationName,
-		metric.WithInstrumentationVersion(SemVersion()),
-	)
-
 	cfg.tracer = cfg.tracerProvider.Tracer(
 		instrumentationName,
-		trace.WithInstrumentationVersion(SemVersion()),
+		trace.WithInstrumentationVersion(semantic.SemVersion()),
 	)
 
 	return cfg
@@ -91,7 +87,6 @@ func NewConfig(opts []Option) *Config {
 func DefaultConfig() *Config {
 	return &Config{
 		tracerProvider:        otel.GetTracerProvider(),
-		meterProvider:         otel.GetMeterProvider(),
 		textMapPropagator:     otel.GetTextMapPropagator(),
 		customResponseHandler: func(c context.Context, ctx *app.RequestContext) {},
 		clientHttpRouteFormatter: func(req *protocol.Request) string {
@@ -124,6 +119,7 @@ func DefaultConfig() *Config {
 		shouldIgnore: func(ctx context.Context, c *app.RequestContext) bool {
 			return false
 		},
+		measure: global.GetTracerMeasure(),
 	}
 }
 

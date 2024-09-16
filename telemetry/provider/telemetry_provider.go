@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 CloudWeGo Authors
+ * Copyright 2024 CloudWeGo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-package otelhertz
+package provider
 
-// NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
-func NewServerTracer(opts ...Option) *HertzTracer {
-	cfg := NewConfig(opts)
+import "context"
 
-	return &HertzTracer{
-		measure: cfg.measure,
-		cfg:     cfg,
-	}
+var _ Provider = &TelemetryProvider{}
+
+type TelemetryProvider struct {
+	provider Provider
+}
+
+func (t TelemetryProvider) Shutdown(ctx context.Context) error {
+	return t.provider.Shutdown(ctx)
+}
+
+func NewTelemetryProvider(opts ...Option) Provider {
+	cfg := newConfig(opts)
+
+	return &TelemetryProvider{cfg.provider}
 }

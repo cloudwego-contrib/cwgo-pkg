@@ -78,7 +78,7 @@ func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
 	elapsedTime := float64(st.GetEvent(stats.HTTPFinish).Time().Sub(httpStart.Time())) / float64(time.Millisecond)
 	labels := []label.CwLabel{
 		{
-			Key:   semantic.LabelKeyStatus,
+			Key:   semantic.LabelStatusCode,
 			Value: defaultValIfEmpty(strconv.Itoa(c.Response.Header.StatusCode()), semantic.UnknownLabelValue),
 		},
 		{
@@ -97,35 +97,33 @@ func (h HertzTracer) Finish(ctx context.Context, c *app.RequestContext) {
 
 	tc := internal.TraceCarrierFromContext(ctx)
 	var span trace.Span
-	if tc != nil {
+	if tc != nil && tc.Span() != nil && tc.Span().IsRecording() {
 		span = tc.Span()
-		if span != nil && span.IsRecording() {
-			// span attributes from original http request
-			if httpReq, err := adaptor.GetCompatRequest(c.GetRequest()); err == nil {
-				span.SetAttributes(semconv.NetAttributesFromHTTPRequest("tcp", httpReq)...)
-				span.SetAttributes(semconv.EndUserAttributesFromHTTPRequest(httpReq)...)
-				span.SetAttributes(semconv.HTTPServerAttributesFromHTTPRequest("", h.cfg.serverHttpRouteFormatter(c), httpReq)...)
-			}
-
-			// span attributes
-			attrs := []attribute.KeyValue{
-				semconv.HTTPURLKey.String(c.URI().String()),
-				semconv.NetPeerIPKey.String(c.ClientIP()),
-			}
-			span.SetAttributes(attrs...)
-
-			injectStatsEventsToSpan(span, st)
-
-			if panicMsg, panicStack, httpErr := parseHTTPError(ti); httpErr != nil || len(panicMsg) > 0 {
-				recordErrorSpanWithStack(span, httpErr, panicMsg, panicStack)
-			}
-
-			span.End(trace.WithTimestamp(getEndTimeOrNow(ti)))
-
-			metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
-
-			labels = append(labels, label.ToCwLabelsFromOtels(metricsAttributes)...)
+		// span attributes from original http request
+		if httpReq, err := adaptor.GetCompatRequest(c.GetRequest()); err == nil {
+			span.SetAttributes(semconv.NetAttributesFromHTTPRequest("tcp", httpReq)...)
+			span.SetAttributes(semconv.EndUserAttributesFromHTTPRequest(httpReq)...)
+			span.SetAttributes(semconv.HTTPServerAttributesFromHTTPRequest("", h.cfg.serverHttpRouteFormatter(c), httpReq)...)
 		}
+
+		// span attributes
+		attrs := []attribute.KeyValue{
+			semconv.HTTPURLKey.String(c.URI().String()),
+			semconv.NetPeerIPKey.String(c.ClientIP()),
+		}
+		span.SetAttributes(attrs...)
+
+		injectStatsEventsToSpan(span, st)
+
+		if panicMsg, panicStack, httpErr := parseHTTPError(ti); httpErr != nil || len(panicMsg) > 0 {
+			recordErrorSpanWithStack(span, httpErr, panicMsg, panicStack)
+		}
+
+		span.End(trace.WithTimestamp(getEndTimeOrNow(ti)))
+
+		metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
+
+		labels = append(labels, label.ToCwLabelsFromOtels(metricsAttributes)...)
 	}
 	h.measure.Inc(ctx, semantic.Counter, labels...)
 	h.measure.Record(ctx, semantic.Latency, elapsedTime, labels...)

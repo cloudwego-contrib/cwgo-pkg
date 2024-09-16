@@ -27,20 +27,18 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.opentelemetry.io/otel"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
 func TestMetricsExample(t *testing.T) {
 	// test util
-	tracerProvider, meterProvider, registry := testutil.OtelTestProvider()
+	tracerProvider, registry, measureClient, measureServer := testutil.OtelTestProvider()
 	defer func(tracerProvider *sdktrace.TracerProvider, ctx context.Context) {
 		_ = tracerProvider.Shutdown(ctx)
 	}(tracerProvider, context.Background())
-	otel.SetMeterProvider(meterProvider)
 
 	// server example
-	tracer, cfg := NewServerOption()
+	tracer, cfg := NewServerOption(WithMeasure(measureServer))
 	h := server.Default(tracer, server.WithHostPorts(":39888"))
 	h.Use(ServerMiddleware(cfg))
 	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
@@ -53,7 +51,7 @@ func TestMetricsExample(t *testing.T) {
 
 	// client example
 	c, _ := client.NewClient()
-	c.Use(ClientMiddleware())
+	c.Use(ClientMiddleware(WithMeasure(measureClient)))
 	_, body, err := c.Get(context.Background(), nil, "http://localhost:39888/ping?foo=bar")
 	require.NoError(t, err)
 	assert.NotNil(t, body)
@@ -65,7 +63,6 @@ func TestMetricsExample(t *testing.T) {
 	testerror := testutil.GatherAndCompare(
 		registry, "testdata/hertz_request_metrics.txt",
 		"http_server_request_count_total", "http_client_request_count_total")
-
 	// diff meter
 	assert.NoError(t, testerror)
 }

@@ -21,18 +21,11 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/common/tracer/stats"
 	"github.com/cloudwego/hertz/pkg/common/tracer/traceinfo"
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 	"go.opentelemetry.io/otel/trace"
 )
-
-func handleErr(err error) {
-	if err != nil {
-		otel.Handle(err)
-	}
-}
 
 func getStartTimeOrNow(ti traceinfo.TraceInfo) time.Time {
 	if event := ti.Stats().GetEvent(stats.HTTPStart); event != nil {

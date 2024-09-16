@@ -17,24 +17,10 @@
 // Package prometheus provides the extend implement of prometheus.
 package otelkitex
 
-import (
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
-)
-
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
 func NewServerTracer(options ...Option) *KitexTracer {
 	cfg := NewConfig(options)
-	if cfg.measure == nil {
-		serverDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ServerDuration)
-		HandleErr(err)
-		serverRetryMeasure, err := cfg.meter.Float64Histogram(semantic.ServerRetry)
-		HandleErr(err)
-		cfg.measure = metric.NewMeasure(
-			metric.WithRecorder(semantic.Latency, metric.NewOtelRecorder(serverDurationMeasure)),
-			metric.WithRecorder(semantic.Retry, metric.NewOtelRecorder(serverRetryMeasure)),
-		)
-	}
+
 	return &KitexTracer{
 		measure: cfg.measure,
 		cfg:     cfg,
@@ -44,16 +30,7 @@ func NewServerTracer(options ...Option) *KitexTracer {
 // NewClientTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
 func NewClientTracer(options ...Option) *KitexTracer {
 	cfg := NewConfig(options)
-	if cfg.measure == nil {
-		clientDurationMeasure, err := cfg.meter.Float64Histogram(semantic.ClientDuration)
-		HandleErr(err)
-		clientRetryMeasure, err := cfg.meter.Float64Histogram(semantic.ClientRetry)
-		HandleErr(err)
-		cfg.measure = metric.NewMeasure(
-			metric.WithRecorder(semantic.Latency, metric.NewOtelRecorder(clientDurationMeasure)),
-			metric.WithRecorder(semantic.Retry, metric.NewOtelRecorder(clientRetryMeasure)),
-		)
-	}
+
 	return &KitexTracer{
 		measure: cfg.measure,
 		cfg:     cfg,

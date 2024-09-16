@@ -16,6 +16,8 @@ package otelhertz
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
+	"strconv"
 	"time"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/internal"
@@ -31,7 +33,6 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/baggage"
 	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 	oteltrace "go.opentelemetry.io/otel/trace"
@@ -49,25 +50,6 @@ func (sh *StringHeader) Visit(f func(k, v string)) {
 
 func ClientMiddleware(opts ...Option) client.Middleware {
 	cfg := NewConfig(opts)
-	histogramRecorder := make(map[string]metric.Float64Histogram)
-	counters := make(map[string]metric.Int64Counter)
-
-	clientRequestCountMeasure, err := cfg.meter.Int64Counter(
-		semantic.ClientRequestCount,
-		metric.WithUnit("count"),
-		metric.WithDescription("measures the client request count total"),
-	)
-	handleErr(err)
-
-	clientLatencyMeasure, err := cfg.meter.Float64Histogram(
-		semantic.ClientLatency,
-		metric.WithUnit("ms"),
-		metric.WithDescription("measures the duration outbound HTTP requests"),
-	)
-	handleErr(err)
-
-	counters[semantic.ClientRequestCount] = clientRequestCountMeasure
-	histogramRecorder[semantic.ClientLatency] = clientLatencyMeasure
 
 	return func(next client.Endpoint) client.Endpoint {
 		return func(ctx context.Context, req *protocol.Request, resp *protocol.Response) (err error) {
@@ -84,7 +66,7 @@ func ClientMiddleware(opts ...Option) client.Middleware {
 				oteltrace.WithSpanKind(oteltrace.SpanKindClient),
 			)
 			defer span.End()
-
+			var labels []label.CwLabel
 			// inject client service resource attributes (canonical service) to meta map
 			md := injectPeerServiceToMetadata(ctx, span.(trace.ReadOnlySpan).Resource().Attributes())
 
@@ -111,7 +93,11 @@ func ClientMiddleware(opts ...Option) client.Middleware {
 			if err == nil {
 				// set span status with resp status code
 				span.SetStatus(semconv.SpanStatusFromHTTPStatusCode(resp.StatusCode()))
-				attrs = append(attrs, semconv.HTTPStatusCodeKey.Int(resp.StatusCode()))
+				labels = append(labels, label.CwLabel{
+					Key:   semantic.LabelStatusCode,
+					Value: strconv.Itoa(resp.StatusCode()),
+				})
+				//attrs = append(attrs, semconv.HTTPStatusCodeKey.Int(resp.StatusCode()))
 			} else { // resp.StatusCode() is not valid when client returns error
 				span.SetStatus(codes.Error, err.Error())
 			}
@@ -121,13 +107,9 @@ func ClientMiddleware(opts ...Option) client.Middleware {
 			metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
 
 			// record meter
-			counters[semantic.ClientRequestCount].Add(ctx, 1, metric.WithAttributes(metricsAttributes...))
-			histogramRecorder[semantic.ClientLatency].Record(
-				ctx,
-				float64(time.Since(start))/float64(time.Millisecond),
-				metric.WithAttributes(metricsAttributes...),
-			)
-
+			labels = append(labels, label.ToCwLabelsFromOtels(metricsAttributes)...)
+			cfg.measure.Inc(ctx, semantic.Counter, labels...)
+			cfg.measure.Record(ctx, semantic.Latency, float64(time.Since(start))/float64(time.Millisecond), labels...)
 			return
 		}
 	}

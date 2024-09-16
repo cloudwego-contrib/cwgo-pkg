@@ -16,6 +16,9 @@ package otelprovider
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
+	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"time"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
@@ -25,9 +28,15 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	otelmetric "go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+)
+
+const (
+	instrumentationNameKitex = "github.com/cloudwego-contrib/telemetry-opentelemetry/otelkitex"
+	instrumentationNameHertz = "github.com/cloudwego-contrib/telemetry-opentelemetry/otelhertz"
 )
 
 var _ provider.Provider = &otelProvider{}
@@ -147,6 +156,46 @@ func NewOpenTelemetryProvider(opts ...Option) provider.Provider {
 		// meter pusher
 		otel.SetMeterProvider(meterProvider)
 
+		var measure cwmetric.Measure
+		if cfg.serviceType == semantic.Kitex {
+			meter := meterProvider.Meter(
+				instrumentationNameKitex,
+				otelmetric.WithInstrumentationVersion(semantic.SemVersion()),
+			)
+			serverDurationMeasure, err := meter.Float64Histogram(semantic.BuildMetricName("rpc", cfg.instanceType, semantic.ServerDuration))
+			HandleErr(err)
+			serverRetryMeasure, err := meter.Float64Histogram(semantic.BuildMetricName("rpc", cfg.instanceType, semantic.ServerRetry))
+			HandleErr(err)
+			measure = cwmetric.NewMeasure(
+				cwmetric.WithRecorder(semantic.Latency, cwmetric.NewOtelRecorder(serverDurationMeasure)),
+				cwmetric.WithRecorder(semantic.Retry, cwmetric.NewOtelRecorder(serverRetryMeasure)),
+			)
+		} else if cfg.serviceType == semantic.Hertz {
+			meter := meterProvider.Meter(
+				instrumentationNameHertz,
+				otelmetric.WithInstrumentationVersion(semantic.SemVersion()),
+			)
+			serverRequestCountMeasure, err := meter.Int64Counter(
+				semantic.BuildMetricName("http", cfg.instanceType, semantic.RequestCount),
+				otelmetric.WithUnit("count"),
+				otelmetric.WithDescription("measures Incoming request count total"),
+			)
+			HandleErr(err)
+
+			serverLatencyMeasure, err := meter.Float64Histogram(
+				semantic.BuildMetricName("http", cfg.instanceType, semantic.ServerLatency),
+				otelmetric.WithUnit("ms"),
+				otelmetric.WithDescription("measures th incoming end to end duration"),
+			)
+			HandleErr(err)
+
+			measure = cwmetric.NewMeasure(
+				cwmetric.WithCounter(semantic.Counter, cwmetric.NewOtelCounter(serverRequestCountMeasure)),
+				cwmetric.WithRecorder(semantic.Latency, cwmetric.NewOtelRecorder(serverLatencyMeasure)),
+			)
+		}
+		global.SetTracerMeasure(measure)
+
 		err = runtimemetrics.Start()
 		handleInitErr(err, "Failed to start runtime meter collector")
 	}
@@ -180,5 +229,11 @@ func newResource(cfg *config) *resource.Resource {
 func handleInitErr(err error, message string) {
 	if err != nil {
 		logging.Fatalf("%s: %v", message, err)
+	}
+}
+
+func HandleErr(err error) {
+	if err != nil {
+		otel.Handle(err)
 	}
 }

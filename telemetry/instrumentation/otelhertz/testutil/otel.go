@@ -15,6 +15,9 @@
 package testutil
 
 import (
+	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"os"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -32,7 +35,7 @@ import (
 )
 
 // OtelTestProvider get otel test provider
-func OtelTestProvider() (*sdktrace.TracerProvider, otelmetric.MeterProvider, *prometheus.Registry) {
+func OtelTestProvider() (*sdktrace.TracerProvider, *prometheus.Registry, cwmetric.Measure, cwmetric.Measure) {
 	// prometheus registry
 	registry := prometheus.NewRegistry()
 
@@ -46,8 +49,53 @@ func OtelTestProvider() (*sdktrace.TracerProvider, otelmetric.MeterProvider, *pr
 	if err != nil {
 		panic(err)
 	}
+	// measure for client
+	meter := meterProvider.Meter(
+		"github.com/cloudwego-contrib/telemetry-opentelemetry",
+		otelmetric.WithInstrumentationVersion(semantic.SemVersion()),
+	)
+	clientRequestCountMeasure, err := meter.Int64Counter(
+		semantic.BuildMetricName("http", "client", semantic.RequestCount),
+		otelmetric.WithUnit("count"),
+		otelmetric.WithDescription("measures the client request count total"),
+	)
+	HandleErr(err)
 
-	return tracerProvider, meterProvider, registry
+	clientLatencyMeasure, err := meter.Float64Histogram(
+		semantic.BuildMetricName("http", "client", semantic.ServerLatency),
+		otelmetric.WithUnit("ms"),
+		otelmetric.WithDescription("measures the duration outbound HTTP requests"),
+	)
+	HandleErr(err)
+
+	measureClient := cwmetric.NewMeasure(
+		cwmetric.WithCounter(semantic.Counter, cwmetric.NewOtelCounter(clientRequestCountMeasure)),
+		cwmetric.WithRecorder(semantic.Latency, cwmetric.NewOtelRecorder(clientLatencyMeasure)),
+	)
+	// Measure for server
+	meter = meterProvider.Meter(
+		"github.com/cloudwego-contrib/telemetry-opentelemetry",
+		otelmetric.WithInstrumentationVersion(semantic.SemVersion()),
+	)
+	serverRequestCountMeasure, err := meter.Int64Counter(
+		semantic.BuildMetricName("http", "server", semantic.RequestCount),
+		otelmetric.WithUnit("count"),
+		otelmetric.WithDescription("measures Incoming request count total"),
+	)
+	HandleErr(err)
+
+	serverLatencyMeasure, err := meter.Float64Histogram(
+		semantic.BuildMetricName("http", "server", semantic.ServerLatency),
+		otelmetric.WithUnit("ms"),
+		otelmetric.WithDescription("measures th incoming end to end duration"),
+	)
+	HandleErr(err)
+
+	measureServer := cwmetric.NewMeasure(
+		cwmetric.WithCounter(semantic.Counter, cwmetric.NewOtelCounter(serverRequestCountMeasure)),
+		cwmetric.WithRecorder(semantic.Latency, cwmetric.NewOtelRecorder(serverLatencyMeasure)),
+	)
+	return tracerProvider, registry, measureClient, measureServer
 }
 
 // GatherAndCompare compare meter with registry
@@ -105,4 +153,10 @@ func initTracer() (*sdktrace.TracerProvider, error) {
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	return tp, err
+}
+
+func HandleErr(err error) {
+	if err != nil {
+		otel.Handle(err)
+	}
 }

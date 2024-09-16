@@ -19,6 +19,7 @@ package promprovider
 import (
 	"context"
 	"fmt"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
 	"log"
 	"net/http"
 
@@ -80,7 +81,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 
 		RPCCounterVec := prometheus.NewCounterVec(
 			prometheus.CounterOpts{
-				Name: semantic.Counter,
+				Name: cfg.name + semantic.Counter,
 				Help: fmt.Sprintf("Total number of requires completed by the %s, regardless of success or failure.", semantic.Counter),
 			},
 			[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus},
@@ -90,7 +91,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 
 		clientHandledHistogramRPC := prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name:    semantic.Latency,
+				Name:    cfg.name + semantic.Latency,
 				Help:    fmt.Sprintf("Latency (microseconds) of the %s until it is finished.", semantic.Latency),
 				Buckets: cfg.buckets,
 			},
@@ -101,7 +102,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 		// create retry recorder
 		retryHandledHistogramRPC := prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name:    fmt.Sprintf("%s_retry_attempts", semantic.Retry),
+				Name:    cfg.name + semantic.Retry,
 				Help:    fmt.Sprintf("Distribution of retry attempts for %s until it is finished.", semantic.Retry),
 				Buckets: retryBuckets,
 			},
@@ -119,7 +120,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 
 		HttpCounterVec := prometheus.NewCounterVec(
 			prometheus.CounterOpts{
-				Name: semantic.Counter,
+				Name: cfg.name + semantic.Counter,
 				Help: "Total number of HTTPs completed by the server, regardless of success or failure.",
 			},
 			[]string{semantic.LabelHttpMethodKey, semantic.LabelStatusCode, semantic.LabelPath},
@@ -129,7 +130,7 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 
 		HttpHandledHistogram := prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name:    semantic.Latency,
+				Name:    cfg.name + semantic.Latency,
 				Help:    "Latency (microseconds) of HTTP that had been application-level handled by the server.",
 				Buckets: cfg.buckets,
 			},
@@ -145,10 +146,11 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 		)
 	}
 
-	pp := &promProvider{
+	global.SetTracerMeasure(measure)
+
+	return &promProvider{
 		registry: registry,
 		server:   server,
 		Measure:  measure,
 	}
-	return pp
 }

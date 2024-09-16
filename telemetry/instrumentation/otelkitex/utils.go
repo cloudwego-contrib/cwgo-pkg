@@ -21,7 +21,6 @@ import (
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/pkg/stats"
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
@@ -72,12 +71,6 @@ func parseRPCError(ri rpcinfo.RPCInfo) (panicMsg, panicStack string, err error) 
 		}
 	}
 	return
-}
-
-func HandleErr(err error) {
-	if err != nil {
-		otel.Handle(err)
-	}
 }
 
 func getStartTimeOrNow(ri rpcinfo.RPCInfo) time.Time {
