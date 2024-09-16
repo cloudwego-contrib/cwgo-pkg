@@ -17,8 +17,9 @@ package testutil
 import (
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"os"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"

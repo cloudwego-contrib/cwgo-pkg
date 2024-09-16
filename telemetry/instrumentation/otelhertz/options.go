@@ -16,6 +16,7 @@ package otelhertz
 
 import (
 	"context"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 

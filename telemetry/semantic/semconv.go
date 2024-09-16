@@ -16,6 +16,7 @@ package semantic
 
 import (
 	"fmt"
+
 	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 )

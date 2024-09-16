@@ -16,10 +16,11 @@ package otelprovider
 
 import (
 	"context"
+	"time"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
-	"time"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider"

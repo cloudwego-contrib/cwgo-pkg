@@ -16,9 +16,10 @@ package otelhertz
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
 	"strconv"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/internal"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"

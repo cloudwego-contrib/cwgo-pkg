@@ -19,9 +19,10 @@ package promprovider
 import (
 	"context"
 	"fmt"
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
 	"log"
 	"net/http"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider"

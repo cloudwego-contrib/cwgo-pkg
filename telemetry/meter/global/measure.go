@@ -17,8 +17,9 @@
 package global
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 	"sync"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 )
 
 // Global variable, used to store the current TracerProvider
