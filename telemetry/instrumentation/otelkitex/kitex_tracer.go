@@ -93,36 +93,35 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 
 	// span
 	var span trace.Span
-	if tc != nil {
+	if tc != nil && tc.Span() != nil && tc.Span().IsRecording() {
 		span = tc.Span()
-		if span != nil && span.IsRecording() {
-			// span attributes
-			attrs := []attribute.KeyValue{
-				semantic.RPCSystemKitex,
-				semantic.RPCSystemKitexRecvSize.Int64(int64(st.RecvSize())),
-				semantic.RPCSystemKitexSendSize.Int64(int64(st.SendSize())),
-				semantic.RequestProtocolKey.String(ri.Config().TransportProtocol().String()),
-			}
-
-			// The source operation dimension maybe cause high cardinality issues
-			if s.recordSourceOperation {
-				attrs = append(attrs, semantic.SourceOperationKey.String(ri.From().Method()))
-			}
-
-			span.SetAttributes(attrs...)
-
-			injectStatsEventsToSpan(span, st)
-
-			if panicMsg, panicStack, rpcErr := parseRPCError(ri); rpcErr != nil || len(panicMsg) > 0 {
-				recordErrorSpanWithStack(span, rpcErr, panicMsg, panicStack)
-			}
-
-			span.End(trace.WithTimestamp(getEndTimeOrNow(ri)))
-			metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
-			spanlabels := label.ToCwLabelsFromOtels(metricsAttributes)
-
-			labels = append(labels, spanlabels...)
+		// span attributes
+		attrs := []attribute.KeyValue{
+			semantic.RPCSystemKitex,
+			semantic.RPCSystemKitexRecvSize.Int64(int64(st.RecvSize())),
+			semantic.RPCSystemKitexSendSize.Int64(int64(st.SendSize())),
+			semantic.RequestProtocolKey.String(ri.Config().TransportProtocol().String()),
 		}
+
+		// The source operation dimension maybe cause high cardinality issues
+		if s.recordSourceOperation {
+			attrs = append(attrs, semantic.SourceOperationKey.String(ri.From().Method()))
+		}
+
+		span.SetAttributes(attrs...)
+
+		injectStatsEventsToSpan(span, st)
+
+		if panicMsg, panicStack, rpcErr := parseRPCError(ri); rpcErr != nil || len(panicMsg) > 0 {
+			recordErrorSpanWithStack(span, rpcErr, panicMsg, panicStack)
+		}
+
+		span.End(trace.WithTimestamp(getEndTimeOrNow(ri)))
+		metricsAttributes := semantic.ExtractMetricsAttributesFromSpan(span)
+		spanlabels := label.ToCwLabelsFromOtels(metricsAttributes)
+
+		labels = append(labels, spanlabels...)
+
 	}
 	if span == nil || !span.IsRecording() {
 		stateless := label.CwLabel{
