@@ -51,13 +51,18 @@ func (n *nacosRegistry) Register(info *registry.Info) error {
 	if host == "" || host == "::" {
 		host = utils.LocalIP()
 	}
+	// make sure nacos weight >= 0
+	weight := 1
+	if info.Weight >= 0 {
+		weight = info.Weight
+	}
 	success, err := n.client.RegisterInstance(vo.RegisterInstanceParam{
 		Ip:          host,
 		Port:        uint64(p),
 		ServiceName: info.ServiceName,
 		GroupName:   n.opts.Group,
 		ClusterName: n.opts.Cluster,
-		Weight:      float64(info.Weight),
+		Weight:      float64(weight),
 		Enable:      true,
 		Healthy:     true,
 		Ephemeral:   true,

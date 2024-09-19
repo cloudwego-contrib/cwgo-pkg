@@ -74,12 +74,16 @@ func (n *nacosRegistry) Register(info *registry.Info) error {
 			return fmt.Errorf("parse registry info addr cwerror: %w", err)
 		}
 	}
-
+	// make sure nacos weight >= 0
+	weight := 1
+	if info.Weight >= 0 {
+		weight = info.Weight
+	}
 	_, e := n.cli.RegisterInstance(vo.RegisterInstanceParam{
 		Ip:          host,
 		Port:        uint64(p),
 		ServiceName: info.ServiceName,
-		Weight:      float64(info.Weight),
+		Weight:      float64(weight),
 		Enable:      true,
 		Healthy:     true,
 		Metadata:    mergeTags(info.Tags, nacos.Tags),
