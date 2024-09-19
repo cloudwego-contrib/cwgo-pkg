@@ -50,8 +50,8 @@ func main() {
 	}
 	measure := provider.Measure
 	// 模拟一些处理
-	measure.Add(context.Background(), semantic.Counter, 6, labels...)
-	measure.Record(context.Background(), semantic.Latency, float64(time.Second.Microseconds()), labels...)
+	measure.Add(context.Background(), semantic.HTTPCounter, 6, labels...)
+	measure.Record(context.Background(), semantic.HTTPLatency, float64(time.Second.Microseconds()), labels...)
 
 	promServerResp, err := http.Get("http://localhost:9090/prometheus")
 	if err != nil {

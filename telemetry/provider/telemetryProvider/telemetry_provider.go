@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package provider
+package telemetryProvider
 
-import "context"
+import (
+	"context"
 
-var _ Provider = &TelemetryProvider{}
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider"
+)
+
+var _ provider.Provider = &TelemetryProvider{}
 
 type TelemetryProvider struct {
-	provider Provider
+	provider provider.Provider
 }
 
 func (t TelemetryProvider) Shutdown(ctx context.Context) error {
 	return t.provider.Shutdown(ctx)
 }
 
-func NewTelemetryProvider(opts ...Option) Provider {
+func NewTelemetryProvider(opts ...Option) provider.Provider {
 	cfg := newConfig(opts)
 
 	return &TelemetryProvider{cfg.provider}

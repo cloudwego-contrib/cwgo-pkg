@@ -158,7 +158,8 @@ func NewOpenTelemetryProvider(opts ...Option) provider.Provider {
 		otel.SetMeterProvider(meterProvider)
 
 		var measure cwmetric.Measure
-		if cfg.serviceType == semantic.Kitex {
+		var metrics []cwmetric.Option
+		if cfg.enableRPC {
 			meter := meterProvider.Meter(
 				instrumentationNameKitex,
 				otelmetric.WithInstrumentationVersion(semantic.SemVersion()),
@@ -167,11 +168,12 @@ func NewOpenTelemetryProvider(opts ...Option) provider.Provider {
 			HandleErr(err)
 			serverRetryMeasure, err := meter.Float64Histogram(semantic.BuildMetricName("rpc", cfg.instanceType, semantic.ServerRetry))
 			HandleErr(err)
-			measure = cwmetric.NewMeasure(
-				cwmetric.WithRecorder(semantic.Latency, cwmetric.NewOtelRecorder(serverDurationMeasure)),
-				cwmetric.WithRecorder(semantic.Retry, cwmetric.NewOtelRecorder(serverRetryMeasure)),
+			metrics = append(metrics,
+				cwmetric.WithRecorder(semantic.RPCLatency, cwmetric.NewOtelRecorder(serverDurationMeasure)),
+				cwmetric.WithRecorder(semantic.RPCRetry, cwmetric.NewOtelRecorder(serverRetryMeasure)),
 			)
-		} else if cfg.serviceType == semantic.Hertz {
+		}
+		if cfg.enableHTTP {
 			meter := meterProvider.Meter(
 				instrumentationNameHertz,
 				otelmetric.WithInstrumentationVersion(semantic.SemVersion()),
@@ -189,12 +191,14 @@ func NewOpenTelemetryProvider(opts ...Option) provider.Provider {
 				otelmetric.WithDescription("measures th incoming end to end duration"),
 			)
 			HandleErr(err)
-
-			measure = cwmetric.NewMeasure(
-				cwmetric.WithCounter(semantic.Counter, cwmetric.NewOtelCounter(serverRequestCountMeasure)),
-				cwmetric.WithRecorder(semantic.Latency, cwmetric.NewOtelRecorder(serverLatencyMeasure)),
+			metrics = append(metrics,
+				cwmetric.WithCounter(semantic.HTTPCounter, cwmetric.NewOtelCounter(serverRequestCountMeasure)),
+				cwmetric.WithRecorder(semantic.HTTPLatency, cwmetric.NewOtelRecorder(serverLatencyMeasure)),
 			)
 		}
+
+		measure = cwmetric.NewMeasure(metrics...)
+
 		global.SetTracerMeasure(measure)
 
 		err = runtimemetrics.Start()

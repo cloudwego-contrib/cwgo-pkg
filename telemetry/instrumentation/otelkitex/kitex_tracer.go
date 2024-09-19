@@ -80,7 +80,7 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 	if retriedCnt, ok := callee.Tag(rpcinfo.RetryTag); ok {
 		retryAttempts, err := strconv.Atoi(retriedCnt)
 		if err == nil {
-			s.measure.Record(ctx, semantic.Retry, float64(retryAttempts), labels...)
+			s.measure.Record(ctx, semantic.RPCRetry, float64(retryAttempts), labels...)
 		}
 
 	}
@@ -138,8 +138,8 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 	}
 
 	// measure
-	s.measure.Inc(ctx, semantic.Counter, labels...)
-	s.measure.Record(ctx, semantic.Latency, elapsedTime, labels...)
+	s.measure.Inc(ctx, semantic.RPCCounter, labels...)
+	s.measure.Record(ctx, semantic.RPCLatency, elapsedTime, labels...)
 }
 
 func defaultValIfEmpty(val, def string) string {

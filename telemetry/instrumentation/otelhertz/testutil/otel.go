@@ -70,8 +70,8 @@ func OtelTestProvider() (*sdktrace.TracerProvider, *prometheus.Registry, cwmetri
 	HandleErr(err)
 
 	measureClient := cwmetric.NewMeasure(
-		cwmetric.WithCounter(semantic.Counter, cwmetric.NewOtelCounter(clientRequestCountMeasure)),
-		cwmetric.WithRecorder(semantic.Latency, cwmetric.NewOtelRecorder(clientLatencyMeasure)),
+		cwmetric.WithCounter(semantic.HTTPCounter, cwmetric.NewOtelCounter(clientRequestCountMeasure)),
+		cwmetric.WithRecorder(semantic.HTTPLatency, cwmetric.NewOtelRecorder(clientLatencyMeasure)),
 	)
 	// Measure for server
 	meter = meterProvider.Meter(
@@ -93,8 +93,8 @@ func OtelTestProvider() (*sdktrace.TracerProvider, *prometheus.Registry, cwmetri
 	HandleErr(err)
 
 	measureServer := cwmetric.NewMeasure(
-		cwmetric.WithCounter(semantic.Counter, cwmetric.NewOtelCounter(serverRequestCountMeasure)),
-		cwmetric.WithRecorder(semantic.Latency, cwmetric.NewOtelRecorder(serverLatencyMeasure)),
+		cwmetric.WithCounter(semantic.HTTPCounter, cwmetric.NewOtelCounter(serverRequestCountMeasure)),
+		cwmetric.WithRecorder(semantic.HTTPLatency, cwmetric.NewOtelRecorder(serverLatencyMeasure)),
 	)
 	return tracerProvider, registry, measureClient, measureServer
 }

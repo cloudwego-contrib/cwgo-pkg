@@ -71,10 +71,10 @@ func TestMetrics(t *testing.T) {
 	}
 	cwlabels := label.ToCwLabelFromPromelabel(labels)
 	prommmetric := NewMeasure(
-		WithCounter(semantic.Counter, NewPromCounter(counter)),
-		WithRecorder(semantic.Latency, NewPromRecorder(histogram)))
-	assert.Nil(t, prommmetric.Add(ctx, semantic.Counter, 6, cwlabels...))
-	assert.Nil(t, prommmetric.Record(ctx, semantic.Latency, float64(100*time.Millisecond.Microseconds()), cwlabels...))
+		WithCounter(semantic.HTTPCounter, NewPromCounter(counter)),
+		WithRecorder(semantic.HTTPLatency, NewPromRecorder(histogram)))
+	assert.Nil(t, prommmetric.Add(ctx, semantic.HTTPCounter, 6, cwlabels...))
+	assert.Nil(t, prommmetric.Record(ctx, semantic.HTTPLatency, float64(100*time.Millisecond.Microseconds()), cwlabels...))
 
 	res, err := http.Get("http://localhost:9090/metrics-demo")
 

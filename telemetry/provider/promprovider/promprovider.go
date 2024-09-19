@@ -78,8 +78,8 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 	}
 
 	var measure metric.Measure
-	if cfg.serviceType == semantic.Kitex {
-
+	var metrics []metric.Option
+	if cfg.enableRPC {
 		RPCCounterVec := prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Name: buildName(cfg.name, semantic.Counter),
@@ -112,12 +112,13 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 		registry.MustRegister(clientHandledHistogramRPC)
 		retryRecorder := metric.NewPromRecorder(retryHandledHistogramRPC)
 
-		measure = metric.NewMeasure(
-			metric.WithCounter(semantic.Counter, counter),
-			metric.WithRecorder(semantic.Latency, recorder),
-			metric.WithRecorder(semantic.Retry, retryRecorder),
+		metrics = append(metrics,
+			metric.WithCounter(semantic.RPCCounter, counter),
+			metric.WithRecorder(semantic.RPCLatency, recorder),
+			metric.WithRecorder(semantic.RPCRetry, retryRecorder),
 		)
-	} else if cfg.serviceType == semantic.Hertz {
+	}
+	if cfg.enableHTTP {
 
 		HttpCounterVec := prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -141,11 +142,13 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 
 		recorder := metric.NewPromRecorder(HttpHandledHistogram)
 
-		measure = metric.NewMeasure(
-			metric.WithCounter(semantic.Counter, counter),
-			metric.WithRecorder(semantic.Latency, recorder),
+		metrics = append(metrics,
+			metric.WithCounter(semantic.HTTPCounter, counter),
+			metric.WithRecorder(semantic.HTTPLatency, recorder),
 		)
 	}
+
+	measure = metric.NewMeasure(metrics...)
 
 	global.SetTracerMeasure(measure)
 

@@ -19,8 +19,6 @@ package promprovider
 import (
 	"net/http"
 
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
-
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -49,7 +47,8 @@ type config struct {
 	path          string
 	name          string
 
-	serviceType semantic.ServiceType
+	enableRPC  bool
+	enableHTTP bool
 }
 
 func newConfig(opts []Option) *config {
@@ -68,7 +67,8 @@ func defaultConfig() *config {
 		registry:      prometheus.NewRegistry(),
 		serveMux:      http.DefaultServeMux,
 		disableServer: false,
-		serviceType:   semantic.Hertz,
+		enableHTTP:    false,
+		enableRPC:     false,
 		path:          "/prometheus",
 	}
 }
@@ -106,13 +106,13 @@ func WithPath(path string) Option {
 
 func WithHttpServer() Option {
 	return option(func(cfg *config) {
-		cfg.serviceType = semantic.Hertz
+		cfg.enableHTTP = true
 	})
 }
 
 func WithRPCServer() Option {
 	return option(func(cfg *config) {
-		cfg.serviceType = semantic.Kitex
+		cfg.enableRPC = true
 	})
 }
 

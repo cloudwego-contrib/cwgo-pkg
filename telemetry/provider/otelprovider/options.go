@@ -15,7 +15,6 @@
 package otelprovider
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/contrib/propagators/ot"
 	"go.opentelemetry.io/otel/attribute"
@@ -57,7 +56,8 @@ type config struct {
 
 	meterProvider *metric.MeterProvider
 
-	serviceType semantic.ServiceType
+	enableRPC  bool
+	enableHTTP bool
 
 	instanceType string
 }
@@ -83,7 +83,8 @@ func defaultConfig() *config {
 			propagation.Baggage{},
 			propagation.TraceContext{},
 		),
-		serviceType: semantic.Hertz,
+		enableHTTP: false,
+		enableRPC:  false,
 	}
 }
 
@@ -201,13 +202,13 @@ func WithMeterProvider(meterProvider *metric.MeterProvider) Option {
 
 func WithHttpServer() Option {
 	return option(func(cfg *config) {
-		cfg.serviceType = semantic.Hertz
+		cfg.enableHTTP = true
 	})
 }
 
 func WithRPCServer() Option {
 	return option(func(cfg *config) {
-		cfg.serviceType = semantic.Kitex
+		cfg.enableRPC = true
 	})
 }
 

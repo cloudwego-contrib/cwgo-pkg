@@ -98,8 +98,9 @@ func ClientMiddleware(opts ...Option) client.Middleware {
 					Key:   semantic.LabelStatusCode,
 					Value: strconv.Itoa(resp.StatusCode()),
 				})
-				//attrs = append(attrs, semconv.HTTPStatusCodeKey.Int(resp.StatusCode()))
-			} else { // resp.StatusCode() is not valid when client returns error
+
+			} else {
+				// resp.StatusCode() is not valid when client returns error
 				span.SetStatus(codes.Error, err.Error())
 			}
 			span.SetAttributes(attrs...)
@@ -109,8 +110,8 @@ func ClientMiddleware(opts ...Option) client.Middleware {
 
 			// record meter
 			labels = append(labels, label.ToCwLabelsFromOtels(metricsAttributes)...)
-			cfg.measure.Inc(ctx, semantic.Counter, labels...)
-			cfg.measure.Record(ctx, semantic.Latency, float64(time.Since(start))/float64(time.Millisecond), labels...)
+			cfg.measure.Inc(ctx, semantic.HTTPCounter, labels...)
+			cfg.measure.Record(ctx, semantic.HTTPLatency, float64(time.Since(start))/float64(time.Millisecond), labels...)
 			return
 		}
 	}

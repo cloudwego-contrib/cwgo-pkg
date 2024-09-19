@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package provider
+package telemetryProvider
 
 import (
+	provider2 "github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider/otelprovider"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider/promprovider"
 )
@@ -33,7 +34,7 @@ func (fn option) apply(cfg *config) {
 }
 
 type config struct {
-	provider Provider
+	provider provider2.Provider
 }
 
 func WithOtel(opts ...otelprovider.Option) Option {

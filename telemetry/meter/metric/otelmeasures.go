@@ -30,6 +30,9 @@ type OtelCounter struct {
 }
 
 func NewOtelCounter(counter metric.Int64Counter) Counter {
+	if counter == nil {
+		return nil
+	}
 	return OtelCounter{
 		counter: counter,
 	}
@@ -54,6 +57,9 @@ type OtelRecorder struct {
 }
 
 func NewOtelRecorder(histogram metric.Float64Histogram) Recorder {
+	if histogram == nil {
+		return nil
+	}
 	return &OtelRecorder{
 		histogram: histogram,
 	}

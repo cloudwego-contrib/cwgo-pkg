@@ -23,12 +23,15 @@ import (
 
 type ServiceType string
 
+// Keys for metrics
 const (
-	Hertz = ServiceType("hertz")
-	Kitex = ServiceType("Kitex")
-)
+	HTTPCounter = "httpCounter"
+	HTTPLatency = "httpLatency"
 
-const (
+	RPCCounter = "rpcCounter"
+	RPCLatency = "rpcLatency"
+	RPCRetry   = "rpcRetry"
+
 	Counter = "counter"
 	Latency = "latency"
 	Retry   = "retry"

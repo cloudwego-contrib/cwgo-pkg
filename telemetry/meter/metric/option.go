@@ -51,12 +51,16 @@ func newConfig(opts []Option) *config {
 
 func WithCounter(name string, counter Counter) Option {
 	return option(func(cfg *config) {
-		cfg.counter[name] = counter
+		if counter != nil {
+			cfg.counter[name] = counter
+		}
 	})
 }
 
 func WithRecorder(name string, recorder Recorder) Option {
 	return option(func(cfg *config) {
-		cfg.recoders[name] = recorder
+		if recorder != nil {
+			cfg.recoders[name] = recorder
+		}
 	})
 }
