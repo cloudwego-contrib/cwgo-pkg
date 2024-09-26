@@ -37,12 +37,11 @@ var _ provider.Provider = &promProvider{}
 type promProvider struct {
 	registry *prometheus.Registry
 	server   *http.Server
-	Measure  metric.Measure
 }
 
 // Shutdown Implement the Shutdown method for the Provider interface
 func (p *promProvider) Shutdown(ctx context.Context) error {
-	// 关闭 HTTP 服务器
+	// close http server
 	if err := p.server.Shutdown(ctx); err != nil {
 		return err
 	}
@@ -155,7 +154,6 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 	return &promProvider{
 		registry: registry,
 		server:   server,
-		Measure:  measure,
 	}
 }
 

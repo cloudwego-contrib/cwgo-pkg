@@ -37,7 +37,6 @@ func NewMeasure(opts ...Option) Measure {
 	}
 }
 
-// Counter interface implementation
 func (m *MeasureImpl) Inc(ctx context.Context, metricType string, labels ...label.CwLabel) error {
 	return m.counters[metricType].Inc(ctx, labels...)
 }
@@ -46,7 +45,7 @@ func (m *MeasureImpl) Add(ctx context.Context, metricType string, value int, lab
 	return m.counters[metricType].Add(ctx, value, labels...)
 }
 
-// Recorder interface implementation
+// Record Recorder interface implementation
 func (m *MeasureImpl) Record(ctx context.Context, metricType string, value float64, labels ...label.CwLabel) error {
 	return m.recoders[metricType].Record(ctx, value, labels...)
 }

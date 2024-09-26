@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
+	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider/telemetryProvider"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 
@@ -38,10 +39,10 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	provider := promprovider.NewPromProvider(":9090",
+	provider := telemetryProvider.NewTelemetryProvider(telemetryProvider.WithProm(":9090",
 		promprovider.WithRegistry(registry),
 		promprovider.WithServeMux(mux),
-		promprovider.WithHttpServer(),
+		promprovider.WithHttpServer()),
 	)
 	defer provider.Shutdown(context.Background())
 
