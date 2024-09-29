@@ -47,7 +47,7 @@ func main() {
 
 	labels := []label.CwLabel{
 		{Key: "http_method", Value: "/test"},
-		{Key: "statusCode", Value: "200"},
+		{Key: semantic.LabelStatusCode, Value: "200"},
 		{Key: "path", Value: "/cwgo/provider/promProvider"},
 	}
 	measure := global.GetTracerMeasure()

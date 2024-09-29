@@ -49,7 +49,7 @@ const (
 // HTTP measure Labels
 const (
 	LabelHttpMethodKey = "http_method"
-	LabelStatusCode    = "statusCode"
+	LabelStatusCode    = "http_status_code"
 	LabelPath          = "path"
 )
 
