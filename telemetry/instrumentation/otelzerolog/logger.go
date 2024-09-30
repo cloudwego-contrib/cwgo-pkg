@@ -38,6 +38,10 @@ func NewLogger(opts ...Option) *Logger {
 		opt.apply(cfg)
 	}
 	logger := *cfg.logger
+	if cfg.zeroLogger != nil {
+		logger = *cwzerolog.From(*cfg.zeroLogger)
+	}
+
 	zerologLogger := logger.Unwrap().
 		Hook(cfg.defaultZerologHookFn())
 

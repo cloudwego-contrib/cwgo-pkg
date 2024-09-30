@@ -48,6 +48,11 @@ func NewLogger(opts ...Option) *Logger {
 		opt.apply(config)
 	}
 	logger := *config.logger
+	if config.hasCwZap {
+		options := GetOptions(config.cwZap)
+		logger = *cwzap.NewLogger(options...)
+		extraKeys = append(extraKeys, config.cwZap.extraKeys...)
+	}
 	logger.PutExtraKeys(extraKeys...)
 
 	return &Logger{
@@ -123,4 +128,16 @@ func (l *Logger) CtxErrorf(ctx context.Context, format string, v ...interface{})
 
 func (l *Logger) CtxFatalf(ctx context.Context, format string, v ...interface{}) {
 	l.CtxLogf(logging.LevelFatal, ctx, format, v...)
+}
+
+func GetOptions(cwZap cwZap) []cwzap.Option {
+	opions := []cwzap.Option{}
+	opions = append(opions, cwzap.WithCores(cwzap.CoreConfig{
+		Enc: cwZap.coreConfig.Enc,
+		Lvl: cwZap.coreConfig.Lvl,
+		Ws:  cwZap.coreConfig.Ws,
+	}))
+	opions = append(opions, cwzap.WithZapOptions(cwZap.zapOpts...))
+	opions = append(opions, cwzap.WithCustomFields(cwZap.customFields))
+	return opions
 }

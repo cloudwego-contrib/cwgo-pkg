@@ -40,6 +40,7 @@ type traceConfig struct {
 
 type config struct {
 	logger      *cwzerolog.Logger
+	zeroLogger  *zerolog.Logger
 	traceConfig *traceConfig
 }
 
@@ -55,7 +56,14 @@ func defaultConfig() *config {
 }
 
 // WithLogger configures logger
-func WithLogger(logger *cwzerolog.Logger) Option {
+func WithLogger(logger *zerolog.Logger) Option {
+	return option(func(cfg *config) {
+		cfg.zeroLogger = logger
+	})
+}
+
+// WithZeroLogger configures zeroLogger
+func WithZeroLogger(logger *cwzerolog.Logger) Option {
 	return option(func(cfg *config) {
 		cfg.logger = logger
 	})

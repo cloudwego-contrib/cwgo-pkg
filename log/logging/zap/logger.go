@@ -70,6 +70,9 @@ func (l *Logger) PutExtraKeys(keys ...ExtraKey) {
 
 func (l *Logger) Log(level logging.Level, kvs ...interface{}) {
 	sugar := l.l.Sugar()
+	if l.config.customFields != nil {
+		sugar.With(l.config.customFields)
+	}
 	switch level {
 	case logging.LevelTrace, logging.LevelDebug:
 		sugar.Debug(kvs...)
@@ -87,7 +90,10 @@ func (l *Logger) Log(level logging.Level, kvs ...interface{}) {
 }
 
 func (l *Logger) Logf(level logging.Level, format string, kvs ...interface{}) {
-	logger := l.l.Sugar().With()
+	logger := l.l.Sugar()
+	if l.config.customFields != nil {
+		logger.With(l.config.customFields)
+	}
 	switch level {
 	case logging.LevelTrace, logging.LevelDebug:
 		logger.Debugf(format, kvs...)
@@ -126,6 +132,9 @@ func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string
 		}
 	}
 	log := zapLogger.Sugar()
+	if l.config.customFields != nil {
+		log.With(l.config.customFields)
+	}
 	switch level {
 	case logging.LevelDebug, logging.LevelTrace:
 		log.Debugf(format, kvs...)

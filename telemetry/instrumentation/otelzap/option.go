@@ -16,6 +16,7 @@ package otelzap
 
 import (
 	cwzap "github.com/cloudwego-contrib/cwgo-pkg/logging/zap"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -34,9 +35,19 @@ type traceConfig struct {
 	errorSpanLevel         zapcore.Level
 }
 
+// cwZap is for compatibility with Kitex otel log
+type cwZap struct {
+	customFields []interface{}
+	extraKeys    []cwzap.ExtraKey
+	coreConfig   cwzap.CoreConfig
+	zapOpts      []zap.Option
+}
+
 type config struct {
 	logger      *cwzap.Logger
 	traceConfig *traceConfig
+	cwZap       cwZap
+	hasCwZap    bool
 }
 
 // defaultConfig default config
@@ -48,6 +59,46 @@ func defaultConfig() *config {
 		},
 		logger: cwzap.NewLogger(),
 	}
+}
+
+// WithCoreEnc zapcore encoder
+func WithCoreEnc(enc zapcore.Encoder) Option {
+	return option(func(cfg *config) {
+		cfg.cwZap.coreConfig.Enc = enc
+		cfg.hasCwZap = true
+	})
+}
+
+// WithCoreWs zapcore write syncer
+func WithCoreWs(ws zapcore.WriteSyncer) Option {
+	return option(func(cfg *config) {
+		cfg.cwZap.coreConfig.Ws = ws
+		cfg.hasCwZap = true
+	})
+}
+
+// WithCoreLevel zapcore log level
+func WithCoreLevel(lvl zap.AtomicLevel) Option {
+	return option(func(cfg *config) {
+		cfg.cwZap.coreConfig.Lvl = lvl
+		cfg.hasCwZap = true
+	})
+}
+
+// WithCustomFields record log with the key-value pair.
+func WithCustomFields(kv ...interface{}) Option {
+	return option(func(cfg *config) {
+		cfg.cwZap.customFields = append(cfg.cwZap.customFields, kv...)
+		cfg.hasCwZap = true
+	})
+}
+
+// WithZapOptions add origin zap option
+func WithZapOptions(opts ...zap.Option) Option {
+	return option(func(cfg *config) {
+		cfg.cwZap.zapOpts = append(cfg.cwZap.zapOpts, opts...)
+		cfg.hasCwZap = true
+	})
 }
 
 // WithLogger configures logger
