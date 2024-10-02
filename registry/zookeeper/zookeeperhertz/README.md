@@ -13,12 +13,12 @@ import (
     "context"
     "time"
 
-    "github.com/cloudwego/etcdhertz/pkg/app"
-    "github.com/cloudwego/etcdhertz/pkg/app/server"
-    "github.com/cloudwego/etcdhertz/pkg/app/server/registry-etcdhertz"
-    "github.com/cloudwego/etcdhertz/pkg/common/utils"
-    "github.com/cloudwego/etcdhertz/pkg/protocol/consts"
-    "github.com/etcdhertz-contrib/registry-etcdhertz/zookeeper"
+    "github.com/cloudwego/hertz/pkg/app"
+    "github.com/cloudwego/hertz/pkg/app/server"
+    "github.com/cloudwego/hertz/pkg/app/server/registry-hertz"
+    "github.com/cloudwego/hertz/pkg/common/utils"
+    "github.com/cloudwego/hertz/pkg/protocol/consts"
+    zookeeper "github.com/cloudwego-contrib/cwgo-pkg/registry/zookeeper/zookeeperhertz"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
     h := server.Default(
         server.WithHostPorts(addr),
         server.WithRegistry(r, &registry.Info{
-            ServiceName: "etcdhertz.test.demo",
+            ServiceName: "hertz.test.demo",
             Addr:        utils.NewNetAddr("tcp", addr),
             Weight:      10,
             Tags:        nil,
@@ -52,11 +52,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/cloudwego/etcdhertz/pkg/app/client"
-	"github.com/cloudwego/etcdhertz/pkg/app/middlewares/client/sd"
-	"github.com/cloudwego/etcdhertz/pkg/common/config"
-	"github.com/cloudwego/etcdhertz/pkg/common/hlog"
-	"github.com/etcdhertz-contrib/registry-etcdhertz/zookeeper"
+	"github.com/cloudwego/hertz/pkg/app/client"
+	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
+	"github.com/cloudwego/hertz/pkg/common/config"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	zookeeper "github.com/cloudwego-contrib/cwgo-pkg/registry/zookeeper/zookeeperhertz"
 )
 
 func main() {

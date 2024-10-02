@@ -10,7 +10,7 @@ import (
     // ...
     "github.com/cloudwego/kitex/pkg/rpcinfo"
     "github.com/cloudwego/kitex/server"
-    "github.com/kitex-contrib/registry-servicecomb/registry"
+    "github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/servicecombkitex/registry"
 )
 
 // ...
@@ -40,7 +40,7 @@ func main() {
 import (
     // ...
     "github.com/cloudwego/kitex/client"
-    "github.com/kitex-contrib/registry-servicecomb/resolver"
+    "github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/servicecombkitex/resolver"
 )
 
 func main() {

@@ -23,11 +23,11 @@ import (
     "log"
     
     "github.com/cloudwego/hertz/pkg/app"
-    "github.com/cloudwego/etcdhertz/pkg/app/server"
-    "github.com/cloudwego/etcdhertz/pkg/app/server/registry-etcdhertz"
-    "github.com/cloudwego/etcdhertz/pkg/common/utils"
-    "github.com/cloudwego/etcdhertz/pkg/protocol/consts"
-    "github.com/etcdhertz-contrib/registry-etcdhertz/nacos/v2"
+    "github.com/cloudwego/hertz/pkg/app/server"
+    "github.com/cloudwego/hertz/pkg/app/server/registry-hertz"
+    "github.com/cloudwego/hertz/pkg/common/utils"
+    "github.com/cloudwego/hertz/pkg/protocol/consts"
+    "github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz/v2"
 )
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
 	h := server.Default(
 		server.WithHostPorts(addr),
 		server.WithRegistry(r, &registry.Info{
-			ServiceName: "etcdhertz.test.demo",
+			ServiceName: "hertz.test.demo",
 			Addr:        utils.NewNetAddr("tcp", addr),
 			Weight:      10,
 			Tags:        nil,
@@ -61,11 +61,11 @@ import (
     "context"
     "log"
     
-    "github.com/cloudwego/etcdhertz/pkg/app/client"
-    "github.com/cloudwego/etcdhertz/pkg/app/middlewares/client/sd"
-    "github.com/cloudwego/etcdhertz/pkg/common/config"
-    "github.com/cloudwego/etcdhertz/pkg/common/hlog"
-    "github.com/etcdhertz-contrib/registry-etcdhertz/nacos/v2"
+    "github.com/cloudwego/hertz/pkg/app/client"
+    "github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
+    "github.com/cloudwego/hertz/pkg/common/config"
+    "github.com/cloudwego/hertz/pkg/common/hlog"
+    "github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz/v2"
 )
 
 func main() {
@@ -91,7 +91,7 @@ func main() {
 package main
 
 import (
-	"github.com/hertz-contrib/registry/nacos/v2/common"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz/v2/common"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/logger"
 )
 
@@ -150,12 +150,12 @@ go run ./examples/standard/client/main.go
 import (
     "context"
     
-    "github.com/cloudwego/etcdhertz/pkg/app"
-    "github.com/cloudwego/etcdhertz/pkg/app/server"
-    "github.com/cloudwego/etcdhertz/pkg/app/server/registry-etcdhertz"
-    "github.com/cloudwego/etcdhertz/pkg/common/utils"
-    "github.com/cloudwego/etcdhertz/pkg/protocol/consts"
-    "github.com/etcdhertz-contrib/registry-etcdhertz/nacos/v2"
+    "github.com/cloudwego/hertz/pkg/app"
+    "github.com/cloudwego/hertz/pkg/app/server"
+    "github.com/cloudwego/hertz/pkg/app/server/registry-hertz"
+    "github.com/cloudwego/hertz/pkg/common/utils"
+    "github.com/cloudwego/hertz/pkg/protocol/consts"
+    "github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz/v2"
     "github.com/nacos-group/nacos-sdk-go/v2/clients"
     "github.com/nacos-group/nacos-sdk-go/v2/common/constant"
     "github.com/nacos-group/nacos-sdk-go/v2/vo"
@@ -190,7 +190,7 @@ func main() {
 	h := server.Default(
 		server.WithHostPorts(addr),
 		server.WithRegistry(r, &registry.Info{
-			ServiceName: "etcdhertz.test.demo",
+			ServiceName: "hertz.test.demo",
 			Addr:        utils.NewNetAddr("tcp", addr),
 			Weight:      10,
 			Tags:        nil,
@@ -210,11 +210,11 @@ func main() {
 import (
     "context"
     
-    "github.com/cloudwego/etcdhertz/pkg/app/client"
-    "github.com/cloudwego/etcdhertz/pkg/app/middlewares/client/sd"
-    "github.com/cloudwego/etcdhertz/pkg/common/config"
-    "github.com/cloudwego/etcdhertz/pkg/common/hlog"
-    "github.com/etcdhertz-contrib/registry-etcdhertz/nacos/v2"
+    "github.com/cloudwego/hertz/pkg/app/client"
+    "github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
+    "github.com/cloudwego/hertz/pkg/common/config"
+    "github.com/cloudwego/hertz/pkg/common/hlog"
+    "github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz/v2"
     "github.com/nacos-group/nacos-sdk-go/v2/clients"
     "github.com/nacos-group/nacos-sdk-go/v2/common/constant"
     "github.com/nacos-group/nacos-sdk-go/v2/vo"

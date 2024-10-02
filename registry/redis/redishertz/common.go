@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	hertz  = "etcdhertz"
+	hertz  = "hertz"
 	server = "server"
 	tcp    = "tcp"
 )
@@ -50,13 +50,13 @@ type registryInfo struct {
 
 func validateRegistryInfo(info *registry.Info) error {
 	if info == nil {
-		return fmt.Errorf("registry-etcdhertz.Info can not be empty")
+		return fmt.Errorf("registry-hertz.Info can not be empty")
 	}
 	if info.ServiceName == "" {
-		return fmt.Errorf("registry-etcdhertz.Info ServiceName can not be empty")
+		return fmt.Errorf("registry-hertz.Info ServiceName can not be empty")
 	}
 	if info.Addr == nil {
-		return fmt.Errorf("registry-etcdhertz.Info Addr can not be empty")
+		return fmt.Errorf("registry-hertz.Info Addr can not be empty")
 	}
 	return nil
 }

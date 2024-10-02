@@ -9,80 +9,115 @@ Support Hertz to use ServiceComb for service registration and discovery
 #### Basic Usage
 
 ```go
+package main
+
 import (
 	"context"
 	"log"
 	"sync"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/servicecombhertz"
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/etcdhertz/pkg/app/server"
-	"github.com/cloudwego/etcdhertz/pkg/app/server/registry-etcdhertz"
-	"github.com/cloudwego/etcdhertz/pkg/common/utils"
-	"github.com/cloudwego/etcdhertz/pkg/protocol/consts"
-	"github.com/etcdhertz-contrib/registry-etcdhertz/servicecomb"
+	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/app/server/registry"
+	"github.com/cloudwego/hertz/pkg/common/utils"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
-func main() {
-    const scAddr = "127.0.0.1:30100"
-    const addr = "127.0.0.1:8701"
-    r, err := servicecomb.NewDefaultSCRegistry([]string{scAddr})
-    if err != nil {
-        log.Fatal(err)
-        return
-    }
-    h := server.Default(
-        server.WithHostPorts(addr),
-        server.WithRegistry(r, &registry.Info{
-            ServiceName: "etcdhertz.servicecomb.demo",
-            Addr:        utils.NewNetAddr("tcp", addr),
-            Weight:      10,
-            Tags:        nil,
-        }),
-    )
+const scAddr = "127.0.0.1:30100"
 
-    h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
-        ctx.JSON(consts.StatusOK, utils.H{"ping": "pong1"})
-    })
-    h.Spin()
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		addr := "127.0.0.1:8701"
+		r, err := servicecombhertz.NewDefaultSCRegistry([]string{scAddr})
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		h := server.Default(
+			server.WithHostPorts(addr),
+			server.WithRegistry(r, &registry.Info{
+				ServiceName: "hertz.servicecomb.demo",
+				Addr:        utils.NewNetAddr("tcp", addr),
+				Weight:      10,
+				Tags:        nil,
+			}),
+		)
+
+		h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
+			ctx.JSON(consts.StatusOK, utils.H{"ping": "pong1"})
+		})
+		h.Spin()
+	}()
+	go func() {
+		defer wg.Done()
+		addr := "127.0.0.1:8702"
+		r, err := servicecombhertz.NewDefaultSCRegistry([]string{scAddr})
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		h := server.Default(
+			server.WithHostPorts(addr),
+			server.WithRegistry(r, &registry.Info{
+				ServiceName: "hertz.servicecomb.demo",
+				Addr:        utils.NewNetAddr("tcp", addr),
+				Weight:      10,
+				Tags:        nil,
+			}),
+		)
+
+		h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
+			ctx.JSON(consts.StatusOK, utils.H{"ping": "pong2"})
+		})
+		h.Spin()
+	}()
+
+	wg.Wait()
 }
 ```
 
 ### Client
 
 ```go
+package main
 
 import (
 	"context"
 
-	"github.com/cloudwego/etcdhertz/pkg/app/client"
-	"github.com/cloudwego/etcdhertz/pkg/app/middlewares/client/sd"
-	"github.com/cloudwego/etcdhertz/pkg/common/config"
-	"github.com/cloudwego/etcdhertz/pkg/common/hlog"
-	"github.com/etcdhertz-contrib/registry-etcdhertz/servicecomb"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/servicecombhertz"
+
+	"github.com/cloudwego/hertz/pkg/app/client"
+	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
+	"github.com/cloudwego/hertz/pkg/common/config"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
+const scAddr = "127.0.0.1:30100"
+
 func main() {
-    const scAddr = "127.0.0.1:30100"
 	// build a servicecomb resolver
-	r, err := servicecomb.NewDefaultSCResolver([]string{scAddr})
+	r, err := servicecombhertz.NewDefaultSCResolver([]string{scAddr})
 	if err != nil {
 		panic(err)
 	}
-	// build a etcdhertz client with the servicecomb resolver
+	// build a hertz client with the servicecomb resolver
 	cli, err := client.NewClient()
 	if err != nil {
 		panic(err)
 	}
 	cli.Use(sd.Discovery(r))
 	for i := 0; i < 10; i++ {
-		status, body, err := cli.Get(context.Background(), nil, "http://etcdhertz.servicecomb.demo/ping", config.WithSD(true))
+		status, body, err := cli.Get(context.Background(), nil, "http://hertz.servicecomb.demo/ping", config.WithSD(true))
 		if err != nil {
 			hlog.Fatal(err)
 		}
 		hlog.Infof("code=%d,body=%s", status, string(body))
 	}
 }
-
 ```
 
 ## Example

@@ -278,7 +278,7 @@ func TestEurekaRegistryAndResolverWithHertz(t *testing.T) {
 		t.Errorf("HERTZ: Shutdown cwerror=%v", err)
 	}
 	for range time.Tick(time.Second) {
-		// block until etcdhertz is down
+		// block until hertz is down
 		r.lock.RLock()
 		registered := len(r.registryIns)
 		r.lock.RUnlock()

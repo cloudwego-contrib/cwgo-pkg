@@ -14,12 +14,13 @@ package main
 import (
 	"context"
 
+	etcd "github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/etcdhertz"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/app/server/registry"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/hertz-contrib/registry/etcd"
 )
 
 func main() {
@@ -53,11 +54,12 @@ package main
 import (
 	"context"
 
+	etcd "github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/etcdhertz"
+
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/hertz-contrib/registry/etcd"
 )
 
 func main() {
@@ -133,7 +135,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server/registry"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/hertz-contrib/registry/etcd"
+	etcd "github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/etcdhertz"
 )
 
 func main() {
@@ -169,7 +171,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/hertz-contrib/registry/etcd"
+	etcd "github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/etcdhertz"
 )
 
 func main() {

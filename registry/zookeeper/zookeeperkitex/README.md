@@ -8,7 +8,7 @@ Some applications use Zookeeper as service discovery.
 ```go
 import (
     ...
-	zkregistry "github.com/kitex-contrib/registry-zookeeper/registry"
+	zkregistry "github.com/cloudwego-contrib/cwgo-pkg/registry/zookeeper/zookeeperkitex/registry"
 	"github.com/cloudwego/kitex/server"
     ...
 )
@@ -35,7 +35,7 @@ func main() {
 ```go
 import (
     ...
-    "github.com/kitex-contrib/registry-zookeeper/resolver"
+    "github.com/cloudwego-contrib/cwgo-pkg/registry/zookeeper/zookeeperkitex/resolver"
     "github.com/cloudwego/kitex/client"
     ...
 )
@@ -60,7 +60,7 @@ func main() {
 ```go
 import (
     ...
-	zkregistry "github.com/kitex-contrib/registry-zookeeper/registry"
+	zkregistry "github.com/cloudwego-contrib/cwgo-pkg/registry/zookeeper/zookeeperkitex/registry"
 	"github.com/cloudwego/kitex/server"
     ...
 )
@@ -86,7 +86,7 @@ func main() {
 ```go
 import (
     ...
-    "github.com/kitex-contrib/registry-zookeeper/resolver"
+    "github.com/cloudwego-contrib/cwgo-pkg/registry/zookeeper/zookeeperkitex/resolver"
     "github.com/cloudwego/kitex/client"
     ...
 )

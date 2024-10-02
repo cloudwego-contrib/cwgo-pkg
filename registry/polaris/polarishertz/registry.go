@@ -103,7 +103,7 @@ func (svr *polarisRegistry) Register(info *registry.Info) error {
 	return nil
 }
 
-// Deregister deregisters a server with given registry-etcdhertz info.
+// Deregister deregisters a server with given registry-hertz info.
 func (svr *polarisRegistry) Deregister(info *registry.Info) error {
 	if err := validateInfo(info); err != nil {
 		return err
@@ -162,7 +162,7 @@ func (svr *polarisRegistry) doHeartbeat(ctx context.Context, ins *api.InstanceRe
 	}
 }
 
-// validateInfo validates registry-etcdhertz.Info.
+// validateInfo validates registry-hertz.Info.
 func validateInfo(info *registry.Info) error {
 	if info.ServiceName == "" {
 		return fmt.Errorf("missing service name in Register")
@@ -171,15 +171,15 @@ func validateInfo(info *registry.Info) error {
 		return fmt.Errorf("missing Addr in Register")
 	}
 	if len(info.Addr.Network()) == 0 {
-		return fmt.Errorf("registry-etcdhertz.Info Addr Network() can not be empty")
+		return fmt.Errorf("registry-hertz.Info Addr Network() can not be empty")
 	}
 	if len(info.Addr.String()) == 0 {
-		return fmt.Errorf("registry-etcdhertz.Info Addr String() can not be empty")
+		return fmt.Errorf("registry-hertz.Info Addr String() can not be empty")
 	}
 	return nil
 }
 
-// createRegisterParam convert registry-etcdhertz.Info to polaris instance register request.
+// createRegisterParam convert registry-hertz.Info to polaris instance register request.
 func createRegisterParam(info *registry.Info) (*api.InstanceRegisterRequest, string, error) {
 	instanceHost, instancePort, err := common.GetInfoHostAndPort(info.Addr.String())
 	if err != nil {
@@ -210,7 +210,7 @@ func createRegisterParam(info *registry.Info) (*api.InstanceRegisterRequest, str
 	return req, instanceKey, nil
 }
 
-// createDeregisterParam convert registry-etcdhertz.info to polaris instance deregister request.
+// createDeregisterParam convert registry-hertz.info to polaris instance deregister request.
 func createDeregisterParam(info *registry.Info) (*api.InstanceDeRegisterRequest, string, error) {
 	instanceHost, instancePort, err := common.GetInfoHostAndPort(info.Addr.String())
 	if err != nil {

@@ -9,7 +9,7 @@ import (
     ...
     "github.com/cloudwego/kitex/pkg/rpcinfo"
     "github.com/cloudwego/kitex/server"
-    etcd "github.com/kitex-contrib/registry-etcd"
+    etcd "github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/etcdkitex"
     ...
 )
 
@@ -39,7 +39,7 @@ func main() {
 import (
     ...
     "github.com/cloudwego/kitex/client"
-    etcd "github.com/kitex-contrib/registry-etcd"
+    etcd "github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/etcdkitex"
     ...
 )
 
@@ -66,7 +66,7 @@ package main
 import (
     ...
 	"github.com/cloudwego/kitex/server"
-	etcd "github.com/kitex-contrib/registry-etcd"
+	etcd "github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/etcdkitex"
 )
 
 type HelloImpl struct{}
@@ -102,7 +102,7 @@ package main
 import (
     ...
 	"github.com/cloudwego/kitex/client"
-	etcd "github.com/kitex-contrib/registry-etcd"
+	etcd "github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/etcdkitex"
 )
 
 func main() { 
@@ -155,8 +155,8 @@ import (
 	"github.com/cloudwego/kitex-examples/hello/kitex_gen/api/hello"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	etcd "github.com/kitex-contrib/registry-etcd"
-	"github.com/kitex-contrib/registry-etcd/retry"
+	etcd "github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/etcdkitex"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/etcdkitex/retry"
 )
 
 type HelloImpl struct{}
@@ -206,7 +206,7 @@ package main
 import (
 	...
     "github.com/cloudwego/kitex/client"
-    etcd "github.com/kitex-contrib/registry-etcd"
+    etcd "github.com/cloudwego-contrib/cwgo-pkg/registry/etcd/etcdkitex"
 )
 
 func main() {

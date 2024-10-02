@@ -44,7 +44,7 @@ func init() {
 	redisCli = rdb
 }
 
-// TestRegister Test the Registry in registry-etcdhertz.go
+// TestRegister Test the Registry in registry-hertz.go
 func TestRegister(t *testing.T) {
 	defer redisCli.FlushDB(ctx)
 	tests := []struct {
@@ -55,7 +55,7 @@ func TestRegister(t *testing.T) {
 			// set single info
 			info: []*registry.Info{
 				{
-					ServiceName: "etcdhertz.test.demo1",
+					ServiceName: "hertz.test.demo1",
 					Addr:        utils.NewNetAddr(tcp, "127.0.0.1:8888"),
 					Weight:      10,
 					Tags:        nil,
@@ -67,13 +67,13 @@ func TestRegister(t *testing.T) {
 			// set multi infos
 			info: []*registry.Info{
 				{
-					ServiceName: "etcdhertz.test.demo2",
+					ServiceName: "hertz.test.demo2",
 					Addr:        utils.NewNetAddr(tcp, "127.0.0.1:9000"),
 					Weight:      15,
 					Tags:        nil,
 				},
 				{
-					ServiceName: "etcdhertz.test.demo2",
+					ServiceName: "hertz.test.demo2",
 					Addr:        utils.NewNetAddr(tcp, "127.0.0.1:9001"),
 					Weight:      20,
 					Tags:        nil,
@@ -121,7 +121,7 @@ func TestResolve(t *testing.T) {
 		{
 			// test one args
 			info: &info{
-				ServiceName: "demo1.etcdhertz.local",
+				ServiceName: "demo1.hertz.local",
 				Args: []args{
 					{
 						Addr:   "127.0.0.1:8888",
@@ -135,12 +135,12 @@ func TestResolve(t *testing.T) {
 		{
 			// test multi args
 			info: &info{
-				ServiceName: "demo2.etcdhertz.local",
+				ServiceName: "demo2.hertz.local",
 				Args: []args{
 					{
 						Addr:   "127.0.0.1:9001",
 						Weight: 10,
-						Tags:   map[string]string{"cloudwego": "etcdhertz"},
+						Tags:   map[string]string{"cloudwego": "hertz"},
 					},
 					{
 						Addr:   "127.0.0.1:9000",
@@ -154,7 +154,7 @@ func TestResolve(t *testing.T) {
 		{
 			// test none args
 			info: &info{
-				ServiceName: "demo3.etcdhertz.local",
+				ServiceName: "demo3.hertz.local",
 				Args:        []args{},
 			},
 			wantErr: false,
@@ -194,11 +194,11 @@ func TestResolve(t *testing.T) {
 	}
 }
 
-// TestRedisRegistryWithHertz Test redis registry-etcdhertz complete workflow (service registry-etcdhertz|service de-registry-etcdhertz|service resolver) with etcdhertz.
+// TestRedisRegistryWithHertz Test redis registry-hertz complete workflow (service registry-hertz|service de-registry-hertz|service resolver) with hertz.
 func TestRedisRegistryWithHertz(t *testing.T) {
 	addr := "127.0.0.1:8080"
 	redisAddr := "127.0.0.1:6379"
-	srvName := "etcdhertz.with.registry-etcdhertz"
+	srvName := "hertz.with.registry-hertz"
 	r := NewRedisRegistry(redisAddr)
 	h := hzsrv.Default(
 		hzsrv.WithHostPorts(addr),

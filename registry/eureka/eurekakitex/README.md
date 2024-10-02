@@ -7,7 +7,7 @@
 ```go
 import (
     ...
-    euregistry "github.com/kitex-contrib/registry-eureka/registry"
+    euregistry "github.com/cloudwego-contrib/cwgo-pkg/registry/eureka/eurekakitex/registry"
     "github.com/cloudwego/kitex/server"
     "github.com/cloudwego/kitex/pkg/rpcinfo"
     ...
@@ -33,7 +33,7 @@ func main() {
 ```go
 import (
     ...
-    "github.com/kitex-contrib/registry-eureka/resolver"
+    "github.com/cloudwego-contrib/cwgo-pkg/registry/eureka/eurekakitex/resolver"
     "github.com/cloudwego/kitex/client"
     ...
 )
@@ -60,7 +60,7 @@ use `HTTP Basic Auth`
 ```go
 import (
     ...
-    euregistry "github.com/kitex-contrib/registry-eureka/registry"
+    euregistry "github.com/cloudwego-contrib/cwgo-pkg/registry/eureka/eurekakitex/registry"
     "github.com/cloudwego/kitex/server"
     "github.com/cloudwego/kitex/pkg/rpcinfo"
     ...
@@ -79,7 +79,7 @@ func main() {
 ```go
 import (
     ...
-    "github.com/kitex-contrib/registry-eureka/resolver"
+    "github.com/cloudwego-contrib/cwgo-pkg/registry/eureka/eurekakitex/resolver"
     "github.com/cloudwego/kitex/client"
     ...
 )
@@ -117,7 +117,7 @@ Here are instructions on how to adjust the log level.
 import (
     ...
     "github.com/op/go-logging"
-    "github.com/kitex-contrib/registry-eureka/resolver"
+    "github.com/cloudwego-contrib/cwgo-pkg/registry/eureka/eurekakitex/resolver"
     "github.com/cloudwego/kitex/client"
     ...
 )

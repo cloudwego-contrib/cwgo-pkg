@@ -14,21 +14,22 @@ package main
 import (
 	"context"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/redis/redishertz"
+
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/app/server/registry"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/hertz-contrib/registry/redis"
 )
 
 func main() {
-	r := redis.NewRedisRegistry("127.0.0.1:6379")
+	r := redishertz.NewRedisRegistry("127.0.0.1:6379")
 	addr := "127.0.0.1:8888"
 	h := server.Default(
 		server.WithHostPorts(addr),
 		server.WithRegistry(r, &registry.Info{
-			ServiceName: "etcdhertz.test.demo",
+			ServiceName: "hertz.test.demo",
 			Addr:        utils.NewNetAddr("tcp", addr),
 			Weight:      10,
 			Tags:        nil,
@@ -39,6 +40,7 @@ func main() {
 	})
 	h.Spin()
 }
+
 ```
 
 ### Client
@@ -51,11 +53,11 @@ package main
 import (
 	"context"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/redis/redishertz"
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/hertz-contrib/registry/redis"
 )
 
 func main() {
@@ -63,7 +65,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	r := redis.NewRedisResolver("127.0.0.1:6379")
+	r := redishertz.NewRedisResolver("127.0.0.1:6379")
 	cli.Use(sd.Discovery(r))
 	for i := 0; i < 10; i++ {
 		status, body, err := cli.Get(context.Background(), nil, "http://hertz.test.demo/ping", config.WithSD(true))

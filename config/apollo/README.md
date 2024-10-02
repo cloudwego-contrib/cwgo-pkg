@@ -18,14 +18,15 @@ import (
 	"log"
 	"net"
 
+	cwserver "github.com/cloudwego-contrib/cwgo-pkg/config/apollo/server"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/apollo"
+	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/utils"
 	"github.com/cloudwego/kitex-examples/kitex_gen/api"
 	"github.com/cloudwego/kitex-examples/kitex_gen/api/echo"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	"github.com/kitex-contrib/config-apollo/apollo"
-	apolloserver "github.com/kitex-contrib/config-apollo/server"
-	"github.com/kitex-contrib/config-apollo/utils"
 )
 
 // Customed by user
@@ -66,7 +67,7 @@ func main() {
 	svr := echo.NewServer(
 		new(EchoImpl),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: serviceName}),
-		server.WithSuite(apolloserver.NewSuite(serviceName, apolloClient, cl)),
+		server.WithSuite(cwserver.NewSuite(serviceName, apolloClient, cl)),
 		server.WithServiceAddr(addr),
 	)
 	if err := svr.Run(); err != nil {
@@ -87,13 +88,15 @@ import (
 	"log"
 	"time"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/apollo"
+	cwclient "github.com/cloudwego-contrib/cwgo-pkg/config/apollo/client"
+
 	"github.com/cloudwego/kitex-examples/kitex_gen/api"
 	"github.com/cloudwego/kitex-examples/kitex_gen/api/echo"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/kitex-contrib/config-apollo/apollo"
-	apolloclient "github.com/kitex-contrib/config-apollo/client"
-	"github.com/kitex-contrib/config-apollo/utils"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/utils"
 )
 
 // Customed by user
@@ -119,7 +122,7 @@ func main() {
 	client, err := echo.NewClient(
 		serviceName,
 		client.WithHostPorts("localhost:8899"),
-		client.WithSuite(apolloclient.NewSuite(serviceName, clientName, apolloClient, cl)),
+		client.WithSuite(cwclient.NewSuite(serviceName, clientName, apolloClient, cl)),
 	)
 	if err != nil {
 		log.Fatal(err)

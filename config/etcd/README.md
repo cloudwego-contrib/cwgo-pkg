@@ -22,8 +22,8 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	"github.com/kitex-contrib/config-etcd/etcd"
-	etcdServer "github.com/kitex-contrib/config-etcd/server"
+	"github.com/cloudwego-contrib/cwgo-pkg/config/etcd/etcd"
+	etcdServer "github.com/cloudwego-contrib/cwgo-pkg/config/etcd/server"
 )
 
 var _ api.Echo = &EchoImpl{}
@@ -71,9 +71,9 @@ import (
 	"github.com/cloudwego/kitex-examples/kitex_gen/api/echo"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/klog"
-	etcdclient "github.com/kitex-contrib/config-etcd/client"
-	"github.com/kitex-contrib/config-etcd/etcd"
-	"github.com/kitex-contrib/config-etcd/utils"
+	etcdclient "github.com/cloudwego-contrib/cwgo-pkg/config/etcd/client"
+	"github.com/cloudwego-contrib/cwgo-pkg/config/etcd/etcd"
+	"github.com/cloudwego-contrib/cwgo-pkg/config/etcd/utils"
 )
 
 type configLog struct{}

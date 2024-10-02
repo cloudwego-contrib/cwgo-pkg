@@ -11,35 +11,39 @@
 **[example/server/main.go](examples/standard/server/main.go)**
 
 ```go
+package main
+
 import (
-    "context"
-    "log"
-    
-    "github.com/cloudwego/etcdhertz/pkg/app"
-    "github.com/cloudwego/etcdhertz/pkg/app/server"
-    "github.com/cloudwego/etcdhertz/pkg/app/server/registry-etcdhertz"
-    "github.com/cloudwego/etcdhertz/pkg/common/utils"
-    "github.com/cloudwego/etcdhertz/pkg/protocol/consts"
-    "github.com/etcdhertz-contrib/registry-etcdhertz/nacos"
+	"context"
+	"log"
+
+	nacos "github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/app/server/registry"
+	"github.com/cloudwego/hertz/pkg/common/utils"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
 func main() {
 	addr := "127.0.0.1:8888"
-	r, err := nacosRegistry.NewDefaultNacosRegistry()
-    if err != nil {
-        log.Fatal(err)
-        return
-    }
+	r, err := nacos.NewDefaultNacosRegistry()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	h := server.Default(
 		server.WithHostPorts(addr),
 		server.WithRegistry(r, &registry.Info{
-			ServiceName: "etcdhertz.test.demo",
+			ServiceName: "hertz.test.demo",
 			Addr:        utils.NewNetAddr("tcp", addr),
 			Weight:      10,
 			Tags:        nil,
 		}),
 	)
-	// ...
+	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
+		ctx.JSON(consts.StatusOK, utils.H{"ping": "pong"})
+	})
 	h.Spin()
 }
 
@@ -51,14 +55,14 @@ func main() {
 
 ```go
 import (
-    "context"
-    "log"
-    
-    "github.com/cloudwego/etcdhertz/pkg/app/client"
-    "github.com/cloudwego/etcdhertz/pkg/app/middlewares/client/sd"
-    "github.com/cloudwego/etcdhertz/pkg/common/config"
-    "github.com/cloudwego/etcdhertz/pkg/common/hlog"
-    "github.com/etcdhertz-contrib/registry-etcdhertz/nacos"
+	"context"
+	"log"
+
+	nacos "github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz"
+	"github.com/cloudwego/hertz/pkg/app/client"
+	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
+	"github.com/cloudwego/hertz/pkg/common/config"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 func main() {
@@ -66,13 +70,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-    r, err := nacos.NewDefaultNacosResolver()
-    if err != nil {
-        log.Fatal(err)
-        return
-    }
-    client.Use(sd.Discovery(r))
-	// ...
+	r, err := nacos.NewDefaultNacosResolver()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	client.Use(sd.Discovery(r))
+	for i := 0; i < 10; i++ {
+		status, body, err := client.Get(context.Background(), nil, "http://hertz.test.demo/ping", config.WithSD(true))
+		if err != nil {
+			hlog.Fatal(err)
+		}
+		hlog.Infof("code=%d,body=%s\n", status, string(body))
+	}
 }
 ```
 
@@ -118,25 +128,27 @@ go run ./examples/standard/client/main.go
 **[example/custom_config/server/main.go](examples/custom_config/server/main.go)**
 
 ```go
+package main
+
 import (
-    "context"
-    
-    "github.com/cloudwego/etcdhertz/pkg/app"
-    "github.com/cloudwego/etcdhertz/pkg/app/server"
-    "github.com/cloudwego/etcdhertz/pkg/app/server/registry-etcdhertz"
-    "github.com/cloudwego/etcdhertz/pkg/common/utils"
-    "github.com/cloudwego/etcdhertz/pkg/protocol/consts"
-    "github.com/etcdhertz-contrib/registry-etcdhertz/nacos"
-    "github.com/nacos-group/nacos-sdk-go/clients"
-    "github.com/nacos-group/nacos-sdk-go/common/constant"
-    "github.com/nacos-group/nacos-sdk-go/vo"
+	"context"
+
+	nacos "github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/app/server/registry"
+	"github.com/cloudwego/hertz/pkg/common/utils"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/vo"
 )
 
 func main() {
 	sc := []constant.ServerConfig{
 		*constant.NewServerConfig("127.0.0.1", 8848),
 	}
-	
+
 	cc := constant.ClientConfig{
 		NamespaceId:         "public",
 		TimeoutMs:           5000,
@@ -145,8 +157,8 @@ func main() {
 		CacheDir:            "/tmp/nacos/cache",
 		LogLevel:            "info",
 	}
-	
-	nacosCli, err := clients.NewNamingClient(
+
+	cli, err := clients.NewNamingClient(
 		vo.NacosClientParam{
 			ClientConfig:  &cc,
 			ServerConfigs: sc,
@@ -155,19 +167,20 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	addr := "127.0.0.1:8888"
-	r := nacosRegistry.NewNacosRegistry(nacosCli)
+	r := nacos.NewNacosRegistry(cli)
 	h := server.Default(
 		server.WithHostPorts(addr),
 		server.WithRegistry(r, &registry.Info{
-			ServiceName: "etcdhertz.test.demo",
+			ServiceName: "hertz.test.demo",
 			Addr:        utils.NewNetAddr("tcp", addr),
 			Weight:      10,
 			Tags:        nil,
-		}),
-	)
-	// ...
+		}))
+	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
+		ctx.JSON(consts.StatusOK, utils.H{"ping": "pong"})
+	})
 	h.Spin()
 }
 
@@ -178,17 +191,20 @@ func main() {
 **[example/custom_config/client/main.go](examples/custom_config/client/main.go)**
 
 ```go
+package main
+
 import (
-    "context"
-    
-    "github.com/cloudwego/etcdhertz/pkg/app/client"
-    "github.com/cloudwego/etcdhertz/pkg/app/middlewares/client/sd"
-    "github.com/cloudwego/etcdhertz/pkg/common/config"
-    "github.com/cloudwego/etcdhertz/pkg/common/hlog"
-    "github.com/etcdhertz-contrib/registry-etcdhertz/nacos"
-    "github.com/nacos-group/nacos-sdk-go/clients"
-    "github.com/nacos-group/nacos-sdk-go/common/constant"
-    "github.com/nacos-group/nacos-sdk-go/vo"
+	"context"
+
+	nacos "github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz"
+
+	"github.com/cloudwego/hertz/pkg/app/client"
+	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
+	"github.com/cloudwego/hertz/pkg/common/config"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/vo"
 )
 
 func main() {
@@ -208,19 +224,24 @@ func main() {
 		LogLevel:            "info",
 	}
 
-    nacosCli, err := clients.NewNamingClient(
-        vo.NacosClientParam{
-        ClientConfig:  &cc,
-        ServerConfigs: sc,
-    })
-	
-    if err != nil {
+	nacosCli, err := clients.NewNamingClient(
+		vo.NacosClientParam{
+			ClientConfig:  &cc,
+			ServerConfigs: sc,
+		})
+	if err != nil {
 		panic(err)
-    }
-    r := nacos.NewNacosResolver(nacosCli)
-    cli.Use(sd.Discovery(r))
-      // ...
-} 
+	}
+	r := nacos.NewNacosResolver(nacosCli)
+	cli.Use(sd.Discovery(r))
+	for i := 0; i < 10; i++ {
+		status, body, err := cli.Get(context.Background(), nil, "http://hertz.test.demo/ping", config.WithSD(true))
+		if err != nil {
+			hlog.Fatal(err)
+		}
+		hlog.Infof("code=%d,body=%s", status, string(body))
+	}
+}
 
 ```
 

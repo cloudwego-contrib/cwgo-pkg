@@ -33,11 +33,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestZookeeperRegistryWithHertz Test zookeeper registry-hertz complete workflow(service registry-etcdhertz|service de-registry-etcdhertz|service resolver)with etcdhertz.
+// TestZookeeperRegistryWithHertz Test zookeeper registry-hertz complete workflow(service registry-hertz|service de-registry-hertz|service resolver)with hertz.
 func TestZookeeperRegistryWithHertz(t *testing.T) {
 	address := "127.0.0.1:8888"
 	r, _ := NewZookeeperRegistry([]string{"127.0.0.1:2181"}, 40*time.Second)
-	srvName := "etcdhertz.test.demo"
+	srvName := "hertz.test.demo"
 	h := server.Default(
 		server.WithHostPorts(address),
 		server.WithRegistry(r, &registry.Info{
@@ -68,7 +68,7 @@ func TestZookeeperRegistryWithHertz(t *testing.T) {
 	opt := h.GetOptions()
 	assert.Equal(t, opt.RegistryInfo.Weight, 10)
 	assert.Equal(t, opt.RegistryInfo.Addr.String(), "127.0.0.1:8888")
-	assert.Equal(t, opt.RegistryInfo.ServiceName, "etcdhertz.test.demo")
+	assert.Equal(t, opt.RegistryInfo.ServiceName, "hertz.test.demo")
 	assert.Nil(t, opt.RegistryInfo.Tags)
 
 	_ = h.Shutdown(context.Background())
@@ -80,7 +80,7 @@ func TestZookeeperRegistryWithHertz(t *testing.T) {
 	assert.Equal(t, "", string(body1))
 }
 
-// TestZookeeperDiscovery Test zookeeper registry-etcdhertz complete workflow(service registry-etcdhertz|service de-registry-etcdhertz|service resolver).
+// TestZookeeperDiscovery Test zookeeper registry-hertz complete workflow(service registry-hertz|service de-registry-hertz|service resolver).
 func TestZookeeperDiscovery(t *testing.T) {
 	// register
 	r, err := NewZookeeperRegistry([]string{"127.0.0.1:2181"}, 40*time.Second)
@@ -133,7 +133,7 @@ func TestZookeeperDiscovery(t *testing.T) {
 	assert.Equal(t, "product", result.CacheKey)
 }
 
-// TestZookeeperDiscoveryWithAuth Test zookeeper registry-etcdhertz with auth complete workflow(service registry-etcdhertz|service de-registry-etcdhertz|service resolver).
+// TestZookeeperDiscoveryWithAuth Test zookeeper registry-hertz with auth complete workflow(service registry-hertz|service de-registry-hertz|service resolver).
 func TestZookeeperDiscoveryWithAuth(t *testing.T) {
 	// register
 	r, err := NewZookeeperRegistryWithAuth([]string{"127.0.0.1:2181"}, 40*time.Second, "horizon", "horizon")

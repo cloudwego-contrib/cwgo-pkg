@@ -5,42 +5,42 @@ It can be used to solve the problem of service connection, fault tolerance, traf
 
 ## How to install registry-polaris?
 ```
-go get -u github.com/hertz-contrib/registry/polaris
+go get -u github.com/cloudwego-contrib/cwgo-pkg/registry/polaris
 ```
 
 ## How to use with Hertz server?
 
 ```go
+package main
+
 import (
 	"context"
 	"log"
 	"time"
 
-	"github.com/cloudwego/etcdhertz/pkg/app"
-	"github.com/cloudwego/etcdhertz/pkg/app/server"
-	"github.com/cloudwego/etcdhertz/pkg/app/server/registry-etcdhertz"
-	"github.com/cloudwego/etcdhertz/pkg/common/utils"
-	"github.com/cloudwego/etcdhertz/pkg/protocol/consts"
-	"github.com/etcdhertz-contrib/registry-etcdhertz/polaris"
+	polaris "github.com/cloudwego-contrib/cwgo-pkg/registry/polaris/polarishertz"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/app/server/registry"
+	"github.com/cloudwego/hertz/pkg/common/utils"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
 const (
-	confPath  = "polaris.yaml"
-	Namespace = "Polaris"
+	Namespace = "default"
 	// At present,polaris server tag is v1.4.0，can't support auto create namespace,
 	// If you want to use a namespace other than default,Polaris ,before you register an instance,
 	// you should create the namespace at polaris console first.
 )
 
 func main() {
-	r, err := polaris.NewPolarisRegistry(confPath)
-
+	r, err := polaris.NewPolarisRegistry()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	Info := &registry.Info{
-		ServiceName: "etcdhertz.test.demo",
+		ServiceName: "hertz.test.demo",
 		Addr:        utils.NewNetAddr("tcp", "127.0.0.1:8888"),
 		Tags: map[string]string{
 			"namespace": Namespace,
@@ -60,43 +60,49 @@ func main() {
 ## How to use with Hertz client?
 
 ```go
+package main
+
 import (
 	"context"
 	"log"
 
-	hclient "github.com/cloudwego/etcdhertz/pkg/app/client"
-	"github.com/cloudwego/etcdhertz/pkg/app/middlewares/client/sd"
-	"github.com/cloudwego/etcdhertz/pkg/common/config"
-	"github.com/cloudwego/etcdhertz/pkg/common/hlog"
-	"github.com/etcdhertz-contrib/registry-etcdhertz/polaris"
+	polaris "github.com/cloudwego-contrib/cwgo-pkg/registry/polaris/polarishertz"
+
+	hclient "github.com/cloudwego/hertz/pkg/app/client"
+	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
+	"github.com/cloudwego/hertz/pkg/common/config"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 const (
-	confPath  = "polaris.yaml"
-	Namespace = "Polaris"
+	Namespace = "default"
 	// At present,polaris server tag is v1.4.0，can't support auto create namespace,
 	// if you want to use a namespace other than default,Polaris ,before you register an instance,
 	// you should create the namespace at polaris console first.
 )
 
 func main() {
-	r, err := polaris.NewPolarisResolver(confPath)
+	r, err := polaris.NewPolarisResolver()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	client, err := hclient.NewClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	client.Use(sd.Discovery(r))
 
 	for i := 0; i < 10; i++ {
 		// config.WithTag sets the namespace tag for service discovery
-		status, body, err := client.Get(context.TODO(), nil, "http://etcdhertz.test.demo/hello", config.WithSD(true), config.WithTag("namespace", Namespace))
+		status, body, err := client.Get(context.TODO(), nil, "http://hertz.test.demo/hello", config.WithSD(true), config.WithTag("namespace", Namespace))
 		if err != nil {
 			hlog.Fatal(err)
 		}
 		hlog.Infof("code=%d,body=%s\n", status, body)
 	}
 }
+
 ```
 ## How to install polaris?
 Polaris support stand-alone and cluster. More information can be found in [install polaris](https://polarismesh.cn/zh/doc/%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/%E5%AE%89%E8%A3%85%E6%9C%8D%E5%8A%A1%E7%AB%AF/%E5%AE%89%E8%A3%85%E5%8D%95%E6%9C%BA%E7%89%88.html#%E5%8D%95%E6%9C%BA%E7%89%88%E5%AE%89%E8%A3%85)

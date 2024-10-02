@@ -24,7 +24,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	consulapi "github.com/hashicorp/consul/api"
-	"github.com/hertz-contrib/registry/consul"
+	consul "github.com/cloudwego-contrib/cwgo-pkg/registry/consul/hertzconsul"
 )
 
 func main() {
@@ -48,7 +48,7 @@ func main() {
 	h := server.Default(
 		server.WithHostPorts(addr),
 		server.WithRegistry(r, &registry.Info{
-			ServiceName: "etcdhertz.test.demo",
+			ServiceName: "hertz.test.demo",
 			Addr:        utils.NewNetAddr("tcp", addr),
 			Weight:      10,
 		}),
@@ -81,7 +81,7 @@ import (
 	"log"
 
 	consulapi "github.com/hashicorp/consul/api"
-	"github.com/hertz-contrib/registry/consul"
+	consul "github.com/cloudwego-contrib/cwgo-pkg/registry/consul/hertzconsul"
 )
 
 func main() {
@@ -125,7 +125,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
 	consulapi "github.com/hashicorp/consul/api"
-	"github.com/hertz-contrib/registry/consul"
+	consul "github.com/cloudwego-contrib/cwgo-pkg/registry/consul/hertzconsul"
 )
 
 func main() {
@@ -140,7 +140,7 @@ func main() {
 	// build a consul resolver with the consul client
 	r := consul.NewConsulResolver(consulClient)
 
-	// build a etcdhertz client with the consul resolver
+	// build a hertz client with the consul resolver
 	cli, err := client.NewClient()
 	if err != nil {
 		panic(err)
