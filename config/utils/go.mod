@@ -1,6 +1,6 @@
 module github.com/cloudwego-contrib/cwgo-pkg/config/utils
 
-go 1.21.13
+go 1.21
 
 require (
 	github.com/bytedance/sonic v1.12.2

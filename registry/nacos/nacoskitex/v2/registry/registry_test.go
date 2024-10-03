@@ -16,10 +16,11 @@ package registry
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoskitex/v2/example/hello/kitex_gen/api"
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoskitex/v2/example/hello/kitex_gen/api/hello"

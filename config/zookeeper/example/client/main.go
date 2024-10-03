@@ -15,9 +15,10 @@ package main
 
 import (
 	"context"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"log"
 	"time"
+
+	"github.com/cloudwego/kitex/pkg/klog"
 
 	zookeeperclient "github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/client"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/utils"

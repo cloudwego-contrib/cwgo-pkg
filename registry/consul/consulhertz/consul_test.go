@@ -17,11 +17,12 @@ package consulhertz
 import (
 	"context"
 	"fmt"
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 	"log"
 	"net"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/client"

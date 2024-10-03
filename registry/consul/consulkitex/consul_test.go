@@ -20,12 +20,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 	"log"
 	"net"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/internal"
 

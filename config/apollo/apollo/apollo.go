@@ -16,10 +16,11 @@ package apollo
 
 import (
 	"bytes"
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"runtime/debug"
 	"sync"
 	"text/template"
+
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/shima-park/agollo"

@@ -16,11 +16,12 @@ package nacos
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz/common"
 	"github.com/cloudwego/hertz/pkg/app/client/discovery"

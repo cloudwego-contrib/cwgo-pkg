@@ -15,8 +15,9 @@
 package server
 
 import (
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"sync/atomic"
+
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/limit"

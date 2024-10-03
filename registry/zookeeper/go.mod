@@ -2,7 +2,6 @@ module github.com/cloudwego-contrib/cwgo-pkg/registry/zookeeper
 
 go 1.21
 
-
 require (
 	github.com/cloudwego/hertz v0.9.2
 	github.com/go-zookeeper/zk v1.0.3

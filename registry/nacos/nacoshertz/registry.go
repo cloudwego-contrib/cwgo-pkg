@@ -16,9 +16,10 @@ package nacos
 
 import (
 	"fmt"
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"strconv"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz/common"
 	"github.com/cloudwego/hertz/pkg/app/server/registry"

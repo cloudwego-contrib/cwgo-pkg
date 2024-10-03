@@ -15,9 +15,10 @@
 package utils
 
 import (
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"sort"
 	"testing"
+
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 
 	"github.com/stretchr/testify/assert"
 )

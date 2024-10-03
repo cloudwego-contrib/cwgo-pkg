@@ -17,9 +17,10 @@ package registry
 import (
 	"errors"
 	"fmt"
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"strconv"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoskitex/nacos"
 	"github.com/cloudwego/kitex/pkg/registry"

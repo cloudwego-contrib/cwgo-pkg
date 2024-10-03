@@ -16,11 +16,12 @@ package resolver
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 
 	nacosregistry "github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoskitex/v2/registry"
 	"github.com/cloudwego/kitex/pkg/discovery"

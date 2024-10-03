@@ -17,11 +17,12 @@ package etcd
 import (
 	"bytes"
 	"context"
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"strconv"
 	"sync"
 	"text/template"
 	"time"
+
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 
 	"go.etcd.io/etcd/api/v3/mvccpb"
 

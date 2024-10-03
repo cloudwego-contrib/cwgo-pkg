@@ -17,6 +17,7 @@ package resolver
 import (
 	"context"
 	"fmt"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoskitex/nacos"

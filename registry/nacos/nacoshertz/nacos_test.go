@@ -16,10 +16,11 @@ package nacos
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/client"

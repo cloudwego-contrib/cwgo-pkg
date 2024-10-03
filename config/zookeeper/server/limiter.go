@@ -16,8 +16,9 @@ package server
 
 import (
 	"context"
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"sync/atomic"
+
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/utils"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/zookeeper"

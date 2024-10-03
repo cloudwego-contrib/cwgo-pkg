@@ -19,6 +19,7 @@ package consul
 import (
 	"errors"
 	"fmt"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/internal"

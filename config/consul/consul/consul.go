@@ -17,11 +17,12 @@ package consul
 import (
 	"bytes"
 	"context"
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"html/template"
 	"strconv"
 	"sync"
 	"time"
+
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/hashicorp/consul/api"

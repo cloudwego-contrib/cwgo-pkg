@@ -15,10 +15,11 @@
 package registry
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 	"net"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoskitex/nacos"
 	"github.com/cloudwego/kitex/pkg/registry"

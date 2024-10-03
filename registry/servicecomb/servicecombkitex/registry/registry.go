@@ -18,10 +18,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/options"
 	"net"
 	"sync"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/servicecombkitex/servicecomb"
 	"github.com/cloudwego/kitex/pkg/klog"

@@ -15,8 +15,9 @@
 package client
 
 import (
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"strings"
+
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/apollo"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/utils"
