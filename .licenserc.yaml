@@ -7,6 +7,5 @@ header:
     - '**/*.go'
     - '**/*.s'
   paths-ignore:
-    - example/hello/**
-    - v2/example/hello/**
+    - registry/**/kitex_gen/**
   comment: on-failure
