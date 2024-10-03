@@ -22,7 +22,7 @@ import (
 	"testing"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
-	cwslog "github.com/cloudwego-contrib/cwgo-pkg/logging/slog"
+	cwslog "github.com/cloudwego-contrib/cwgo-pkg/log/logging/slog"
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"

@@ -1,4 +1,4 @@
-module github.com/cloudwego-contrib/cwgo-pkg/logging/zerolog
+module github.com/cloudwego-contrib/cwgo-pkg/log/logging/zerolog
 
 go 1.21
 

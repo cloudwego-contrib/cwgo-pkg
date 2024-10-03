@@ -20,7 +20,7 @@ import (
 
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
-	cwlogrus "github.com/cloudwego-contrib/cwgo-pkg/logging/logrus"
+	cwlogrus "github.com/cloudwego-contrib/cwgo-pkg/log/logging/logrus"
 
 	"github.com/sirupsen/logrus"
 )

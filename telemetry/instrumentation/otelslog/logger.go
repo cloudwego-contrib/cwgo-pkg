@@ -19,7 +19,7 @@ import (
 	"log/slog"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
-	cwslog "github.com/cloudwego-contrib/cwgo-pkg/logging/slog"
+	cwslog "github.com/cloudwego-contrib/cwgo-pkg/log/logging/slog"
 )
 
 const (

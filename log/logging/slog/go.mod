@@ -1,4 +1,4 @@
-module github.com/cloudwego-contrib/cwgo-pkg/logging/slog
+module github.com/cloudwego-contrib/cwgo-pkg/log/logging/slog
 
 go 1.21
 

@@ -1,4 +1,4 @@
-module github.com/cloudwego-contrib/cwgo-pkg/logging/zap
+module github.com/cloudwego-contrib/cwgo-pkg/log/logging/zap
 
 go 1.21
 

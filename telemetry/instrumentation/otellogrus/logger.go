@@ -15,7 +15,7 @@
 package otellogrus
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/logging/logrus"
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging/logrus"
 )
 
 // Logger an alias to github.com/otelhertz-contrib/logger/otellogrus Logger
