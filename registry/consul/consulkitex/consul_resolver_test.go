@@ -47,7 +47,7 @@ func TestSplitTags(t *testing.T) {
 			want: map[string]string{"k1": "", "k2": "v2"},
 		},
 		{
-			name: "Tags char splited,two elements be handled correctly",
+			name: "Tags char split,two elements be handled correctly",
 			args: args{
 				tags: []string{"k1:v1:vv1", "k2:v2"},
 			},
