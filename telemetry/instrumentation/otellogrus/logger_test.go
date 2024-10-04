@@ -18,8 +18,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/otellogrus"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"

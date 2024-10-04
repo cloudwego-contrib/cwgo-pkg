@@ -17,7 +17,7 @@ package otelzap
 import (
 	"testing"
 
-	cwzap "github.com/cloudwego-contrib/cwgo-pkg/log/logging/zap"
+	cwzap "github.com/cloudwego-contrib/cwgo-pkg/logging/zap"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -67,7 +67,7 @@ func TestLogger(t *testing.T) {
 	logging.SetOutput(buf)
 	logging.SetLevel(logging.LevelDebug)
 
-	logger.Info("log from origin otelzap")
+	logging.Info("log from origin otelzap")
 	assert.Contains(t, buf.String(), "log from origin otelzap")
 	buf.Reset()
 
@@ -120,11 +120,12 @@ func TestLogLevel(t *testing.T) {
 	// output to buffer
 	logger.SetOutput(buf)
 
-	logger.Debug("this is a debug log")
+	logging.SetLogger(logger)
+	logging.Debug("this is a debug log")
 	assert.NotContains(t, buf.String(), "this is a debug log")
 
 	logger.SetLevel(logging.LevelDebug)
 
-	logger.Debugf("this is a debug log %s", "msg")
+	logging.Debugf("this is a debug log %s", "msg")
 	assert.Contains(t, buf.String(), "this is a debug log")
 }

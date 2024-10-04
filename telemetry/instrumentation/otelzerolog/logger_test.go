@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	logging "github.com/cloudwego-contrib/cwgo-pkg/log/logging"
-	cwzerolog "github.com/cloudwego-contrib/cwgo-pkg/log/logging/zerolog"
+	cwzerolog "github.com/cloudwego-contrib/cwgo-pkg/logging/zerolog"
 
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
