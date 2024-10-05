@@ -44,8 +44,8 @@ func SetLevel(lv Level) {
 }
 
 // DefaultLogger return the default logger for Tracing.
-func DefaultLogger() FullLogger {
-	return logger
+func DefaultLogger() Cwlog {
+	return *logger
 }
 
 // SetLogger sets the default logger.
@@ -53,10 +53,6 @@ func DefaultLogger() FullLogger {
 // after the use of DefaultLogger and global functions in this package.
 func SetLogger(v NewLogger) {
 	logger.SetLogger(v)
-}
-
-func SetCWLogger(c Cwlog) {
-	logger = &c
 }
 
 // Fatal calls the default logger's Fatal method and then os.Exit(1).
