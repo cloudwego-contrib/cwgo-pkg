@@ -112,7 +112,6 @@ func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwField
 	} else {
 		l.l.Log(context.TODO(), lvl, msg)
 	}
-
 }
 
 func convertToSlogFields(fields ...logging.CwField) []any {

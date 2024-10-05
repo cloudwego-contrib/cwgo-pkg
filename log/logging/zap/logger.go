@@ -111,6 +111,7 @@ func convertToZapFields(fields ...logging.CwField) []zap.Field {
 	}
 	return zapFields
 }
+
 func NewLogger(opts ...Option) *Logger {
 	config := defaultConfig()
 

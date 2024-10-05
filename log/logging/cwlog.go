@@ -24,7 +24,7 @@ import (
 
 type CwLog struct {
 	logger NewLogger
-	prefix []CwField //global value
+	prefix []CwField // global value
 }
 
 func (ll *CwLog) SetLogger(logger NewLogger) {

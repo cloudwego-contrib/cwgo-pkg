@@ -25,7 +25,7 @@ import (
 )
 
 var logger = &CwLog{
-	logger: defaultLogger{
+	logger: &defaultLogger{
 		level:  LevelInfo,
 		stdlog: log.New(os.Stderr, "", log.LstdFlags|log.Lshortfile|log.Lmicroseconds),
 	},
@@ -159,6 +159,7 @@ func CtxDebugf(ctx context.Context, format string, v ...interface{}) {
 func CtxTracef(ctx context.Context, format string, v ...interface{}) {
 	logger.CtxTracef(ctx, format, v...)
 }
+
 func Fatalw(msg string, fields ...CwField) {
 	logger.Fatalw(msg, fields...)
 }
@@ -200,7 +201,7 @@ type defaultLogger struct {
 	level  Level
 }
 
-func (d defaultLogger) CtxLog(level Level, ctx context.Context, msg string, fields ...CwField) {
+func (d *defaultLogger) CtxLog(level Level, ctx context.Context, msg string, fields ...CwField) {
 	if d.level > level {
 		return
 	}
@@ -220,7 +221,7 @@ func (d defaultLogger) CtxLog(level Level, ctx context.Context, msg string, fiel
 	}
 }
 
-func (d defaultLogger) Logw(level Level, msg string, fields ...CwField) {
+func (d *defaultLogger) Logw(level Level, msg string, fields ...CwField) {
 	if d.level > level {
 		return
 	}
@@ -238,13 +239,12 @@ func (d defaultLogger) Logw(level Level, msg string, fields ...CwField) {
 	if level == LevelFatal {
 		os.Exit(1)
 	}
-
 }
 
-func (d defaultLogger) SetLevel(level Level) {
+func (d *defaultLogger) SetLevel(level Level) {
 	d.level = level
 }
 
-func (d defaultLogger) SetOutput(writer io.Writer) {
+func (d *defaultLogger) SetOutput(writer io.Writer) {
 	d.stdlog.SetOutput(writer)
 }

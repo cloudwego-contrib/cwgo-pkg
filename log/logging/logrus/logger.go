@@ -58,7 +58,6 @@ type Logger struct {
 }
 
 func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwField) {
-
 	var lv logrus.Level
 
 	switch level {
@@ -88,7 +87,6 @@ func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fi
 }
 
 func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwField) {
-
 	var lv logrus.Level
 
 	switch level {
