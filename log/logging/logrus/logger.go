@@ -57,7 +57,7 @@ type Logger struct {
 	l *logrus.Logger
 }
 
-func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwFeild) {
+func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwField) {
 
 	var lv logrus.Level
 
@@ -87,7 +87,7 @@ func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fi
 	}
 }
 
-func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwFeild) {
+func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwField) {
 
 	var lv logrus.Level
 
@@ -117,7 +117,7 @@ func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwFeild
 	}
 }
 
-func convertToLogrusFields(fields ...logging.CwFeild) logrus.Fields {
+func convertToLogrusFields(fields ...logging.CwField) logrus.Fields {
 	logrusFields := make(logrus.Fields)
 	for _, field := range fields {
 		logrusFields[field.Key] = field.Value

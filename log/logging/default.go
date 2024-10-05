@@ -24,7 +24,7 @@ import (
 	"os"
 )
 
-var logger = &Cwlog{
+var logger = &CwLog{
 	logger: defaultLogger{
 		level:  LevelInfo,
 		stdlog: log.New(os.Stderr, "", log.LstdFlags|log.Lshortfile|log.Lmicroseconds),
@@ -44,8 +44,8 @@ func SetLevel(lv Level) {
 }
 
 // DefaultLogger return the default logger for Tracing.
-func DefaultLogger() Cwlog {
-	return *logger
+func DefaultLogger() NewLogger {
+	return logger.logger
 }
 
 // SetLogger sets the default logger.
@@ -159,35 +159,35 @@ func CtxDebugf(ctx context.Context, format string, v ...interface{}) {
 func CtxTracef(ctx context.Context, format string, v ...interface{}) {
 	logger.CtxTracef(ctx, format, v...)
 }
-func Fatalw(msg string, fields ...CwFeild) {
+func Fatalw(msg string, fields ...CwField) {
 	logger.Fatalw(msg, fields...)
 }
 
-func Errorw(msg string, fields ...CwFeild) {
+func Errorw(msg string, fields ...CwField) {
 	logger.Errorw(msg, fields...)
 }
 
-func Warnw(msg string, fields ...CwFeild) {
+func Warnw(msg string, fields ...CwField) {
 	logger.Warnw(msg, fields...)
 }
 
-func Noticew(msg string, fields ...CwFeild) {
+func Noticew(msg string, fields ...CwField) {
 	logger.Noticew(msg, fields...)
 }
 
-func Infow(msg string, fields ...CwFeild) {
+func Infow(msg string, fields ...CwField) {
 	logger.Infow(msg, fields...)
 }
 
-func Debugw(msg string, fields ...CwFeild) {
+func Debugw(msg string, fields ...CwField) {
 	logger.Debugw(msg, fields...)
 }
 
-func Tracew(msg string, fields ...CwFeild) {
+func Tracew(msg string, fields ...CwField) {
 	logger.Tracew(msg, fields...)
 }
 
-func With(fields ...CwFeild) {
+func With(fields ...CwField) {
 	logger.WithValue(fields...)
 }
 
@@ -200,7 +200,7 @@ type defaultLogger struct {
 	level  Level
 }
 
-func (d defaultLogger) CtxLog(level Level, ctx context.Context, msg string, fields ...CwFeild) {
+func (d defaultLogger) CtxLog(level Level, ctx context.Context, msg string, fields ...CwField) {
 	if d.level > level {
 		return
 	}
@@ -220,7 +220,7 @@ func (d defaultLogger) CtxLog(level Level, ctx context.Context, msg string, fiel
 	}
 }
 
-func (d defaultLogger) Logw(level Level, msg string, fields ...CwFeild) {
+func (d defaultLogger) Logw(level Level, msg string, fields ...CwField) {
 	if d.level > level {
 		return
 	}

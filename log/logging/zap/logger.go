@@ -31,7 +31,7 @@ type Logger struct {
 	config *config
 }
 
-func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwFeild) {
+func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwField) {
 	zLevel := LevelToZapLevel(level)
 	if !l.config.coreConfigs[0].Lvl.Enabled(zLevel) {
 		return
@@ -77,7 +77,7 @@ func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fi
 	}
 }
 
-func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwFeild) {
+func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwField) {
 	zapLogger := l.l
 	if len(fields) > 0 {
 		zapLogger = zapLogger.With(convertToZapFields(fields...)...)
@@ -104,7 +104,7 @@ func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwFeild
 	}
 }
 
-func convertToZapFields(fields ...logging.CwFeild) []zap.Field {
+func convertToZapFields(fields ...logging.CwField) []zap.Field {
 	zapFields := make([]zap.Field, len(fields))
 	for i, field := range fields {
 		zapFields[i] = zap.Any(field.Key, field.Value) // 你可以根据实际类型选择合适的 zap.Field 方法

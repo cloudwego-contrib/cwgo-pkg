@@ -19,7 +19,7 @@ package logging
 import "context"
 
 type NewLogger interface {
-	CtxLog(level Level, ctx context.Context, msg string, fields ...CwFeild)
-	Logw(level Level, msg string, fields ...CwFeild)
+	CtxLog(level Level, ctx context.Context, msg string, fields ...CwField)
+	Logw(level Level, msg string, fields ...CwField)
 	Control
 }

@@ -16,7 +16,7 @@
 
 package logging
 
-type CwFeild struct {
+type CwField struct {
 	Key   string
 	Value any
 }

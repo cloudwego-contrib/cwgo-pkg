@@ -61,7 +61,7 @@ func NewLogger(opts ...Option) *Logger {
 	}
 }
 
-func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwFeild) {
+func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwField) {
 	var zlevel zapcore.Level
 	span := trace.SpanFromContext(ctx)
 

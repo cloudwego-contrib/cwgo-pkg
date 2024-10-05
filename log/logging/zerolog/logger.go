@@ -38,7 +38,7 @@ type Logger struct {
 	options []Opt
 }
 
-func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwFeild) {
+func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwField) {
 	var event *zerolog.Event
 
 	switch level {
@@ -61,7 +61,7 @@ func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fi
 	event.Ctx(ctx).Msg(msg)
 }
 
-func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwFeild) {
+func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwField) {
 	var event *zerolog.Event
 
 	switch level {

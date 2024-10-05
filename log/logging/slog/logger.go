@@ -96,7 +96,7 @@ type Logger struct {
 	cfg *config
 }
 
-func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwFeild) {
+func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwField) {
 	lvl := tranSLevel(level)
 	if len(fields) >= 0 {
 		l.l.Log(ctx, lvl, msg, convertToSlogFields(fields...)...)
@@ -105,7 +105,7 @@ func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fi
 	}
 }
 
-func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwFeild) {
+func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwField) {
 	lvl := tranSLevel(level)
 	if len(fields) >= 0 {
 		l.l.Log(context.TODO(), lvl, msg, convertToSlogFields(fields...)...)
@@ -115,7 +115,7 @@ func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwFeild
 
 }
 
-func convertToSlogFields(fields ...logging.CwFeild) []any {
+func convertToSlogFields(fields ...logging.CwField) []any {
 	var result []any
 	for _, field := range fields {
 		result = append(result, field.Key, field.Value)

@@ -22,165 +22,165 @@ import (
 	"io"
 )
 
-type Cwlog struct {
+type CwLog struct {
 	logger NewLogger
-	prefix []CwFeild //global value
+	prefix []CwField //global value
 }
 
-func (ll *Cwlog) SetLogger(logger NewLogger) {
+func (ll *CwLog) SetLogger(logger NewLogger) {
 	ll.logger = logger
 }
 
-func (ll *Cwlog) WithValue(fields ...CwFeild) {
+func (ll *CwLog) WithValue(fields ...CwField) {
 	ll.prefix = append(ll.prefix, fields...)
 }
 
-func (ll *Cwlog) ResetValue() {
-	ll.prefix = make([]CwFeild, 0)
+func (ll *CwLog) ResetValue() {
+	ll.prefix = make([]CwField, 0)
 }
 
-func (ll *Cwlog) SetOutput(w io.Writer) {
+func (ll *CwLog) SetOutput(w io.Writer) {
 	ll.logger.SetOutput(w)
 }
 
-func (ll *Cwlog) SetLevel(lv Level) {
+func (ll *CwLog) SetLevel(lv Level) {
 	ll.logger.SetLevel(lv)
 }
 
-func (ll *Cwlog) Fatal(v ...interface{}) {
+func (ll *CwLog) Fatal(v ...interface{}) {
 	ll.logger.Logw(LevelFatal, fmt.Sprint(v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Error(v ...interface{}) {
+func (ll *CwLog) Error(v ...interface{}) {
 	ll.logger.Logw(LevelError, fmt.Sprint(v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Warn(v ...interface{}) {
+func (ll *CwLog) Warn(v ...interface{}) {
 	ll.logger.Logw(LevelWarn, fmt.Sprint(v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Notice(v ...interface{}) {
+func (ll *CwLog) Notice(v ...interface{}) {
 	ll.logger.Logw(LevelNotice, fmt.Sprint(v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Info(v ...interface{}) {
+func (ll *CwLog) Info(v ...interface{}) {
 	ll.logger.Logw(LevelInfo, fmt.Sprint(v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Debug(v ...interface{}) {
+func (ll *CwLog) Debug(v ...interface{}) {
 	ll.logger.Logw(LevelDebug, fmt.Sprint(v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Trace(v ...interface{}) {
+func (ll *CwLog) Trace(v ...interface{}) {
 	ll.logger.Logw(LevelTrace, fmt.Sprint(v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Fatalf(format string, v ...interface{}) {
+func (ll *CwLog) Fatalf(format string, v ...interface{}) {
 	ll.logger.Logw(LevelFatal, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Errorf(format string, v ...interface{}) {
+func (ll *CwLog) Errorf(format string, v ...interface{}) {
 	ll.logger.Logw(LevelError, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Warnf(format string, v ...interface{}) {
+func (ll *CwLog) Warnf(format string, v ...interface{}) {
 	ll.logger.Logw(LevelWarn, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Noticef(format string, v ...interface{}) {
+func (ll *CwLog) Noticef(format string, v ...interface{}) {
 	ll.logger.Logw(LevelNotice, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Infof(format string, v ...interface{}) {
+func (ll *CwLog) Infof(format string, v ...interface{}) {
 	ll.logger.Logw(LevelInfo, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Debugf(format string, v ...interface{}) {
+func (ll *CwLog) Debugf(format string, v ...interface{}) {
 	ll.logger.Logw(LevelDebug, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Tracef(format string, v ...interface{}) {
+func (ll *CwLog) Tracef(format string, v ...interface{}) {
 	ll.logger.Logw(LevelTrace, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) CtxFatalf(ctx context.Context, format string, v ...interface{}) {
+func (ll *CwLog) CtxFatalf(ctx context.Context, format string, v ...interface{}) {
 	ll.logger.CtxLog(LevelFatal, ctx, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) CtxErrorf(ctx context.Context, format string, v ...interface{}) {
+func (ll *CwLog) CtxErrorf(ctx context.Context, format string, v ...interface{}) {
 	ll.logger.CtxLog(LevelError, ctx, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) CtxWarnf(ctx context.Context, format string, v ...interface{}) {
+func (ll *CwLog) CtxWarnf(ctx context.Context, format string, v ...interface{}) {
 	ll.logger.CtxLog(LevelWarn, ctx, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) CtxNoticef(ctx context.Context, format string, v ...interface{}) {
+func (ll *CwLog) CtxNoticef(ctx context.Context, format string, v ...interface{}) {
 	ll.logger.CtxLog(LevelNotice, ctx, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) CtxInfof(ctx context.Context, format string, v ...interface{}) {
+func (ll *CwLog) CtxInfof(ctx context.Context, format string, v ...interface{}) {
 	ll.logger.CtxLog(LevelInfo, ctx, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) CtxDebugf(ctx context.Context, format string, v ...interface{}) {
+func (ll *CwLog) CtxDebugf(ctx context.Context, format string, v ...interface{}) {
 	ll.logger.CtxLog(LevelDebug, ctx, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) CtxTracef(ctx context.Context, format string, v ...interface{}) {
+func (ll *CwLog) CtxTracef(ctx context.Context, format string, v ...interface{}) {
 	ll.logger.CtxLog(LevelTrace, ctx, fmt.Sprintf(format, v...), ll.prefix...)
 }
 
-func (ll *Cwlog) Fatalw(msg string, fields ...CwFeild) {
-	kvs := make([]CwFeild, 0, len(ll.prefix)+len(fields))
+func (ll *CwLog) Fatalw(msg string, fields ...CwField) {
+	kvs := make([]CwField, 0, len(ll.prefix)+len(fields))
 
 	kvs = append(kvs, ll.prefix...)
 	kvs = append(kvs, fields...)
 	ll.logger.Logw(LevelFatal, msg, kvs...)
 }
 
-func (ll *Cwlog) Errorw(msg string, fields ...CwFeild) {
-	kvs := make([]CwFeild, 0, len(ll.prefix)+len(fields))
+func (ll *CwLog) Errorw(msg string, fields ...CwField) {
+	kvs := make([]CwField, 0, len(ll.prefix)+len(fields))
 
 	kvs = append(kvs, ll.prefix...)
 	kvs = append(kvs, fields...)
 	ll.logger.Logw(LevelError, msg, kvs...)
 }
 
-func (ll *Cwlog) Warnw(msg string, fields ...CwFeild) {
-	kvs := make([]CwFeild, 0, len(ll.prefix)+len(fields))
+func (ll *CwLog) Warnw(msg string, fields ...CwField) {
+	kvs := make([]CwField, 0, len(ll.prefix)+len(fields))
 
 	kvs = append(kvs, ll.prefix...)
 	kvs = append(kvs, fields...)
 	ll.logger.Logw(LevelWarn, msg, kvs...)
 }
 
-func (ll *Cwlog) Noticew(msg string, fields ...CwFeild) {
-	kvs := make([]CwFeild, 0, len(ll.prefix)+len(fields))
+func (ll *CwLog) Noticew(msg string, fields ...CwField) {
+	kvs := make([]CwField, 0, len(ll.prefix)+len(fields))
 
 	kvs = append(kvs, ll.prefix...)
 	kvs = append(kvs, fields...)
 	ll.logger.Logw(LevelNotice, msg, kvs...)
 }
 
-func (ll *Cwlog) Infow(msg string, fields ...CwFeild) {
-	kvs := make([]CwFeild, 0, len(ll.prefix)+len(fields))
+func (ll *CwLog) Infow(msg string, fields ...CwField) {
+	kvs := make([]CwField, 0, len(ll.prefix)+len(fields))
 
 	kvs = append(kvs, ll.prefix...)
 	kvs = append(kvs, fields...)
 	ll.logger.Logw(LevelInfo, msg, kvs...)
 }
 
-func (ll *Cwlog) Debugw(msg string, fields ...CwFeild) {
-	kvs := make([]CwFeild, 0, len(ll.prefix)+len(fields))
+func (ll *CwLog) Debugw(msg string, fields ...CwField) {
+	kvs := make([]CwField, 0, len(ll.prefix)+len(fields))
 
 	kvs = append(kvs, ll.prefix...)
 	kvs = append(kvs, fields...)
 	ll.logger.Logw(LevelDebug, msg, kvs...)
 }
 
-func (ll *Cwlog) Tracew(msg string, fields ...CwFeild) {
-	kvs := make([]CwFeild, 0, len(ll.prefix)+len(fields))
+func (ll *CwLog) Tracew(msg string, fields ...CwField) {
+	kvs := make([]CwField, 0, len(ll.prefix)+len(fields))
 
 	kvs = append(kvs, ll.prefix...)
 	kvs = append(kvs, fields...)
