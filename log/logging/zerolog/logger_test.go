@@ -341,7 +341,6 @@ func TestWithFeild(t *testing.T) {
 `,
 		b.String(),
 	)
-
 }
 
 func TestGlobalFeild(t *testing.T) {

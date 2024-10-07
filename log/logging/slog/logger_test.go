@@ -205,7 +205,6 @@ func TestWithFeild(t *testing.T) {
 
 	logging.Infow("test", logging.CwField{"test", 111})
 	assert.Contains(t, b.String(), `"test":111`)
-
 }
 
 func TestGlobalFeild(t *testing.T) {
