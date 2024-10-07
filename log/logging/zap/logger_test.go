@@ -180,23 +180,23 @@ func TestLogLevel(t *testing.T) {
 
 	// output to buffer
 	logger.SetOutput(buf)
-
-	logger.Debug("this is a debug log")
+	logging.SetLogger(logger)
+	logging.Debug("this is a debug log")
 	assert.False(t, strings.Contains(buf.String(), "this is a debug log"))
 
 	logger.SetLevel(logging.LevelDebug)
 
-	logger.Debugf("this is a debug log %s", "msg")
+	logging.Debugf("this is a debug log %s", "msg")
 	assert.True(t, strings.Contains(buf.String(), "this is a debug log"))
 
 	logger.SetLevel(logging.LevelError)
-	logger.Infof("this is a debug log %s", "msg")
+	logging.Infof("this is a debug log %s", "msg")
 	assert.False(t, strings.Contains(buf.String(), "this is a info log"))
 
-	logger.Warnf("this is a warn log %s", "msg")
+	logging.Warnf("this is a warn log %s", "msg")
 	assert.False(t, strings.Contains(buf.String(), "this is a warn log"))
 
-	logger.Error("this is a error log %s", "msg")
+	logging.Errorf("this is a error log %s", "msg")
 	assert.True(t, strings.Contains(buf.String(), "this is a error log"))
 }
 
@@ -208,8 +208,8 @@ func TestWithCoreEnc(t *testing.T) {
 
 	// output to buffer
 	logger.SetOutput(buf)
-
-	logger.Infof("this is a info log %s", "msg")
+	logging.SetLogger(logger)
+	logging.Infof("this is a info log %s", "msg")
 	assert.True(t, strings.Contains(buf.String(), "this is a info log"))
 }
 
@@ -218,8 +218,8 @@ func TestWithCoreWs(t *testing.T) {
 
 	logger := NewLogger(WithCoreWs(zapcore.AddSync(buf)))
 	defer logger.Sync()
-
-	logger.Infof("this is a info log %s", "msg")
+	logging.SetLogger(logger)
+	logging.Infof("this is a info log %s", "msg")
 	assert.True(t, strings.Contains(buf.String(), "this is a info log"))
 }
 
@@ -231,11 +231,11 @@ func TestWithCoreLevel(t *testing.T) {
 
 	// output to buffer
 	logger.SetOutput(buf)
-
-	logger.Infof("this is a info log %s", "msg")
+	logging.SetLogger(logger)
+	logging.Infof("this is a info log %s", "msg")
 	assert.False(t, strings.Contains(buf.String(), "this is a info log"))
 
-	logger.Warnf("this is a warn log %s", "msg")
+	logging.Warnf("this is a warn log %s", "msg")
 	assert.True(t, strings.Contains(buf.String(), "this is a warn log"))
 }
 
@@ -293,18 +293,19 @@ func TestCoreOption(t *testing.T) {
 
 	logger.SetOutput(buf)
 
-	logger.Debug("this is a debug log")
+	logging.SetLogger(logger)
+	logging.Debug("this is a debug log")
 	// test log level
 	assert.False(t, strings.Contains(buf.String(), "this is a debug log"))
 
-	logger.Error("this is a warn log")
+	logging.Error("this is a warn log")
 	// test log level
 	assert.True(t, strings.Contains(buf.String(), "this is a warn log"))
 	// test console encoder result
 	assert.True(t, strings.Contains(buf.String(), "\tERROR\t"))
 
 	logger.SetLevel(logging.LevelDebug)
-	logger.Debug("this is a debug log")
+	logging.Debug("this is a debug log")
 	assert.True(t, strings.Contains(buf.String(), "this is a debug log"))
 }
 
@@ -319,10 +320,11 @@ func TestZapOption(t *testing.T) {
 
 	logger.SetOutput(buf)
 
-	logger.Debug("this is a debug log")
+	logging.SetLogger(logger)
+	logging.Debug("this is a debug log")
 	assert.False(t, strings.Contains(buf.String(), "this is a debug log"))
 
-	logger.Error("this is a warn log")
+	logging.Error("this is a warn log")
 	// test caller in log result
 	assert.True(t, strings.Contains(buf.String(), "caller"))
 }
@@ -336,7 +338,8 @@ func TestWithExtraKeys(t *testing.T) {
 
 	ctx := context.WithValue(context.Background(), ExtraKey("requestId"), "123")
 
-	log.CtxInfof(ctx, "%s log", "extra")
+	logging.SetLogger(log)
+	logging.CtxInfof(ctx, "%s log", "extra")
 
 	var logStructMap map[string]interface{}
 
@@ -367,23 +370,25 @@ func TestExtraKeyAsStr(t *testing.T) {
 	logger := NewLogger(WithExtraKeys([]ExtraKey{"abc"}))
 
 	logger.SetOutput(buf)
+	logging.SetLogger(logger)
 
 	ctx1 := context.TODO()
 	ctx1 = context.WithValue(ctx1, "key1", v) //nolint:staticcheck
-	logger.CtxErrorf(ctx1, "%s", "error")
+	logging.CtxErrorf(ctx1, "%s", "error")
 
 	assert.NotContains(t, buf.String(), v)
 
 	buf.Reset()
 
 	strLogger := NewLogger(WithExtraKeys([]ExtraKey{"abc"}), WithExtraKeyAsStr())
+	logging.SetLogger(strLogger)
 
 	strLogger.SetOutput(buf)
 
 	ctx2 := context.TODO()
 	ctx2 = context.WithValue(ctx2, "key2", v) //nolint:staticcheck
 
-	strLogger.CtxErrorf(ctx2, "key2", v)
+	logging.CtxErrorf(ctx2, "key2 %s", v)
 
 	assert.Contains(t, buf.String(), v)
 
@@ -394,9 +399,10 @@ func BenchmarkNormal(b *testing.B) {
 	buf := new(bytes.Buffer)
 	log := NewLogger()
 	log.SetOutput(buf)
+	logging.SetLogger(log)
 	ctx := context.Background()
 	for i := 0; i < b.N; i++ {
-		log.CtxInfof(ctx, "normal log")
+		logging.CtxInfof(ctx, "normal log")
 	}
 }
 
@@ -404,8 +410,32 @@ func BenchmarkWithExtraKeys(b *testing.B) {
 	buf := new(bytes.Buffer)
 	log := NewLogger(WithExtraKeys([]ExtraKey{"requestId"}))
 	log.SetOutput(buf)
+	logging.SetLogger(log)
 	ctx := context.WithValue(context.Background(), ExtraKey("requestId"), "123")
 	for i := 0; i < b.N; i++ {
-		log.CtxInfof(ctx, "normal log")
+		logging.CtxInfof(ctx, "normal log")
 	}
+}
+
+func TestWithFeild(t *testing.T) {
+	b := &bytes.Buffer{}
+
+	logger := NewLogger()
+	logger.SetOutput(b)
+	logging.SetLogger(logger)
+
+	logging.Infow("test", logging.CwField{"test", 111})
+	assert.Contains(t, b.String(), `"test":111`)
+
+}
+
+func TestGlobalFeild(t *testing.T) {
+	b := &bytes.Buffer{}
+	logger := NewLogger()
+	logger.SetOutput(b)
+	logging.SetLogger(logger)
+
+	logging.With(logging.CwField{"test", 2222})
+	logging.Info("test")
+	assert.Contains(t, b.String(), `"test":2222`)
 }

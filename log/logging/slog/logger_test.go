@@ -196,3 +196,25 @@ func TestWithOutput(t *testing.T) {
 	logging.CtxErrorf(context.TODO(), errorMsg)
 	assert.Contains(t, buf.String(), errorMsg)
 }
+
+func TestWithFeild(t *testing.T) {
+	b := &bytes.Buffer{}
+	logger := NewLogger(WithOutput(b))
+
+	logging.SetLogger(logger)
+
+	logging.Infow("test", logging.CwField{"test", 111})
+	assert.Contains(t, b.String(), `"test":111`)
+
+}
+
+func TestGlobalFeild(t *testing.T) {
+	b := &bytes.Buffer{}
+	logger := NewLogger(WithOutput(b))
+
+	logging.SetLogger(logger)
+
+	logging.With(logging.CwField{"test", 2222})
+	logging.Info("test")
+	assert.Contains(t, b.String(), `"test":2222`)
+}

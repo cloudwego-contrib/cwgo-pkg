@@ -61,7 +61,7 @@ func NewLogger(opts ...Option) *Logger {
 	}
 }
 
-func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string, kvs ...interface{}) {
+func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwField) {
 	var zlevel zapcore.Level
 	span := trace.SpanFromContext(ctx)
 
@@ -70,9 +70,9 @@ func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string
 		ctx = context.WithValue(ctx, cwzap.ExtraKey(spanIDKey), span.SpanContext().SpanID())
 		ctx = context.WithValue(ctx, cwzap.ExtraKey(traceFlagsKey), span.SpanContext().TraceFlags())
 
-		l.Logger.CtxLogf(level, ctx, format, kvs...)
+		l.Logger.CtxLog(level, ctx, msg, fields...)
 	} else {
-		l.Logger.Logf(level, format, kvs...)
+		l.Logger.Logw(level, msg, fields...)
 	}
 
 	if !span.IsRecording() {
@@ -96,38 +96,9 @@ func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string
 
 	// set span status
 	if zlevel >= l.config.traceConfig.errorSpanLevel {
-		msg := getMessage(format, kvs)
 		span.SetStatus(codes.Error, "")
 		span.RecordError(errors.New(msg), trace.WithStackTrace(l.config.traceConfig.recordStackTraceInSpan))
 	}
-}
-
-func (l *Logger) CtxTracef(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelDebug, ctx, format, v...)
-}
-
-func (l *Logger) CtxDebugf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelDebug, ctx, format, v...)
-}
-
-func (l *Logger) CtxInfof(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelInfo, ctx, format, v...)
-}
-
-func (l *Logger) CtxNoticef(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelWarn, ctx, format, v...)
-}
-
-func (l *Logger) CtxWarnf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelWarn, ctx, format, v...)
-}
-
-func (l *Logger) CtxErrorf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelError, ctx, format, v...)
-}
-
-func (l *Logger) CtxFatalf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelFatal, ctx, format, v...)
 }
 
 func GetOptions(cwZap cwZap) []cwzap.Option {

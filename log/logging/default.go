@@ -24,9 +24,11 @@ import (
 	"os"
 )
 
-var logger FullLogger = &defaultLogger{
-	level:  LevelInfo,
-	stdlog: log.New(os.Stderr, "", log.LstdFlags|log.Lshortfile|log.Lmicroseconds),
+var logger = &CwLog{
+	logger: &defaultLogger{
+		level:  LevelInfo,
+		stdlog: log.New(os.Stderr, "", log.LstdFlags|log.Lshortfile|log.Lmicroseconds),
+	},
 }
 
 // SetOutput sets the output of default logger. By default, it is stderr.
@@ -41,16 +43,16 @@ func SetLevel(lv Level) {
 	logger.SetLevel(lv)
 }
 
-// DefaultLogger return the default logger for kitexTracing.
-func DefaultLogger() FullLogger {
-	return logger
+// DefaultLogger return the default logger for Tracing.
+func DefaultLogger() NewLogger {
+	return logger.logger
 }
 
 // SetLogger sets the default logger.
 // Note that this method is not concurrent-safe and must not be called
 // after the use of DefaultLogger and global functions in this package.
-func SetLogger(v FullLogger) {
-	logger = v
+func SetLogger(v NewLogger) {
+	logger.SetLogger(v)
 }
 
 // Fatal calls the default logger's Fatal method and then os.Exit(1).
@@ -158,115 +160,91 @@ func CtxTracef(ctx context.Context, format string, v ...interface{}) {
 	logger.CtxTracef(ctx, format, v...)
 }
 
+func Fatalw(msg string, fields ...CwField) {
+	logger.Fatalw(msg, fields...)
+}
+
+func Errorw(msg string, fields ...CwField) {
+	logger.Errorw(msg, fields...)
+}
+
+func Warnw(msg string, fields ...CwField) {
+	logger.Warnw(msg, fields...)
+}
+
+func Noticew(msg string, fields ...CwField) {
+	logger.Noticew(msg, fields...)
+}
+
+func Infow(msg string, fields ...CwField) {
+	logger.Infow(msg, fields...)
+}
+
+func Debugw(msg string, fields ...CwField) {
+	logger.Debugw(msg, fields...)
+}
+
+func Tracew(msg string, fields ...CwField) {
+	logger.Tracew(msg, fields...)
+}
+
+func With(fields ...CwField) {
+	logger.WithValue(fields...)
+}
+
+func ResetValue() {
+	logger.ResetValue()
+}
+
 type defaultLogger struct {
 	stdlog *log.Logger
 	level  Level
 }
 
-func (ll *defaultLogger) SetOutput(w io.Writer) {
-	ll.stdlog.SetOutput(w)
-}
-
-func (ll *defaultLogger) SetLevel(lv Level) {
-	ll.level = lv
-}
-
-func (ll *defaultLogger) logf(lv Level, format *string, v ...interface{}) {
-	if ll.level > lv {
+func (d *defaultLogger) CtxLog(level Level, ctx context.Context, msg string, fields ...CwField) {
+	if d.level > level {
 		return
 	}
-	msg := lv.toString()
-	if format != nil {
-		msg += fmt.Sprintf(*format, v...)
-	} else {
-		msg += fmt.Sprint(v...)
+	logMessage := level.toString() + "msg:" + msg
+
+	for _, field := range fields {
+		if field.Value != nil {
+			logMessage += ", " + field.Key + ":" + fmt.Sprint(field.Value)
+		} else {
+			logMessage += ", " + field.Key
+		}
 	}
-	ll.stdlog.Output(4, msg)
-	if lv == LevelFatal {
+
+	d.stdlog.Output(4, logMessage)
+	if level == LevelFatal {
 		os.Exit(1)
 	}
 }
 
-func (ll *defaultLogger) Fatal(v ...interface{}) {
-	ll.logf(LevelFatal, nil, v...)
+func (d *defaultLogger) Logw(level Level, msg string, fields ...CwField) {
+	if d.level > level {
+		return
+	}
+	logMessage := level.toString() + "msg:" + msg
+
+	for _, field := range fields {
+		if field.Value != nil {
+			logMessage += ", " + field.Key + ":" + fmt.Sprint(field.Value)
+		} else {
+			logMessage += ", " + field.Key
+		}
+	}
+
+	d.stdlog.Output(4, logMessage)
+	if level == LevelFatal {
+		os.Exit(1)
+	}
 }
 
-func (ll *defaultLogger) Error(v ...interface{}) {
-	ll.logf(LevelError, nil, v...)
+func (d *defaultLogger) SetLevel(level Level) {
+	d.level = level
 }
 
-func (ll *defaultLogger) Warn(v ...interface{}) {
-	ll.logf(LevelWarn, nil, v...)
-}
-
-func (ll *defaultLogger) Notice(v ...interface{}) {
-	ll.logf(LevelNotice, nil, v...)
-}
-
-func (ll *defaultLogger) Info(v ...interface{}) {
-	ll.logf(LevelInfo, nil, v...)
-}
-
-func (ll *defaultLogger) Debug(v ...interface{}) {
-	ll.logf(LevelDebug, nil, v...)
-}
-
-func (ll *defaultLogger) Trace(v ...interface{}) {
-	ll.logf(LevelTrace, nil, v...)
-}
-
-func (ll *defaultLogger) Fatalf(format string, v ...interface{}) {
-	ll.logf(LevelFatal, &format, v...)
-}
-
-func (ll *defaultLogger) Errorf(format string, v ...interface{}) {
-	ll.logf(LevelError, &format, v...)
-}
-
-func (ll *defaultLogger) Warnf(format string, v ...interface{}) {
-	ll.logf(LevelWarn, &format, v...)
-}
-
-func (ll *defaultLogger) Noticef(format string, v ...interface{}) {
-	ll.logf(LevelNotice, &format, v...)
-}
-
-func (ll *defaultLogger) Infof(format string, v ...interface{}) {
-	ll.logf(LevelInfo, &format, v...)
-}
-
-func (ll *defaultLogger) Debugf(format string, v ...interface{}) {
-	ll.logf(LevelDebug, &format, v...)
-}
-
-func (ll *defaultLogger) Tracef(format string, v ...interface{}) {
-	ll.logf(LevelTrace, &format, v...)
-}
-
-func (ll *defaultLogger) CtxFatalf(ctx context.Context, format string, v ...interface{}) {
-	ll.logf(LevelFatal, &format, v...)
-}
-
-func (ll *defaultLogger) CtxErrorf(ctx context.Context, format string, v ...interface{}) {
-	ll.logf(LevelError, &format, v...)
-}
-
-func (ll *defaultLogger) CtxWarnf(ctx context.Context, format string, v ...interface{}) {
-	ll.logf(LevelWarn, &format, v...)
-}
-
-func (ll *defaultLogger) CtxNoticef(ctx context.Context, format string, v ...interface{}) {
-	ll.logf(LevelNotice, &format, v...)
-}
-
-func (ll *defaultLogger) CtxInfof(ctx context.Context, format string, v ...interface{}) {
-	ll.logf(LevelInfo, &format, v...)
-}
-
-func (ll *defaultLogger) CtxDebugf(ctx context.Context, format string, v ...interface{}) {
-	ll.logf(LevelDebug, &format, v...)
-}
-
-func (ll *defaultLogger) CtxTracef(ctx context.Context, format string, v ...interface{}) {
-	ll.logf(LevelTrace, &format, v...)
+func (d *defaultLogger) SetOutput(writer io.Writer) {
+	d.stdlog.SetOutput(writer)
 }

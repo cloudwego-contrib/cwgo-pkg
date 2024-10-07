@@ -18,8 +18,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/otellogrus"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
@@ -88,6 +89,13 @@ func TestLogger(t *testing.T) {
 	logging.CtxNoticef(ctx, "log level: %s", "notice")
 	logging.CtxWarnf(ctx, "log level: %s", "warn")
 	logging.CtxErrorf(ctx, "log level: %s", "error")
+
+	logging.Tracew("trace", logging.CwField{Key: "test", Value: 111})
+	logging.Debugw("debug", logging.CwField{Key: "test", Value: 111})
+	logging.Infow("info", logging.CwField{Key: "test", Value: 111})
+	logging.Noticew("notice", logging.CwField{Key: "test", Value: 111})
+	logging.Warnw("warn", logging.CwField{Key: "test", Value: 111})
+	logging.Errorw("err", logging.CwField{Key: "test", Value: 111})
 
 	span.End()
 

@@ -131,4 +131,7 @@ func TestLogLevel(t *testing.T) {
 
 	logger.Debug("this is a debug log")
 	assert.Contains(t, buf.String(), "this is a debug log")
+
+	logging.Debugw("this is a debug log", logging.CwField{Key: "test", Value: 111})
+	assert.NotContains(t, buf.String(), `\"test\":111`)
 }

@@ -28,7 +28,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-var _ logging.FullLogger = (*Logger)(nil)
+var _ logging.NewLogger = (*Logger)(nil)
 
 // Logger is a wrapper around `zerolog.Logger` that provides an implementation of `log.FullLogger` interface
 type Logger struct {
@@ -36,6 +36,52 @@ type Logger struct {
 	out     io.Writer
 	level   zerolog.Level
 	options []Opt
+}
+
+func (l *Logger) CtxLog(level logging.Level, ctx context.Context, msg string, fields ...logging.CwField) {
+	var event *zerolog.Event
+
+	switch level {
+	case logging.LevelTrace, logging.LevelDebug:
+		event = l.log.Debug()
+	case logging.LevelInfo:
+		event = l.log.Info()
+	case logging.LevelNotice, logging.LevelWarn:
+		event = l.log.Warn()
+	case logging.LevelError:
+		event = l.log.Error()
+	case logging.LevelFatal:
+		event = l.log.Fatal()
+	default:
+		event = l.log.Warn()
+	}
+	for _, v := range fields {
+		event = event.Any(v.Key, v.Value)
+	}
+	event.Ctx(ctx).Msg(msg)
+}
+
+func (l *Logger) Logw(level logging.Level, msg string, fields ...logging.CwField) {
+	var event *zerolog.Event
+
+	switch level {
+	case logging.LevelTrace, logging.LevelDebug:
+		event = l.log.Debug()
+	case logging.LevelInfo:
+		event = l.log.Info()
+	case logging.LevelNotice, logging.LevelWarn:
+		event = l.log.Warn()
+	case logging.LevelError:
+		event = l.log.Error()
+	case logging.LevelFatal:
+		event = l.log.Fatal()
+	default:
+		event = l.log.Warn()
+	}
+	for _, v := range fields {
+		event = event.Any(v.Key, v.Value)
+	}
+	event.Msg(msg)
 }
 
 // ConsoleWriter parses the JSON input and writes it in an
@@ -137,6 +183,7 @@ func (l *Logger) Logf(level logging.Level, format string, kvs ...interface{}) {
 // If no logger is associated, DefaultContextLogger is used, unless DefaultContextLogger is nil, in which case a disabled logger is used.
 func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string, kvs ...interface{}) {
 	logger := l.Unwrap()
+	// todo add hook
 	switch level {
 	case logging.LevelTrace, logging.LevelDebug:
 		logger.Debug().Ctx(ctx).Msg(fmt.Sprintf(format, kvs...))

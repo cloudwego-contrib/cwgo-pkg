@@ -327,3 +327,35 @@ func TestSetLevel(t *testing.T) {
 	l.SetLevel(logging.LevelError)
 	assert.Equal(t, l.log.GetLevel(), zerolog.ErrorLevel)
 }
+
+func TestWithFeild(t *testing.T) {
+	b := &bytes.Buffer{}
+	l := New()
+	l.SetOutput(b)
+
+	logging.SetLogger(l)
+	logging.Infow("test", logging.CwField{"test", 111})
+	assert.Equal(
+		t,
+		`{"level":"info","test":111,"message":"test"}
+`,
+		b.String(),
+	)
+
+}
+
+func TestGlobalFeild(t *testing.T) {
+	b := &bytes.Buffer{}
+	l := New()
+	l.SetOutput(b)
+
+	logging.SetLogger(l)
+	logging.With(logging.CwField{"test", 2222})
+	logging.Info("test")
+	assert.Equal(
+		t,
+		`{"level":"info","test":2222,"message":"test"}
+`,
+		b.String(),
+	)
+}

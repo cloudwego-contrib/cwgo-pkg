@@ -15,7 +15,9 @@
 package logrus_test
 
 import (
+	"bytes"
 	"context"
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
@@ -59,4 +61,25 @@ func TestLogger(t *testing.T) {
 	logging.CtxNoticef(ctx, "log level: %s", "notice")
 	logging.CtxWarnf(ctx, "log level: %s", "warn")
 	logging.CtxErrorf(ctx, "log level: %s", "error")
+}
+func TestWithFeild(t *testing.T) {
+	b := &bytes.Buffer{}
+	l := cwlogrus.NewLogger(cwlogrus.WithLogger(logrus.New()))
+	l.SetOutput(b)
+
+	logging.SetLogger(l)
+	logging.Infow("test", logging.CwField{"test", 111})
+	assert.Contains(t, b.String(), `test=111`)
+
+}
+
+func TestGlobalFeild(t *testing.T) {
+	b := &bytes.Buffer{}
+	l := cwlogrus.NewLogger(cwlogrus.WithLogger(logrus.New()))
+	l.SetOutput(b)
+
+	logging.SetLogger(l)
+	logging.With(logging.CwField{"test", 2222})
+	logging.Info("test")
+	assert.Contains(t, b.String(), `test=2222`)
 }
