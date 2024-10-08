@@ -18,12 +18,11 @@ package zerolog
 
 import (
 	"bytes"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/cloudwego/hertz/pkg/common/json"
 	"github.com/rs/zerolog"
@@ -73,8 +72,8 @@ func TestWithCallerSkipFrameCount(t *testing.T) {
 	b := &bytes.Buffer{}
 	l := New(WithCallerSkipFrameCount(5))
 	l.SetOutput(b)
-	logging.SetLogger(l)
-	logging.Info("foobar")
+	hlog.SetLogger(l)
+	hlog.Info("foobar")
 
 	type Log struct {
 		Level   string `json:"level"`
@@ -198,7 +197,7 @@ func TestWithHookFunc(t *testing.T) {
 
 func TestWithLevel(t *testing.T) {
 	b := &bytes.Buffer{}
-	l := New(WithLevel(logging.LevelInfo))
+	l := New(WithLevel(hlog.LevelInfo))
 	l.SetOutput(b)
 
 	l.Debug("Test")

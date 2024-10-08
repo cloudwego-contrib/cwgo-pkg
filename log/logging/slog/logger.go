@@ -17,10 +17,9 @@ package slog
 import (
 	"context"
 	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 	"log/slog"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 )
 
 const (
@@ -29,7 +28,7 @@ const (
 	LevelFatal  = slog.Level(12)
 )
 
-var _ logging.FullLogger = (*Logger)(nil)
+var _ hlog.FullLogger = (*Logger)(nil)
 
 func NewLogger(opts ...Option) *Logger {
 	config := defaultConfig()
@@ -101,106 +100,106 @@ func (l *Logger) Logger() *slog.Logger {
 	return l.l
 }
 
-func (l *Logger) log(level logging.Level, v ...any) {
+func (l *Logger) log(level hlog.Level, v ...any) {
 	lvl := tranSLevel(level)
 	l.l.Log(context.TODO(), lvl, fmt.Sprint(v...))
 }
 
-func (l *Logger) logf(level logging.Level, format string, kvs ...any) {
+func (l *Logger) logf(level hlog.Level, format string, kvs ...any) {
 	lvl := tranSLevel(level)
 	l.l.Log(context.TODO(), lvl, fmt.Sprintf(format, kvs...))
 }
 
-func (l *Logger) ctxLogf(level logging.Level, ctx context.Context, format string, v ...any) {
+func (l *Logger) ctxLogf(level hlog.Level, ctx context.Context, format string, v ...any) {
 	lvl := tranSLevel(level)
 	l.l.Log(ctx, lvl, fmt.Sprintf(format, v...))
 }
 
 func (l *Logger) Trace(v ...any) {
-	l.log(logging.LevelTrace, v...)
+	l.log(hlog.LevelTrace, v...)
 }
 
 func (l *Logger) Debug(v ...any) {
-	l.log(logging.LevelDebug, v...)
+	l.log(hlog.LevelDebug, v...)
 }
 
 func (l *Logger) Info(v ...any) {
-	l.log(logging.LevelInfo, v...)
+	l.log(hlog.LevelInfo, v...)
 }
 
 func (l *Logger) Notice(v ...any) {
-	l.log(logging.LevelNotice, v...)
+	l.log(hlog.LevelNotice, v...)
 }
 
 func (l *Logger) Warn(v ...any) {
-	l.log(logging.LevelWarn, v...)
+	l.log(hlog.LevelWarn, v...)
 }
 
 func (l *Logger) Error(v ...any) {
-	l.log(logging.LevelError, v...)
+	l.log(hlog.LevelError, v...)
 }
 
 func (l *Logger) Fatal(v ...any) {
-	l.log(logging.LevelFatal, v...)
+	l.log(hlog.LevelFatal, v...)
 }
 
 func (l *Logger) Tracef(format string, v ...any) {
-	l.logf(logging.LevelTrace, format, v...)
+	l.logf(hlog.LevelTrace, format, v...)
 }
 
 func (l *Logger) Debugf(format string, v ...any) {
-	l.logf(logging.LevelDebug, format, v...)
+	l.logf(hlog.LevelDebug, format, v...)
 }
 
 func (l *Logger) Infof(format string, v ...any) {
-	l.logf(logging.LevelInfo, format, v...)
+	l.logf(hlog.LevelInfo, format, v...)
 }
 
 func (l *Logger) Noticef(format string, v ...any) {
-	l.logf(logging.LevelNotice, format, v...)
+	l.logf(hlog.LevelNotice, format, v...)
 }
 
 func (l *Logger) Warnf(format string, v ...any) {
-	l.logf(logging.LevelWarn, format, v...)
+	l.logf(hlog.LevelWarn, format, v...)
 }
 
 func (l *Logger) Errorf(format string, v ...any) {
-	l.logf(logging.LevelError, format, v...)
+	l.logf(hlog.LevelError, format, v...)
 }
 
 func (l *Logger) Fatalf(format string, v ...any) {
-	l.logf(logging.LevelFatal, format, v...)
+	l.logf(hlog.LevelFatal, format, v...)
 }
 
 func (l *Logger) CtxTracef(ctx context.Context, format string, v ...any) {
-	l.ctxLogf(logging.LevelDebug, ctx, format, v...)
+	l.ctxLogf(hlog.LevelDebug, ctx, format, v...)
 }
 
 func (l *Logger) CtxDebugf(ctx context.Context, format string, v ...any) {
-	l.ctxLogf(logging.LevelDebug, ctx, format, v...)
+	l.ctxLogf(hlog.LevelDebug, ctx, format, v...)
 }
 
 func (l *Logger) CtxInfof(ctx context.Context, format string, v ...any) {
-	l.ctxLogf(logging.LevelInfo, ctx, format, v...)
+	l.ctxLogf(hlog.LevelInfo, ctx, format, v...)
 }
 
 func (l *Logger) CtxNoticef(ctx context.Context, format string, v ...any) {
-	l.ctxLogf(logging.LevelNotice, ctx, format, v...)
+	l.ctxLogf(hlog.LevelNotice, ctx, format, v...)
 }
 
 func (l *Logger) CtxWarnf(ctx context.Context, format string, v ...any) {
-	l.ctxLogf(logging.LevelWarn, ctx, format, v...)
+	l.ctxLogf(hlog.LevelWarn, ctx, format, v...)
 }
 
 func (l *Logger) CtxErrorf(ctx context.Context, format string, v ...any) {
-	l.ctxLogf(logging.LevelError, ctx, format, v...)
+	l.ctxLogf(hlog.LevelError, ctx, format, v...)
 }
 
 func (l *Logger) CtxFatalf(ctx context.Context, format string, v ...any) {
-	l.ctxLogf(logging.LevelFatal, ctx, format, v...)
+	l.ctxLogf(hlog.LevelFatal, ctx, format, v...)
 }
 
-func (l *Logger) SetLevel(level logging.Level) {
+func (l *Logger) SetLevel(level hlog.Level) {
 	lvl := tranSLevel(level)
 	l.cfg.level.Set(lvl)
 }

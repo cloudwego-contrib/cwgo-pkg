@@ -17,33 +17,33 @@
 package zerolog
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/rs/zerolog"
 )
 
 var (
-	zerologLevels = map[logging.Level]zerolog.Level{
-		logging.LevelTrace:  zerolog.TraceLevel,
-		logging.LevelDebug:  zerolog.DebugLevel,
-		logging.LevelInfo:   zerolog.InfoLevel,
-		logging.LevelWarn:   zerolog.WarnLevel,
-		logging.LevelNotice: zerolog.WarnLevel,
-		logging.LevelError:  zerolog.ErrorLevel,
-		logging.LevelFatal:  zerolog.FatalLevel,
+	zerologLevels = map[hlog.Level]zerolog.Level{
+		hlog.LevelTrace:  zerolog.TraceLevel,
+		hlog.LevelDebug:  zerolog.DebugLevel,
+		hlog.LevelInfo:   zerolog.InfoLevel,
+		hlog.LevelWarn:   zerolog.WarnLevel,
+		hlog.LevelNotice: zerolog.WarnLevel,
+		hlog.LevelError:  zerolog.ErrorLevel,
+		hlog.LevelFatal:  zerolog.FatalLevel,
 	}
 
-	logginglevel = map[zerolog.Level]logging.Level{
-		zerolog.TraceLevel: logging.LevelTrace,
-		zerolog.DebugLevel: logging.LevelDebug,
-		zerolog.InfoLevel:  logging.LevelInfo,
-		zerolog.WarnLevel:  logging.LevelWarn,
-		zerolog.ErrorLevel: logging.LevelError,
-		zerolog.FatalLevel: logging.LevelFatal,
+	logginglevel = map[zerolog.Level]hlog.Level{
+		zerolog.TraceLevel: hlog.LevelTrace,
+		zerolog.DebugLevel: hlog.LevelDebug,
+		zerolog.InfoLevel:  hlog.LevelInfo,
+		zerolog.WarnLevel:  hlog.LevelWarn,
+		zerolog.ErrorLevel: hlog.LevelError,
+		zerolog.FatalLevel: hlog.LevelFatal,
 	}
 )
 
 // matchHlogLevel map hlog.Level to otelzerolog.Level
-func matchlogLevel(level logging.Level) zerolog.Level {
+func matchlogLevel(level hlog.Level) zerolog.Level {
 	zlvl, found := zerologLevels[level]
 
 	if found {
@@ -54,12 +54,12 @@ func matchlogLevel(level logging.Level) zerolog.Level {
 }
 
 // matchZerologLevel map otelzerolog.Level to hlog.Level
-func matchZerologLevel(level zerolog.Level) logging.Level {
+func matchZerologLevel(level zerolog.Level) hlog.Level {
 	hlvl, found := logginglevel[level]
 
 	if found {
 		return hlvl
 	}
 
-	return logging.LevelWarn // Default level
+	return hlog.LevelWarn // Default level
 }

@@ -17,9 +17,8 @@
 package zerolog
 
 import (
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/rs/zerolog"
 )
@@ -54,7 +53,7 @@ func WithOutput(out io.Writer) Opt {
 }
 
 // WithLevel allows to specify the level of the logger. By default, it is set to WarnLevel.
-func WithLevel(level logging.Level) Opt {
+func WithLevel(level hlog.Level) Opt {
 	lvl := matchlogLevel(level)
 	return func(opts *Options) {
 		opts.context = opts.context.Logger().Level(lvl).With()

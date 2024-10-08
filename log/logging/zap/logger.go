@@ -16,15 +16,14 @@ package zap
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-var _ logging.FullLogger = (*Logger)(nil)
+var _ hlog.FullLogger = (*Logger)(nil)
 
 type Logger struct {
 	l      *zap.Logger
@@ -68,49 +67,49 @@ func (l *Logger) PutExtraKeys(keys ...ExtraKey) {
 	}
 }
 
-func (l *Logger) Log(level logging.Level, kvs ...interface{}) {
+func (l *Logger) Log(level hlog.Level, kvs ...interface{}) {
 	sugar := l.l.Sugar()
 	if l.config.customFields != nil {
 		sugar.With(l.config.customFields)
 	}
 	switch level {
-	case logging.LevelTrace, logging.LevelDebug:
+	case hlog.LevelTrace, hlog.LevelDebug:
 		sugar.Debug(kvs...)
-	case logging.LevelInfo:
+	case hlog.LevelInfo:
 		sugar.Info(kvs...)
-	case logging.LevelNotice, logging.LevelWarn:
+	case hlog.LevelNotice, hlog.LevelWarn:
 		sugar.Warn(kvs...)
-	case logging.LevelError:
+	case hlog.LevelError:
 		sugar.Error(kvs...)
-	case logging.LevelFatal:
+	case hlog.LevelFatal:
 		sugar.Fatal(kvs...)
 	default:
 		sugar.Warn(kvs...)
 	}
 }
 
-func (l *Logger) Logf(level logging.Level, format string, kvs ...interface{}) {
+func (l *Logger) Logf(level hlog.Level, format string, kvs ...interface{}) {
 	logger := l.l.Sugar()
 	if l.config.customFields != nil {
 		logger.With(l.config.customFields)
 	}
 	switch level {
-	case logging.LevelTrace, logging.LevelDebug:
+	case hlog.LevelTrace, hlog.LevelDebug:
 		logger.Debugf(format, kvs...)
-	case logging.LevelInfo:
+	case hlog.LevelInfo:
 		logger.Infof(format, kvs...)
-	case logging.LevelNotice, logging.LevelWarn:
+	case hlog.LevelNotice, hlog.LevelWarn:
 		logger.Warnf(format, kvs...)
-	case logging.LevelError:
+	case hlog.LevelError:
 		logger.Errorf(format, kvs...)
-	case logging.LevelFatal:
+	case hlog.LevelFatal:
 		logger.Fatalf(format, kvs...)
 	default:
 		logger.Warnf(format, kvs...)
 	}
 }
 
-func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string, kvs ...interface{}) {
+func (l *Logger) CtxLogf(level hlog.Level, ctx context.Context, format string, kvs ...interface{}) {
 	zLevel := LevelToZapLevel(level)
 	if !l.config.coreConfigs[0].Lvl.Enabled(zLevel) {
 		return
@@ -136,15 +135,15 @@ func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string
 		log.With(l.config.customFields)
 	}
 	switch level {
-	case logging.LevelDebug, logging.LevelTrace:
+	case hlog.LevelDebug, hlog.LevelTrace:
 		log.Debugf(format, kvs...)
-	case logging.LevelInfo:
+	case hlog.LevelInfo:
 		log.Infof(format, kvs...)
-	case logging.LevelNotice, logging.LevelWarn:
+	case hlog.LevelNotice, hlog.LevelWarn:
 		log.Warnf(format, kvs...)
-	case logging.LevelError:
+	case hlog.LevelError:
 		log.Errorf(format, kvs...)
-	case logging.LevelFatal:
+	case hlog.LevelFatal:
 		log.Fatalf(format, kvs...)
 	default:
 		log.Warnf(format, kvs...)
@@ -152,90 +151,90 @@ func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string
 }
 
 func (l *Logger) Trace(v ...interface{}) {
-	l.Log(logging.LevelTrace, v...)
+	l.Log(hlog.LevelTrace, v...)
 }
 
 func (l *Logger) Debug(v ...interface{}) {
-	l.Log(logging.LevelDebug, v...)
+	l.Log(hlog.LevelDebug, v...)
 }
 
 func (l *Logger) Info(v ...interface{}) {
-	l.Log(logging.LevelInfo, v...)
+	l.Log(hlog.LevelInfo, v...)
 }
 
 func (l *Logger) Notice(v ...interface{}) {
-	l.Log(logging.LevelNotice, v...)
+	l.Log(hlog.LevelNotice, v...)
 }
 
 func (l *Logger) Warn(v ...interface{}) {
-	l.Log(logging.LevelWarn, v...)
+	l.Log(hlog.LevelWarn, v...)
 }
 
 func (l *Logger) Error(v ...interface{}) {
-	l.Log(logging.LevelError, v...)
+	l.Log(hlog.LevelError, v...)
 }
 
 func (l *Logger) Fatal(v ...interface{}) {
-	l.Log(logging.LevelFatal, v...)
+	l.Log(hlog.LevelFatal, v...)
 }
 
 func (l *Logger) Tracef(format string, v ...interface{}) {
-	l.Logf(logging.LevelTrace, format, v...)
+	l.Logf(hlog.LevelTrace, format, v...)
 }
 
 func (l *Logger) Debugf(format string, v ...interface{}) {
-	l.Logf(logging.LevelDebug, format, v...)
+	l.Logf(hlog.LevelDebug, format, v...)
 }
 
 func (l *Logger) Infof(format string, v ...interface{}) {
-	l.Logf(logging.LevelInfo, format, v...)
+	l.Logf(hlog.LevelInfo, format, v...)
 }
 
 func (l *Logger) Noticef(format string, v ...interface{}) {
-	l.Logf(logging.LevelWarn, format, v...)
+	l.Logf(hlog.LevelWarn, format, v...)
 }
 
 func (l *Logger) Warnf(format string, v ...interface{}) {
-	l.Logf(logging.LevelWarn, format, v...)
+	l.Logf(hlog.LevelWarn, format, v...)
 }
 
 func (l *Logger) Errorf(format string, v ...interface{}) {
-	l.Logf(logging.LevelError, format, v...)
+	l.Logf(hlog.LevelError, format, v...)
 }
 
 func (l *Logger) Fatalf(format string, v ...interface{}) {
-	l.Logf(logging.LevelFatal, format, v...)
+	l.Logf(hlog.LevelFatal, format, v...)
 }
 
 func (l *Logger) CtxTracef(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelDebug, ctx, format, v...)
+	l.CtxLogf(hlog.LevelDebug, ctx, format, v...)
 }
 
 func (l *Logger) CtxDebugf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelDebug, ctx, format, v...)
+	l.CtxLogf(hlog.LevelDebug, ctx, format, v...)
 }
 
 func (l *Logger) CtxInfof(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelInfo, ctx, format, v...)
+	l.CtxLogf(hlog.LevelInfo, ctx, format, v...)
 }
 
 func (l *Logger) CtxNoticef(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelWarn, ctx, format, v...)
+	l.CtxLogf(hlog.LevelWarn, ctx, format, v...)
 }
 
 func (l *Logger) CtxWarnf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelWarn, ctx, format, v...)
+	l.CtxLogf(hlog.LevelWarn, ctx, format, v...)
 }
 
 func (l *Logger) CtxErrorf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelError, ctx, format, v...)
+	l.CtxLogf(hlog.LevelError, ctx, format, v...)
 }
 
 func (l *Logger) CtxFatalf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelFatal, ctx, format, v...)
+	l.CtxLogf(hlog.LevelFatal, ctx, format, v...)
 }
 
-func (l *Logger) SetLevel(level logging.Level) {
+func (l *Logger) SetLevel(level hlog.Level) {
 	lvl := LevelToZapLevel(level)
 
 	l.config.coreConfigs[0].Lvl = lvl

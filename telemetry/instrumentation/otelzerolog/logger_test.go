@@ -17,9 +17,9 @@ package otelzerolog
 import (
 	"bytes"
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"testing"
 
-	logging "github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	cwzerolog "github.com/cloudwego-contrib/cwgo-pkg/log/logging/zerolog"
 
 	"github.com/rs/zerolog"
@@ -60,7 +60,7 @@ func TestLogger(t *testing.T) {
 
 	Zerologer := cwzerolog.New(
 		cwzerolog.WithOutput(buf),
-		cwzerolog.WithLevel(logging.LevelDebug),
+		cwzerolog.WithLevel(hlog.LevelDebug),
 	)
 	logger := NewLogger(
 		WithZeroLogger(Zerologer),
@@ -68,8 +68,8 @@ func TestLogger(t *testing.T) {
 		WithRecordStackTraceInSpan(true),
 	)
 
-	logging.SetLogger(logger)
-	logging.SetLevel(logging.LevelDebug)
+	hlog.SetLogger(logger)
+	hlog.SetLevel(hlog.LevelDebug)
 	logger.Info("log from origin otelzerolog")
 	assert.Contains(t, buf.String(), "log from origin otelzerolog")
 	buf.Reset()
@@ -78,7 +78,7 @@ func TestLogger(t *testing.T) {
 
 	ctx, span := tracer.Start(ctx, "root")
 
-	logging.CtxInfof(ctx, "hello %s", "world")
+	hlog.CtxInfof(ctx, "hello %s", "world")
 	assert.Contains(t, buf.String(), "trace_id")
 	assert.Contains(t, buf.String(), "span_id")
 	assert.Contains(t, buf.String(), "trace_flags")
@@ -88,24 +88,24 @@ func TestLogger(t *testing.T) {
 
 	ctx, child1 := tracer.Start(ctx, "child1")
 
-	logging.CtxTracef(ctx, "trace %s", "this is a trace log")
-	logging.CtxDebugf(ctx, "debug %s", "this is a debug log")
-	logging.CtxInfof(ctx, "info %s", "this is a info log")
+	hlog.CtxTracef(ctx, "trace %s", "this is a trace log")
+	hlog.CtxDebugf(ctx, "debug %s", "this is a debug log")
+	hlog.CtxInfof(ctx, "info %s", "this is a info log")
 
 	child1.End()
 	assert.Equal(t, codes.Unset, child1.(sdktrace.ReadOnlySpan).Status().Code)
 
 	ctx, child2 := tracer.Start(ctx, "child2")
-	logging.CtxNoticef(ctx, "notice %s", "this is a notice log")
-	logging.CtxWarnf(ctx, "warn %s", "this is a warn log")
-	logging.CtxErrorf(ctx, "error %s", "this is a error log")
+	hlog.CtxNoticef(ctx, "notice %s", "this is a notice log")
+	hlog.CtxWarnf(ctx, "warn %s", "this is a warn log")
+	hlog.CtxErrorf(ctx, "error %s", "this is a error log")
 
 	child2.End()
 	assert.Equal(t, codes.Error, child2.(sdktrace.ReadOnlySpan).Status().Code)
 
 	_, errSpan := tracer.Start(ctx, "error")
 
-	logging.Info("no trace context")
+	hlog.Info("no trace context")
 
 	errSpan.End()
 }
@@ -119,7 +119,7 @@ func TestLogLevel(t *testing.T) {
 		WithRecordStackTraceInSpan(true),
 	)
 
-	logger.SetLevel(logging.LevelError)
+	logger.SetLevel(hlog.LevelError)
 
 	// output to buffer
 	logger.SetOutput(buf)
@@ -127,7 +127,7 @@ func TestLogLevel(t *testing.T) {
 	logger.Debug("this is a debug log")
 	assert.NotContains(t, buf.String(), "this is a debug log")
 
-	logger.SetLevel(logging.LevelDebug)
+	logger.SetLevel(hlog.LevelDebug)
 
 	logger.Debug("this is a debug log")
 	assert.Contains(t, buf.String(), "this is a debug log")

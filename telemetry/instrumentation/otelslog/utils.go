@@ -15,10 +15,9 @@
 package otelslog
 
 import (
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"log/slog"
 	"strings"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 )
 
 // OtelSeverityText convert otelslog level to otel severityText
@@ -32,21 +31,21 @@ func OtelSeverityText(lv slog.Level) string {
 }
 
 // TranSLevel Adapt klog level to teleology level
-func TranSLevel(level logging.Level) (lvl slog.Level) {
+func TranSLevel(level hlog.Level) (lvl slog.Level) {
 	switch level {
-	case logging.LevelTrace:
+	case hlog.LevelTrace:
 		lvl = LevelTrace
-	case logging.LevelDebug:
+	case hlog.LevelDebug:
 		lvl = slog.LevelDebug
-	case logging.LevelInfo:
+	case hlog.LevelInfo:
 		lvl = slog.LevelInfo
-	case logging.LevelWarn:
+	case hlog.LevelWarn:
 		lvl = slog.LevelWarn
-	case logging.LevelNotice:
+	case hlog.LevelNotice:
 		lvl = LevelNotice
-	case logging.LevelError:
+	case hlog.LevelError:
 		lvl = slog.LevelError
-	case logging.LevelFatal:
+	case hlog.LevelFatal:
 		lvl = LevelFatal
 	default:
 		lvl = slog.LevelWarn

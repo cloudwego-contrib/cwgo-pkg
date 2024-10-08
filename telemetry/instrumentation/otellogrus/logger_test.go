@@ -16,9 +16,9 @@ package otellogrus_test
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"testing"
 
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/otellogrus"
 
 	"github.com/sirupsen/logrus"
@@ -59,44 +59,44 @@ func TestLogger(t *testing.T) {
 
 	logger.Logger().Info("log from origin otellogrus")
 
-	logging.SetLogger(logger)
-	logging.SetLevel(logging.LevelDebug)
+	hlog.SetLogger(logger)
+	hlog.SetLevel(hlog.LevelDebug)
 
 	tracer := otel.Tracer("test otel std logger")
 	ctx, span := tracer.Start(ctx, "root")
 
-	logging.SetLogger(logger)
-	logging.SetLevel(logging.LevelTrace)
+	hlog.SetLogger(logger)
+	hlog.SetLevel(hlog.LevelTrace)
 
-	logging.Trace("trace")
-	logging.Debug("debug")
-	logging.Info("info")
-	logging.Notice("notice")
-	logging.Warn("warn")
-	logging.Error("error")
+	hlog.Trace("trace")
+	hlog.Debug("debug")
+	hlog.Info("info")
+	hlog.Notice("notice")
+	hlog.Warn("warn")
+	hlog.Error("error")
 
-	logging.Tracef("log level: %s", "trace")
-	logging.Debugf("log level: %s", "debug")
-	logging.Infof("log level: %s", "info")
-	logging.Noticef("log level: %s", "notice")
-	logging.Warnf("log level: %s", "warn")
-	logging.Errorf("log level: %s", "error")
+	hlog.Tracef("log level: %s", "trace")
+	hlog.Debugf("log level: %s", "debug")
+	hlog.Infof("log level: %s", "info")
+	hlog.Noticef("log level: %s", "notice")
+	hlog.Warnf("log level: %s", "warn")
+	hlog.Errorf("log level: %s", "error")
 
-	logging.CtxTracef(ctx, "log level: %s", "trace")
-	logging.CtxDebugf(ctx, "log level: %s", "debug")
-	logging.CtxInfof(ctx, "log level: %s", "info")
-	logging.CtxNoticef(ctx, "log level: %s", "notice")
-	logging.CtxWarnf(ctx, "log level: %s", "warn")
-	logging.CtxErrorf(ctx, "log level: %s", "error")
+	hlog.CtxTracef(ctx, "log level: %s", "trace")
+	hlog.CtxDebugf(ctx, "log level: %s", "debug")
+	hlog.CtxInfof(ctx, "log level: %s", "info")
+	hlog.CtxNoticef(ctx, "log level: %s", "notice")
+	hlog.CtxWarnf(ctx, "log level: %s", "warn")
+	hlog.CtxErrorf(ctx, "log level: %s", "error")
 
 	span.End()
 
 	ctx, child := tracer.Start(ctx, "child")
-	logging.CtxWarnf(ctx, "foo %s", "bar")
+	hlog.CtxWarnf(ctx, "foo %s", "bar")
 	child.End()
 
 	ctx, errSpan := tracer.Start(ctx, "error")
-	logging.CtxErrorf(ctx, "error %s", "this is a error")
-	logging.Info("no trace context")
+	hlog.CtxErrorf(ctx, "error %s", "this is a error")
+	hlog.Info("no trace context")
 	errSpan.End()
 }

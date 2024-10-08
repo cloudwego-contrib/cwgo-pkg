@@ -15,7 +15,7 @@
 package zap
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -30,18 +30,18 @@ func InArray(key ExtraKey, arr []ExtraKey) bool {
 	return false
 }
 
-func LevelToZapLevel(level logging.Level) zapcore.Level {
+func LevelToZapLevel(level hlog.Level) zapcore.Level {
 	var lvl zapcore.Level
 	switch level {
-	case logging.LevelTrace, logging.LevelDebug:
+	case hlog.LevelTrace, hlog.LevelDebug:
 		lvl = zap.DebugLevel
-	case logging.LevelInfo:
+	case hlog.LevelInfo:
 		lvl = zap.InfoLevel
-	case logging.LevelWarn, logging.LevelNotice:
+	case hlog.LevelWarn, hlog.LevelNotice:
 		lvl = zap.WarnLevel
-	case logging.LevelError:
+	case hlog.LevelError:
 		lvl = zap.ErrorLevel
-	case logging.LevelFatal:
+	case hlog.LevelFatal:
 		lvl = zap.FatalLevel
 	default:
 		lvl = zap.WarnLevel

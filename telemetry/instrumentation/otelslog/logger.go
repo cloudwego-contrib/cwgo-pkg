@@ -15,10 +15,10 @@
 package otelslog
 
 import (
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 	"log/slog"
 
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	cwslog "github.com/cloudwego-contrib/cwgo-pkg/log/logging/slog"
 )
 
@@ -58,6 +58,6 @@ func (l *Logger) SetOutput(writer io.Writer) {
 	l.Logger.SetLogger(log)
 }
 
-func (l *Logger) SetLevel(level logging.Level) {
+func (l *Logger) SetLevel(level hlog.Level) {
 	l.Logger.SetLevel(level)
 }

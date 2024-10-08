@@ -20,15 +20,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 	"os"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/rs/zerolog"
 )
 
-var _ logging.FullLogger = (*Logger)(nil)
+var _ hlog.FullLogger = (*Logger)(nil)
 
 // Logger is a wrapper around `zerolog.Logger` that provides an implementation of `log.FullLogger` interface
 type Logger struct {
@@ -59,7 +58,7 @@ func From(log zerolog.Logger, options ...Opt) *Logger {
 
 // GetLogger returns the default logger instance
 func GetLogger() (Logger, error) {
-	defaultLogger := logging.DefaultLogger()
+	defaultLogger := hlog.DefaultLogger()
 
 	if logger, ok := defaultLogger.(*Logger); ok {
 		return *logger, nil
@@ -69,7 +68,7 @@ func GetLogger() (Logger, error) {
 }
 
 // SetLevel setting logging level for logger
-func (l *Logger) SetLevel(level logging.Level) {
+func (l *Logger) SetLevel(level hlog.Level) {
 	lvl := matchlogLevel(level)
 	l.level = lvl
 	l.log = l.log.Level(lvl)
@@ -98,17 +97,17 @@ func (l *Logger) Unwrap() zerolog.Logger {
 }
 
 // Log log using otelzerolog logger with specified level
-func (l *Logger) Log(level logging.Level, kvs ...interface{}) {
+func (l *Logger) Log(level hlog.Level, kvs ...interface{}) {
 	switch level {
-	case logging.LevelTrace, logging.LevelDebug:
+	case hlog.LevelTrace, hlog.LevelDebug:
 		l.log.Debug().Msg(fmt.Sprint(kvs...))
-	case logging.LevelInfo:
+	case hlog.LevelInfo:
 		l.log.Info().Msg(fmt.Sprint(kvs...))
-	case logging.LevelNotice, logging.LevelWarn:
+	case hlog.LevelNotice, hlog.LevelWarn:
 		l.log.Warn().Msg(fmt.Sprint(kvs...))
-	case logging.LevelError:
+	case hlog.LevelError:
 		l.log.Error().Msg(fmt.Sprint(kvs...))
-	case logging.LevelFatal:
+	case hlog.LevelFatal:
 		l.log.Fatal().Msg(fmt.Sprint(kvs...))
 	default:
 		l.log.Warn().Msg(fmt.Sprint(kvs...))
@@ -116,17 +115,17 @@ func (l *Logger) Log(level logging.Level, kvs ...interface{}) {
 }
 
 // Logf log using otelzerolog logger with specified level and formatting
-func (l *Logger) Logf(level logging.Level, format string, kvs ...interface{}) {
+func (l *Logger) Logf(level hlog.Level, format string, kvs ...interface{}) {
 	switch level {
-	case logging.LevelTrace, logging.LevelDebug:
+	case hlog.LevelTrace, hlog.LevelDebug:
 		l.log.Debug().Msg(fmt.Sprintf(format, kvs...))
-	case logging.LevelInfo:
+	case hlog.LevelInfo:
 		l.log.Info().Msg(fmt.Sprintf(format, kvs...))
-	case logging.LevelNotice, logging.LevelWarn:
+	case hlog.LevelNotice, hlog.LevelWarn:
 		l.log.Warn().Msg(fmt.Sprintf(format, kvs...))
-	case logging.LevelError:
+	case hlog.LevelError:
 		l.log.Error().Msg(fmt.Sprintf(format, kvs...))
-	case logging.LevelFatal:
+	case hlog.LevelFatal:
 		l.log.Fatal().Msg(fmt.Sprintf(format, kvs...))
 	default:
 		l.log.Warn().Msg(fmt.Sprintf(format, kvs...))
@@ -135,19 +134,19 @@ func (l *Logger) Logf(level logging.Level, format string, kvs ...interface{}) {
 
 // CtxLogf log with logger associated with context.
 // If no logger is associated, DefaultContextLogger is used, unless DefaultContextLogger is nil, in which case a disabled logger is used.
-func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string, kvs ...interface{}) {
+func (l *Logger) CtxLogf(level hlog.Level, ctx context.Context, format string, kvs ...interface{}) {
 	logger := l.Unwrap()
 	// todo add hook
 	switch level {
-	case logging.LevelTrace, logging.LevelDebug:
+	case hlog.LevelTrace, hlog.LevelDebug:
 		logger.Debug().Ctx(ctx).Msg(fmt.Sprintf(format, kvs...))
-	case logging.LevelInfo:
+	case hlog.LevelInfo:
 		logger.Info().Ctx(ctx).Msg(fmt.Sprintf(format, kvs...))
-	case logging.LevelNotice, logging.LevelWarn:
+	case hlog.LevelNotice, hlog.LevelWarn:
 		logger.Warn().Ctx(ctx).Msg(fmt.Sprintf(format, kvs...))
-	case logging.LevelError:
+	case hlog.LevelError:
 		logger.Error().Ctx(ctx).Msg(fmt.Sprintf(format, kvs...))
-	case logging.LevelFatal:
+	case hlog.LevelFatal:
 		logger.Fatal().Ctx(ctx).Msg(fmt.Sprintf(format, kvs...))
 	default:
 		logger.Warn().Ctx(ctx).Msg(fmt.Sprintf(format, kvs...))
@@ -156,114 +155,114 @@ func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string
 
 // Trace logs a message at trace level.
 func (l *Logger) Trace(v ...interface{}) {
-	l.Log(logging.LevelTrace, v...)
+	l.Log(hlog.LevelTrace, v...)
 }
 
 // Debug logs a message at debug level.
 func (l *Logger) Debug(v ...interface{}) {
-	l.Log(logging.LevelDebug, v...)
+	l.Log(hlog.LevelDebug, v...)
 }
 
 // Info logs a message at info level.
 func (l *Logger) Info(v ...interface{}) {
-	l.Log(logging.LevelInfo, v...)
+	l.Log(hlog.LevelInfo, v...)
 }
 
 // Notice logs a message at notice level.
 func (l *Logger) Notice(v ...interface{}) {
-	l.Log(logging.LevelNotice, v...)
+	l.Log(hlog.LevelNotice, v...)
 }
 
 // Warn logs a message at warn level.
 func (l *Logger) Warn(v ...interface{}) {
-	l.Log(logging.LevelWarn, v...)
+	l.Log(hlog.LevelWarn, v...)
 }
 
 // Error logs a message at error level.
 func (l *Logger) Error(v ...interface{}) {
-	l.Log(logging.LevelError, v...)
+	l.Log(hlog.LevelError, v...)
 }
 
 // Fatal logs a message at fatal level.
 func (l *Logger) Fatal(v ...interface{}) {
-	l.Log(logging.LevelFatal, v...)
+	l.Log(hlog.LevelFatal, v...)
 }
 
 // Tracef logs a formatted message at trace level.
 func (l *Logger) Tracef(format string, v ...interface{}) {
-	l.Logf(logging.LevelTrace, format, v...)
+	l.Logf(hlog.LevelTrace, format, v...)
 }
 
 // Debugf logs a formatted message at debug level.
 func (l *Logger) Debugf(format string, v ...interface{}) {
-	l.Logf(logging.LevelDebug, format, v...)
+	l.Logf(hlog.LevelDebug, format, v...)
 }
 
 // Infof logs a formatted message at info level.
 func (l *Logger) Infof(format string, v ...interface{}) {
-	l.Logf(logging.LevelInfo, format, v...)
+	l.Logf(hlog.LevelInfo, format, v...)
 }
 
 // Noticef logs a formatted message at notice level.
 func (l *Logger) Noticef(format string, v ...interface{}) {
-	l.Logf(logging.LevelWarn, format, v...)
+	l.Logf(hlog.LevelWarn, format, v...)
 }
 
 // Warnf logs a formatted message at warn level.
 func (l *Logger) Warnf(format string, v ...interface{}) {
-	l.Logf(logging.LevelWarn, format, v...)
+	l.Logf(hlog.LevelWarn, format, v...)
 }
 
 // Errorf logs a formatted message at error level.
 func (l *Logger) Errorf(format string, v ...interface{}) {
-	l.Logf(logging.LevelError, format, v...)
+	l.Logf(hlog.LevelError, format, v...)
 }
 
 // Fatalf logs a formatted message at fatal level.
 func (l *Logger) Fatalf(format string, v ...interface{}) {
-	l.Logf(logging.LevelError, format, v...)
+	l.Logf(hlog.LevelError, format, v...)
 }
 
 // CtxTracef logs a message at trace level with logger associated with context.
 // If no logger is associated, DefaultContextLogger is used, unless DefaultContextLogger is nil, in which case a disabled logger is used.
 func (l *Logger) CtxTracef(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelTrace, ctx, format, v...)
+	l.CtxLogf(hlog.LevelTrace, ctx, format, v...)
 }
 
 // CtxDebugf logs a message at debug level with logger associated with context.
 // If no logger is associated, DefaultContextLogger is used, unless DefaultContextLogger is nil, in which case a disabled logger is used.
 func (l *Logger) CtxDebugf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelDebug, ctx, format, v...)
+	l.CtxLogf(hlog.LevelDebug, ctx, format, v...)
 }
 
 // CtxInfof logs a message at info level with logger associated with context.
 // If no logger is associated, DefaultContextLogger is used, unless DefaultContextLogger is nil, in which case a disabled logger is used.
 func (l *Logger) CtxInfof(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelInfo, ctx, format, v...)
+	l.CtxLogf(hlog.LevelInfo, ctx, format, v...)
 }
 
 // CtxNoticef logs a message at notice level with logger associated with context.
 // If no logger is associated, DefaultContextLogger is used, unless DefaultContextLogger is nil, in which case a disabled logger is used.
 func (l *Logger) CtxNoticef(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelNotice, ctx, format, v...)
+	l.CtxLogf(hlog.LevelNotice, ctx, format, v...)
 }
 
 // CtxWarnf logs a message at warn level with logger associated with context.
 // If no logger is associated, DefaultContextLogger is used, unless DefaultContextLogger is nil, in which case a disabled logger is used.
 func (l *Logger) CtxWarnf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelWarn, ctx, format, v...)
+	l.CtxLogf(hlog.LevelWarn, ctx, format, v...)
 }
 
 // CtxErrorf logs a message at error level with logger associated with context.
 // If no logger is associated, DefaultContextLogger is used, unless DefaultContextLogger is nil, in which case a disabled logger is used.
 func (l *Logger) CtxErrorf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelError, ctx, format, v...)
+	l.CtxLogf(hlog.LevelError, ctx, format, v...)
 }
 
 // CtxFatalf logs a message at fatal level with logger associated with context.
 // If no logger is associated, DefaultContextLogger is used, unless DefaultContextLogger is nil, in which case a disabled logger is used.
 func (l *Logger) CtxFatalf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelFatal, ctx, format, v...)
+	l.CtxLogf(hlog.LevelFatal, ctx, format, v...)
 }
 
 func newLogger(log zerolog.Logger, options []Opt) *Logger {

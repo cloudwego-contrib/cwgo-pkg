@@ -19,13 +19,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
@@ -77,9 +76,9 @@ func TestLogger(t *testing.T) {
 	logger := NewLogger(WithZapOptions(zap.WithFatalHook(zapcore.WriteThenPanic)))
 	defer logger.Sync()
 
-	logging.SetLogger(logger)
-	logging.SetOutput(buf)
-	logging.SetLevel(logging.LevelDebug)
+	hlog.SetLogger(logger)
+	hlog.SetOutput(buf)
+	hlog.SetLevel(hlog.LevelDebug)
 
 	type logMap map[string]string
 
@@ -184,12 +183,12 @@ func TestLogLevel(t *testing.T) {
 	logger.Debug("this is a debug log")
 	assert.False(t, strings.Contains(buf.String(), "this is a debug log"))
 
-	logger.SetLevel(logging.LevelDebug)
+	logger.SetLevel(hlog.LevelDebug)
 
 	logger.Debugf("this is a debug log %s", "msg")
 	assert.True(t, strings.Contains(buf.String(), "this is a debug log"))
 
-	logger.SetLevel(logging.LevelError)
+	logger.SetLevel(hlog.LevelError)
 	logger.Infof("this is a debug log %s", "msg")
 	assert.False(t, strings.Contains(buf.String(), "this is a info log"))
 
@@ -303,7 +302,7 @@ func TestCoreOption(t *testing.T) {
 	// test console encoder result
 	assert.True(t, strings.Contains(buf.String(), "\tERROR\t"))
 
-	logger.SetLevel(logging.LevelDebug)
+	logger.SetLevel(hlog.LevelDebug)
 	logger.Debug("this is a debug log")
 	assert.True(t, strings.Contains(buf.String(), "this is a debug log"))
 }

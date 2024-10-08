@@ -43,14 +43,13 @@ package logrus
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/sirupsen/logrus"
 )
 
-var _ logging.FullLogger = (*Logger)(nil)
+var _ hlog.FullLogger = (*Logger)(nil)
 
 // Logger otellogrus impl
 type Logger struct {
@@ -164,20 +163,20 @@ func (l *Logger) CtxFatalf(ctx context.Context, format string, v ...interface{})
 	l.l.WithContext(ctx).Fatalf(format, v...)
 }
 
-func (l *Logger) SetLevel(level logging.Level) {
+func (l *Logger) SetLevel(level hlog.Level) {
 	var lv logrus.Level
 	switch level {
-	case logging.LevelTrace:
+	case hlog.LevelTrace:
 		lv = logrus.TraceLevel
-	case logging.LevelDebug:
+	case hlog.LevelDebug:
 		lv = logrus.DebugLevel
-	case logging.LevelInfo:
+	case hlog.LevelInfo:
 		lv = logrus.InfoLevel
-	case logging.LevelWarn, logging.LevelNotice:
+	case hlog.LevelWarn, hlog.LevelNotice:
 		lv = logrus.WarnLevel
-	case logging.LevelError:
+	case hlog.LevelError:
 		lv = logrus.ErrorLevel
-	case logging.LevelFatal:
+	case hlog.LevelFatal:
 		lv = logrus.FatalLevel
 	default:
 		lv = logrus.WarnLevel

@@ -16,9 +16,10 @@ package otelkitex
 
 import (
 	"context"
+	"github.com/cloudwego/kitex/pkg/klog"
 
 	"github.com/bytedance/gopkg/cloud/metainfo"
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/internal"
 	"github.com/cloudwego/kitex/pkg/endpoint"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
@@ -59,7 +60,7 @@ func ServerMiddleware(cfg *Config) endpoint.Middleware {
 		return func(ctx context.Context, req, resp interface{}) (err error) {
 			tc := internal.TraceCarrierFromContext(ctx)
 			if tc == nil {
-				logging.CtxWarnf(ctx, "TraceCarrier not found in context")
+				klog.CtxWarnf(ctx, "TraceCarrier not found in context")
 				return next(ctx, req, resp)
 			}
 

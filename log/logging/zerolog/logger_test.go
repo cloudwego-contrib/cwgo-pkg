@@ -20,9 +20,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"testing"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -53,7 +52,7 @@ func TestGetLogger_notSet(t *testing.T) {
 }
 
 func TestGetLogger(t *testing.T) {
-	logging.SetLogger(New())
+	hlog.SetLogger(New())
 	logger, err := GetLogger()
 
 	assert.NoError(t, err)
@@ -318,12 +317,12 @@ func TestCtxErrorf(t *testing.T) {
 func TestSetLevel(t *testing.T) {
 	l := New()
 
-	l.SetLevel(logging.LevelDebug)
+	l.SetLevel(hlog.LevelDebug)
 	assert.Equal(t, l.log.GetLevel(), zerolog.DebugLevel)
 
-	l.SetLevel(logging.LevelDebug)
+	l.SetLevel(hlog.LevelDebug)
 	assert.Equal(t, l.log.GetLevel(), zerolog.DebugLevel)
 
-	l.SetLevel(logging.LevelError)
+	l.SetLevel(hlog.LevelError)
 	assert.Equal(t, l.log.GetLevel(), zerolog.ErrorLevel)
 }

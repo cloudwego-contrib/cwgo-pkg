@@ -18,11 +18,10 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"log/slog"
 	"os"
 	"testing"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -43,14 +42,14 @@ func TestLogger(t *testing.T) {
 	buf := new(bytes.Buffer)
 	logger := NewLogger()
 
-	logging.SetLogger(logger)
-	logging.SetOutput(buf)
-	logging.SetLevel(logging.LevelError)
+	hlog.SetLogger(logger)
+	hlog.SetOutput(buf)
+	hlog.SetLevel(hlog.LevelError)
 
-	logging.Info(infoMsg)
+	hlog.Info(infoMsg)
 	assert.Equal(t, "", buf.String())
 
-	logging.Error(errorMsg)
+	hlog.Error(errorMsg)
 	// test SetLevel
 	assert.Contains(t, buf.String(), errorMsg)
 
@@ -62,10 +61,10 @@ func TestLogger(t *testing.T) {
 
 	defer os.Remove(logFileName)
 
-	logging.SetOutput(f)
+	hlog.SetOutput(f)
 
-	logging.Info(infoMsg)
-	logging.Error(errorMsg)
+	hlog.Info(infoMsg)
+	hlog.Error(errorMsg)
 	_ = f.Sync()
 
 	readF, err := os.OpenFile(logFileName, os.O_RDONLY, 0o400)
@@ -84,18 +83,18 @@ func TestWithLevel(t *testing.T) {
 	lvl.Set(slog.LevelError)
 	logger := NewLogger(WithLevel(lvl))
 
-	logging.SetLogger(logger)
-	logging.SetOutput(buf)
+	hlog.SetLogger(logger)
+	hlog.SetOutput(buf)
 
-	logging.Notice(infoMsg)
+	hlog.Notice(infoMsg)
 	assert.Equal(t, "", buf.String())
 
-	logging.Error(errorMsg)
+	hlog.Error(errorMsg)
 	assert.Contains(t, buf.String(), errorMsg)
 
 	buf.Reset()
-	logging.SetLevel(logging.LevelDebug)
-	logging.Debug(debugMsg)
+	hlog.SetLevel(hlog.LevelDebug)
+	hlog.Debug(debugMsg)
 
 	assert.Contains(t, buf.String(), debugMsg)
 }
@@ -109,23 +108,23 @@ func TestWithHandlerOptions(t *testing.T) {
 		return a
 	}}))
 
-	logging.SetLogger(logger)
-	logging.SetOutput(buf)
+	hlog.SetLogger(logger)
+	hlog.SetOutput(buf)
 
-	logging.Warn(warnMsg)
+	hlog.Warn(warnMsg)
 	assert.Equal(t, "", buf.String())
 
-	logging.SetLevel(logging.LevelInfo)
+	hlog.SetLevel(hlog.LevelInfo)
 
-	logging.Debug(debugMsg)
+	hlog.Debug(debugMsg)
 	assert.Equal(t, "", buf.String())
 
-	logging.Info(infoMsg)
+	hlog.Info(infoMsg)
 	assert.Contains(t, buf.String(), infoMsg)
 	assert.Contains(t, buf.String(), "content")
 
 	buf.Reset()
-	logging.SetLevel(logging.LevelTrace)
+	hlog.SetLevel(hlog.LevelTrace)
 
 	testCase := []struct {
 		levelName string
@@ -134,37 +133,37 @@ func TestWithHandlerOptions(t *testing.T) {
 	}{
 		{
 			"Trace",
-			logging.Trace,
+			hlog.Trace,
 			traceMsg,
 		},
 		{
 			"Debug",
-			logging.Debug,
+			hlog.Debug,
 			debugMsg,
 		},
 		{
 			"Info",
-			logging.Info,
+			hlog.Info,
 			infoMsg,
 		},
 		{
 			"Notice",
-			logging.Notice,
+			hlog.Notice,
 			noticeMsg,
 		},
 		{
 			"Warn",
-			logging.Warn,
+			hlog.Warn,
 			warnMsg,
 		},
 		{
 			"Error",
-			logging.Error,
+			hlog.Error,
 			errorMsg,
 		},
 		{
 			"Fatal",
-			logging.Fatal,
+			hlog.Fatal,
 			fatalMsg,
 		},
 	}
@@ -181,18 +180,18 @@ func TestWithoutLevel(t *testing.T) {
 	buf := new(bytes.Buffer)
 	logger := NewLogger(WithHandlerOptions(&slog.HandlerOptions{AddSource: true}))
 
-	logging.SetLogger(logger)
-	logging.SetOutput(buf)
+	hlog.SetLogger(logger)
+	hlog.SetOutput(buf)
 
-	logging.CtxInfof(context.TODO(), "hello %s", "otelhertz")
+	hlog.CtxInfof(context.TODO(), "hello %s", "otelhertz")
 	assert.Contains(t, buf.String(), "source")
 }
 
 func TestWithOutput(t *testing.T) {
 	buf := new(bytes.Buffer)
 	logger := NewLogger(WithOutput(buf))
-	logging.SetLogger(logger)
+	hlog.SetLogger(logger)
 
-	logging.CtxErrorf(context.TODO(), errorMsg)
+	hlog.CtxErrorf(context.TODO(), errorMsg)
 	assert.Contains(t, buf.String(), errorMsg)
 }

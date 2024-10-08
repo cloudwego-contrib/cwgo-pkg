@@ -16,6 +16,7 @@ package metric
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 	"net/http"
 	"strings"
@@ -24,7 +25,6 @@ import (
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/label"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -40,7 +40,7 @@ func TestMetrics(t *testing.T) {
 
 	go func() {
 		if err := http.ListenAndServe(":9090", nil); err != nil {
-			logging.Fatalf("HERTZ: Unable to start a http server, err: %s", err.Error())
+			hlog.Fatalf("HERTZ: Unable to start a http server, err: %s", err.Error())
 		}
 	}()
 

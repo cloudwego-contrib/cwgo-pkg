@@ -16,13 +16,13 @@ package otelprovider
 
 import (
 	"context"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"time"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider"
 	runtimemetrics "go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
@@ -106,7 +106,7 @@ func NewOpenTelemetryProvider(opts ...Option) provider.Provider {
 		// trace exporter
 		traceExp, err = otlptrace.New(ctx, traceClient)
 		if err != nil {
-			logging.Fatalf("failed to create otlp trace exporter: %s", err)
+			hlog.Fatalf("failed to create otlp trace exporter: %s", err)
 			return nil
 		}
 
@@ -233,7 +233,7 @@ func newResource(cfg *config) *resource.Resource {
 
 func handleInitErr(err error, message string) {
 	if err != nil {
-		logging.Fatalf("%s: %v", message, err)
+		hlog.Fatalf("%s: %v", message, err)
 	}
 }
 

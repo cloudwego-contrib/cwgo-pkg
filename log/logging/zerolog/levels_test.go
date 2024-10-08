@@ -17,28 +17,27 @@
 package zerolog
 
 import (
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"testing"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMatchlogLevel(t *testing.T) {
-	assert.Equal(t, zerolog.TraceLevel, matchlogLevel(logging.LevelTrace))
-	assert.Equal(t, zerolog.DebugLevel, matchlogLevel(logging.LevelDebug))
-	assert.Equal(t, zerolog.InfoLevel, matchlogLevel(logging.LevelInfo))
-	assert.Equal(t, zerolog.WarnLevel, matchlogLevel(logging.LevelWarn))
-	assert.Equal(t, zerolog.ErrorLevel, matchlogLevel(logging.LevelError))
-	assert.Equal(t, zerolog.FatalLevel, matchlogLevel(logging.LevelFatal))
+	assert.Equal(t, zerolog.TraceLevel, matchlogLevel(hlog.LevelTrace))
+	assert.Equal(t, zerolog.DebugLevel, matchlogLevel(hlog.LevelDebug))
+	assert.Equal(t, zerolog.InfoLevel, matchlogLevel(hlog.LevelInfo))
+	assert.Equal(t, zerolog.WarnLevel, matchlogLevel(hlog.LevelWarn))
+	assert.Equal(t, zerolog.ErrorLevel, matchlogLevel(hlog.LevelError))
+	assert.Equal(t, zerolog.FatalLevel, matchlogLevel(hlog.LevelFatal))
 }
 
 func TestMatchZerologLevel(t *testing.T) {
-	assert.Equal(t, logging.LevelTrace, matchZerologLevel(zerolog.TraceLevel))
-	assert.Equal(t, logging.LevelDebug, matchZerologLevel(zerolog.DebugLevel))
-	assert.Equal(t, logging.LevelInfo, matchZerologLevel(zerolog.InfoLevel))
-	assert.Equal(t, logging.LevelWarn, matchZerologLevel(zerolog.WarnLevel))
-	assert.Equal(t, logging.LevelError, matchZerologLevel(zerolog.ErrorLevel))
-	assert.Equal(t, logging.LevelFatal, matchZerologLevel(zerolog.FatalLevel))
+	assert.Equal(t, hlog.LevelTrace, matchZerologLevel(zerolog.TraceLevel))
+	assert.Equal(t, hlog.LevelDebug, matchZerologLevel(zerolog.DebugLevel))
+	assert.Equal(t, hlog.LevelInfo, matchZerologLevel(zerolog.InfoLevel))
+	assert.Equal(t, hlog.LevelWarn, matchZerologLevel(zerolog.WarnLevel))
+	assert.Equal(t, hlog.LevelError, matchZerologLevel(zerolog.ErrorLevel))
+	assert.Equal(t, hlog.LevelFatal, matchZerologLevel(zerolog.FatalLevel))
 }

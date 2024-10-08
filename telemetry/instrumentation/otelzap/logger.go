@@ -17,8 +17,8 @@ package otelzap
 import (
 	"context"
 	"errors"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 	cwzap "github.com/cloudwego-contrib/cwgo-pkg/log/logging/zap"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -61,7 +61,7 @@ func NewLogger(opts ...Option) *Logger {
 	}
 }
 
-func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string, kvs ...interface{}) {
+func (l *Logger) CtxLogf(level hlog.Level, ctx context.Context, format string, kvs ...interface{}) {
 	var zlevel zapcore.Level
 	span := trace.SpanFromContext(ctx)
 
@@ -80,15 +80,15 @@ func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string
 	}
 
 	switch level {
-	case logging.LevelDebug, logging.LevelTrace:
+	case hlog.LevelDebug, hlog.LevelTrace:
 		zlevel = zap.DebugLevel
-	case logging.LevelInfo:
+	case hlog.LevelInfo:
 		zlevel = zap.InfoLevel
-	case logging.LevelNotice, logging.LevelWarn:
+	case hlog.LevelNotice, hlog.LevelWarn:
 		zlevel = zap.WarnLevel
-	case logging.LevelError:
+	case hlog.LevelError:
 		zlevel = zap.ErrorLevel
-	case logging.LevelFatal:
+	case hlog.LevelFatal:
 		zlevel = zap.FatalLevel
 	default:
 		zlevel = zap.WarnLevel
@@ -103,31 +103,31 @@ func (l *Logger) CtxLogf(level logging.Level, ctx context.Context, format string
 }
 
 func (l *Logger) CtxTracef(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelDebug, ctx, format, v...)
+	l.CtxLogf(hlog.LevelDebug, ctx, format, v...)
 }
 
 func (l *Logger) CtxDebugf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelDebug, ctx, format, v...)
+	l.CtxLogf(hlog.LevelDebug, ctx, format, v...)
 }
 
 func (l *Logger) CtxInfof(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelInfo, ctx, format, v...)
+	l.CtxLogf(hlog.LevelInfo, ctx, format, v...)
 }
 
 func (l *Logger) CtxNoticef(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelWarn, ctx, format, v...)
+	l.CtxLogf(hlog.LevelWarn, ctx, format, v...)
 }
 
 func (l *Logger) CtxWarnf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelWarn, ctx, format, v...)
+	l.CtxLogf(hlog.LevelWarn, ctx, format, v...)
 }
 
 func (l *Logger) CtxErrorf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelError, ctx, format, v...)
+	l.CtxLogf(hlog.LevelError, ctx, format, v...)
 }
 
 func (l *Logger) CtxFatalf(ctx context.Context, format string, v ...interface{}) {
-	l.CtxLogf(logging.LevelFatal, ctx, format, v...)
+	l.CtxLogf(hlog.LevelFatal, ctx, format, v...)
 }
 
 func GetOptions(cwZap cwZap) []cwzap.Option {

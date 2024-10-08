@@ -15,11 +15,10 @@
 package slog
 
 import (
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 	"log/slog"
 	"os"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/log/logging"
 )
 
 type Option interface {
@@ -42,7 +41,7 @@ type config struct {
 
 func defaultConfig() *config {
 	lvl := &slog.LevelVar{}
-	lvl.Set(tranSLevel(logging.LevelInfo))
+	lvl.Set(tranSLevel(hlog.LevelInfo))
 
 	handlerOptions := &slog.HandlerOptions{
 		Level: lvl,
