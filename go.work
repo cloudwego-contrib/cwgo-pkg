@@ -6,11 +6,11 @@ use (
 	./log/logging/slog
 	./log/logging/zap
 	./log/logging/zerolog
-	telemetry
-	telemetry/instrumentation/otelzerolog
-	telemetry/instrumentation/otelzap
-	telemetry/instrumentation/otellogrus
-	telemetry/instrumentation/otelslog
+	./telemetry
+	./telemetry/instrumentation/otelzerolog
+	./telemetry/instrumentation/otelzap
+	./telemetry/instrumentation/otellogrus
+	./telemetry/instrumentation/otelslog
 
 )
 
