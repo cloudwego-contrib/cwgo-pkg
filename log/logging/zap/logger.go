@@ -88,9 +88,6 @@ func (l *Logger) Log(level hlog.Level, kvs ...interface{}) {
 
 func (l *Logger) Logf(level hlog.Level, format string, kvs ...interface{}) {
 	logger := l.l.Sugar()
-	if l.config.customFields != nil {
-		logger.With(l.config.customFields)
-	}
 	switch level {
 	case hlog.LevelTrace, hlog.LevelDebug:
 		logger.Debugf(format, kvs...)
@@ -129,9 +126,6 @@ func (l *Logger) CtxLogf(level hlog.Level, ctx context.Context, format string, k
 		}
 	}
 	log := zapLogger.Sugar()
-	if l.config.customFields != nil {
-		log.With(l.config.customFields)
-	}
 	switch level {
 	case hlog.LevelDebug, hlog.LevelTrace:
 		log.Debugf(format, kvs...)
