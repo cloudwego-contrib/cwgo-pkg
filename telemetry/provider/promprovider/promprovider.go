@@ -57,7 +57,7 @@ func NewPromProvider(opts ...Option) *promProvider {
 	if cfg.enableRPC {
 		RPCCounterVec := prometheus.NewCounterVec(
 			prometheus.CounterOpts{
-				Name: buildName(cfg.name, semantic.Counter),
+				Name: buildName(cfg.name, "rpc", semantic.Counter),
 				Help: fmt.Sprintf("Total number of requires completed by the %s, regardless of success or failure.", semantic.Counter),
 			},
 			[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey, semantic.LabelKeyStatus},
@@ -67,7 +67,7 @@ func NewPromProvider(opts ...Option) *promProvider {
 
 		clientHandledHistogramRPC := prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name:    buildName(cfg.name, semantic.Latency),
+				Name:    buildName(cfg.name, "rpc", semantic.Latency),
 				Help:    fmt.Sprintf("Latency (microseconds) of the %s until it is finished.", semantic.Latency),
 				Buckets: cfg.buckets,
 			},
@@ -78,13 +78,13 @@ func NewPromProvider(opts ...Option) *promProvider {
 		// create retry recorder
 		retryHandledHistogramRPC := prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name:    buildName(cfg.name, semantic.Retry),
+				Name:    buildName(cfg.name, "rpc", semantic.Retry),
 				Help:    fmt.Sprintf("Distribution of retry attempts for %s until it is finished.", semantic.Retry),
 				Buckets: retryBuckets,
 			},
 			[]string{semantic.LabelRPCCallerKey, semantic.LabelRPCCalleeKey, semantic.LabelRPCMethodKey},
 		)
-		registry.MustRegister(clientHandledHistogramRPC)
+		registry.MustRegister(retryHandledHistogramRPC)
 		retryRecorder := metric.NewPromRecorder(retryHandledHistogramRPC)
 
 		metrics = append(metrics,
@@ -96,7 +96,7 @@ func NewPromProvider(opts ...Option) *promProvider {
 	if cfg.enableHTTP {
 		HttpCounterVec := prometheus.NewCounterVec(
 			prometheus.CounterOpts{
-				Name: buildName(cfg.name, semantic.Counter),
+				Name: buildName(cfg.name, "http", semantic.Counter),
 				Help: "Total number of HTTPs completed by the server, regardless of success or failure.",
 			},
 			[]string{semantic.LabelHttpMethodKey, semantic.LabelStatusCode, semantic.LabelPath},
@@ -106,7 +106,7 @@ func NewPromProvider(opts ...Option) *promProvider {
 
 		HttpHandledHistogram := prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
-				Name:    buildName(cfg.name, semantic.Latency),
+				Name:    buildName(cfg.name, "http", semantic.Latency),
 				Help:    "Latency (microseconds) of HTTP that had been application-level handled by the server.",
 				Buckets: cfg.buckets,
 			},
@@ -142,9 +142,9 @@ func (p *promProvider) Serve(addr, path string) {
 	}()
 }
 
-func buildName(name, service string) string {
+func buildName(name, protocol, service string) string {
 	if name != "" {
-		return fmt.Sprintf("%s_%s", name, service)
+		return fmt.Sprintf("%s_%s_%s", name, protocol, service)
 	}
-	return service
+	return fmt.Sprintf("%s_%s", protocol, service)
 }
