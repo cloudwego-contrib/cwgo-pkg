@@ -16,6 +16,7 @@ package otelprovider
 
 import (
 	"context"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -146,9 +147,12 @@ func NewOpenTelemetryProvider(opts ...Option) provider.Provider {
 		if meterProvider == nil {
 			// meter exporter
 			metricExp, err := otlpmetricgrpc.New(context.Background(), metricsClientOpts...)
-
-			handleInitErr(err, "Failed to create the metric exporter")
-
+			if cfg.enableHTTP {
+				handleInitErrh(err, "Failed to create the metric exporter")
+			}
+			if cfg.enableRPC {
+				handleInitErrk(err, "Failed to create the metric exporter")
+			}
 			// reader := metric.NewPeriodicReader(exporter)
 			reader := metric.WithReader(metric.NewPeriodicReader(metricExp, metric.WithInterval(15*time.Second)))
 
@@ -203,7 +207,13 @@ func NewOpenTelemetryProvider(opts ...Option) provider.Provider {
 		global.SetTracerMeasure(measure)
 
 		err = runtimemetrics.Start()
-		handleInitErr(err, "Failed to start runtime meter collector")
+		if cfg.enableHTTP {
+			handleInitErrh(err, "Failed to start runtime meter collector")
+		}
+		if cfg.enableRPC {
+			handleInitErrk(err, "Failed to start runtime meter collector")
+		}
+
 	}
 
 	return &otelProvider{
@@ -232,9 +242,15 @@ func newResource(cfg *config) *resource.Resource {
 	return res
 }
 
-func handleInitErr(err error, message string) {
+func handleInitErrh(err error, message string) {
 	if err != nil {
 		hlog.Fatalf("%s: %v", message, err)
+	}
+}
+
+func handleInitErrk(err error, message string) {
+	if err != nil {
+		klog.Fatalf("%s: %v", message, err)
 	}
 }
 
