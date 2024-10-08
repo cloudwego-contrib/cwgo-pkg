@@ -18,7 +18,7 @@ import (
 	"sort"
 	"testing"
 
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
+	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/common"
 
 	"github.com/stretchr/testify/assert"
 )

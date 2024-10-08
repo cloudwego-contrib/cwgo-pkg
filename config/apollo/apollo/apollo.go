@@ -20,7 +20,7 @@ import (
 	"sync"
 	"text/template"
 
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/shima-park/agollo"
@@ -28,10 +28,10 @@ import (
 
 // Client the wrapper of apollo client.
 type Client interface {
-	SetParser(cwutils.ConfigParser)
-	ClientConfigParam(cpc *cwutils.ConfigParamConfig) (ConfigParam, error)
-	ServerConfigParam(cpc *cwutils.ConfigParamConfig) (ConfigParam, error)
-	RegisterConfigCallback(ConfigParam, func(string, cwutils.ConfigParser), int64)
+	SetParser(common.ConfigParser)
+	ClientConfigParam(cpc *common.ConfigParamConfig) (ConfigParam, error)
+	ServerConfigParam(cpc *common.ConfigParamConfig) (ConfigParam, error)
+	RegisterConfigCallback(ConfigParam, func(string, common.ConfigParser), int64)
 	DeregisterConfig(ConfigParam, int64) error
 }
 
@@ -39,7 +39,7 @@ type ConfigParam struct {
 	Key       string
 	nameSpace string
 	Cluster   string
-	Type      cwutils.ConfigType
+	Type      common.ConfigType
 }
 
 type callbackHandler func(namespace, cluster, key, data string)
@@ -63,7 +63,7 @@ func getConfigParamKey(in *ConfigParam) configParamKey {
 type client struct {
 	acli agollo.Agollo
 	// support customise parser
-	parser            cwutils.ConfigParser
+	parser            common.ConfigParser
 	stop              chan bool
 	clusterTemplate   *template.Template
 	serverKeyTemplate *template.Template
@@ -89,7 +89,7 @@ type Options struct {
 	ServerKeyFormat string
 	ClientKeyFormat string
 	ApolloOptions   []agollo.Option
-	ConfigParser    cwutils.ConfigParser
+	ConfigParser    common.ConfigParser
 }
 
 type OptionFunc func(option *Options)
@@ -99,7 +99,7 @@ func NewClient(opts Options, optsfunc ...OptionFunc) (Client, error) {
 		opts.ConfigServerURL = ApolloDefaultConfigServerURL
 	}
 	if opts.ConfigParser == nil {
-		opts.ConfigParser = cwutils.DefaultConfigParse()
+		opts.ConfigParser = common.DefaultConfigParse()
 	}
 	if opts.AppID == "" {
 		opts.AppID = ApolloDefaultAppId
@@ -156,11 +156,11 @@ func WithApolloOption(apolloOption ...agollo.Option) OptionFunc {
 	}
 }
 
-func (c *client) SetParser(parser cwutils.ConfigParser) {
+func (c *client) SetParser(parser common.ConfigParser) {
 	c.parser = parser
 }
 
-func (c *client) render(cpc *cwutils.ConfigParamConfig, t *template.Template) (string, error) {
+func (c *client) render(cpc *common.ConfigParamConfig, t *template.Template) (string, error) {
 	var tpl bytes.Buffer
 	err := t.Execute(&tpl, cpc)
 	if err != nil {
@@ -169,12 +169,12 @@ func (c *client) render(cpc *cwutils.ConfigParamConfig, t *template.Template) (s
 	return tpl.String(), nil
 }
 
-func (c *client) ServerConfigParam(cpc *cwutils.ConfigParamConfig) (ConfigParam, error) {
+func (c *client) ServerConfigParam(cpc *common.ConfigParamConfig) (ConfigParam, error) {
 	return c.configParam(cpc, c.serverKeyTemplate)
 }
 
 // ClientConfigParam render client config parameters
-func (c *client) ClientConfigParam(cpc *cwutils.ConfigParamConfig) (ConfigParam, error) {
+func (c *client) ClientConfigParam(cpc *common.ConfigParamConfig) (ConfigParam, error) {
 	return c.configParam(cpc, c.clientKeyTemplate)
 }
 
@@ -186,9 +186,9 @@ func (c *client) ClientConfigParam(cpc *cwutils.ConfigParamConfig) (ConfigParam,
 //  4. ServerKey: {{.ServerServiceName}} by default.
 //     ClientKey: {{.ClientServiceName}}.{{.ServerServiceName}} by default.
 //  5. Cluster: default by default
-func (c *client) configParam(cpc *cwutils.ConfigParamConfig, t *template.Template) (ConfigParam, error) {
+func (c *client) configParam(cpc *common.ConfigParamConfig, t *template.Template) (ConfigParam, error) {
 	param := ConfigParam{
-		Type:      cwutils.JSON,
+		Type:      common.JSON,
 		nameSpace: cpc.Category,
 	}
 	var err error
@@ -246,7 +246,7 @@ func (c *client) onChange(namespace, cluster, key, data string) {
 
 // RegisterConfigCallback register the callback function to apollo client.
 func (c *client) RegisterConfigCallback(param ConfigParam,
-	callback func(string, cwutils.ConfigParser), uniqueID int64,
+	callback func(string, common.ConfigParser), uniqueID int64,
 ) {
 	onChange := func(namespace, cluster, key, data string) {
 		klog.Debugf("[apollo] uniqueID %d config %s updated, namespace %s cluster %s key %s data %s",

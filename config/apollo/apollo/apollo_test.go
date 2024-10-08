@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
 
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/shima-park/agollo"
@@ -109,7 +109,7 @@ func TestRegisterAndDeregister(t *testing.T) {
 			Key:       "k1",
 			nameSpace: "n1",
 			Cluster:   "c1",
-		}, func(s string, cp cwutils.ConfigParser) {
+		}, func(s string, cp common.ConfigParser) {
 			gotlock.Lock()
 			defer gotlock.Unlock()
 			ids, ok := gots[configkey]
@@ -135,7 +135,7 @@ func TestRegisterAndDeregister(t *testing.T) {
 			Key:       "k1",
 			nameSpace: "n1",
 			Cluster:   "c1",
-		}, func(s string, cp cwutils.ConfigParser) {
+		}, func(s string, cp common.ConfigParser) {
 			gotlock.Lock()
 			defer gotlock.Unlock()
 			klog.Info("onchange callback2:", s)

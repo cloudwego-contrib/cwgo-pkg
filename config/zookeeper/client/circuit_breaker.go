@@ -18,7 +18,7 @@ import (
 	"context"
 	"strings"
 
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/utils"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/zookeeper"
@@ -30,7 +30,7 @@ import (
 
 // WithCircuitBreaker sets the circuit breaker policy from zookeeper configuration center.
 func WithCircuitBreaker(dest, src string, zookeeperClient zookeeper.Client, opts utils.Options) []client.Option {
-	param, err := zookeeperClient.ClientConfigParam(&cwutils.ConfigParamConfig{
+	param, err := zookeeperClient.ClientConfigParam(&common.ConfigParamConfig{
 		Category:          circuitBreakerConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -83,14 +83,14 @@ func genServiceCBKey(toService, method string) string {
 
 func initCircuitBreaker(path string, uniqueID int64, dest string, zookeeperClient zookeeper.Client) *circuitbreak.CBSuite {
 	cb := circuitbreak.NewCBSuite(genServiceCBKeyWithRPCInfo)
-	lcb := cwutils.ThreadSafeSet{}
+	lcb := common.ThreadSafeSet{}
 
-	onChangeCallback := func(restoreDefault bool, data string, parser cwutils.ConfigParser) {
-		set := cwutils.Set{}
+	onChangeCallback := func(restoreDefault bool, data string, parser common.ConfigParser) {
+		set := common.Set{}
 		configs := map[string]circuitbreak.CBConfig{}
 
 		if !restoreDefault {
-			err := parser.Decode(cwutils.JSON, data, &configs)
+			err := parser.Decode(common.JSON, data, &configs)
 			if err != nil {
 				klog.Warnf("[zookeeper] %s client zookeeper circuit breaker: unmarshal data %s failed: %s, skip...", path, data, err)
 				return

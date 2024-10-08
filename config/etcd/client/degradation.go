@@ -17,7 +17,7 @@ package client
 import (
 	"context"
 
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/config/etcd/etcd"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/etcd/pkg/degradation"
@@ -28,7 +28,7 @@ import (
 )
 
 func WithDegradation(dest, src string, etcdClient etcd.Client, uniqueID int64, opts utils.Options) []client.Option {
-	param, err := etcdClient.ClientConfigParam(&cwutils.ConfigParamConfig{
+	param, err := etcdClient.ClientConfigParam(&common.ConfigParamConfig{
 		Category:          degradationConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -53,10 +53,10 @@ func WithDegradation(dest, src string, etcdClient etcd.Client, uniqueID int64, o
 
 func initDegradationOptions(key, dest string, uniqueID int64, etcdClient etcd.Client) *degradation.Container {
 	container := degradation.NewContainer()
-	onChangeCallback := func(restoreDefault bool, data string, parser cwutils.ConfigParser) {
+	onChangeCallback := func(restoreDefault bool, data string, parser common.ConfigParser) {
 		config := &degradation.Config{}
 		if !restoreDefault {
-			err := parser.Decode(cwutils.JSON, data, config)
+			err := parser.Decode(common.JSON, data, config)
 			if err != nil {
 				klog.Warnf("[etcd] %s server etcd degradation config: unmarshal data %s failed: %s, skip...", key, data, err)
 				return

@@ -15,9 +15,9 @@
 package client
 
 import (
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/consul/consul"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/consul/utils"
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -27,7 +27,7 @@ import (
 
 // WithRPCTimeout sets the RPC timeout policy from consul configuration center.
 func WithRPCTimeout(dest, src string, consulClient consul.Client, uniqueID int64, opts utils.Options) []client.Option {
-	param, err := consulClient.ClientConfigParam(&cwutils.ConfigParamConfig{
+	param, err := consulClient.ClientConfigParam(&common.ConfigParamConfig{
 		Category:          rpcTimeoutConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -50,12 +50,12 @@ func WithRPCTimeout(dest, src string, consulClient consul.Client, uniqueID int64
 	}
 }
 
-func initRPCTimeoutContainer(configType cwutils.ConfigType, key, dest string,
+func initRPCTimeoutContainer(configType common.ConfigType, key, dest string,
 	consulClient consul.Client, uniqueID int64,
 ) rpcinfo.TimeoutProvider {
 	rpcTimeoutContainer := rpctimeout.NewContainer()
 
-	onChangeCallback := func(data string, parser cwutils.ConfigParser) {
+	onChangeCallback := func(data string, parser common.ConfigParser) {
 		configs := map[string]*rpctimeout.RPCTimeout{}
 		err := parser.Decode(configType, data, &configs)
 		if err != nil {

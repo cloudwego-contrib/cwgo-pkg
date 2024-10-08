@@ -17,7 +17,7 @@ package server
 import (
 	"sync/atomic"
 
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/config/consul/consul"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/consul/utils"
@@ -30,7 +30,7 @@ import (
 
 // WithLimiter sets the limiter config from consul configuration center.
 func WithLimiter(dest string, consulClient consul.Client, uniqueID int64, opts utils.Options) server.Option {
-	param, err := consulClient.ServerConfigParam(&cwutils.ConfigParamConfig{
+	param, err := consulClient.ServerConfigParam(&common.ConfigParamConfig{
 		Category:          limiterConfigName,
 		ServerServiceName: dest,
 	})
@@ -47,7 +47,7 @@ func WithLimiter(dest string, consulClient consul.Client, uniqueID int64, opts u
 	return server.WithLimit(initLimitOptions(param.Type, key, uniqueID, consulClient))
 }
 
-func initLimitOptions(kind cwutils.ConfigType, key string, uniqueID int64, consulClient consul.Client) *limit.Option {
+func initLimitOptions(kind common.ConfigType, key string, uniqueID int64, consulClient consul.Client) *limit.Option {
 	var updater atomic.Value
 	opt := &limit.Option{}
 	opt.UpdateControl = func(u limit.Updater) {
@@ -55,7 +55,7 @@ func initLimitOptions(kind cwutils.ConfigType, key string, uniqueID int64, consu
 		u.UpdateLimit(opt)
 		updater.Store(u)
 	}
-	onChangeCallback := func(data string, parser cwutils.ConfigParser) {
+	onChangeCallback := func(data string, parser common.ConfigParser) {
 		lc := &limiter.LimiterConfig{}
 
 		err := parser.Decode(kind, data, lc)

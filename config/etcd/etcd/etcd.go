@@ -22,7 +22,7 @@ import (
 	"text/template"
 	"time"
 
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
 
 	"go.etcd.io/etcd/api/v3/mvccpb"
 
@@ -38,17 +38,17 @@ type Key struct {
 }
 
 type Client interface {
-	SetParser(cwutils.ConfigParser)
-	ClientConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
-	ServerConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
-	RegisterConfigCallback(ctx context.Context, key string, clientId int64, callback func(restoreDefault bool, data string, parser cwutils.ConfigParser))
+	SetParser(common.ConfigParser)
+	ClientConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
+	ServerConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
+	RegisterConfigCallback(ctx context.Context, key string, clientId int64, callback func(restoreDefault bool, data string, parser common.ConfigParser))
 	DeregisterConfig(key string, uniqueId int64)
 }
 
 type client struct {
 	ecli *clientv3.Client
 	// support customise parser
-	parser             cwutils.ConfigParser
+	parser             common.ConfigParser
 	etcdTimeout        time.Duration
 	prefixTemplate     *template.Template
 	serverPathTemplate *template.Template
@@ -65,7 +65,7 @@ type Options struct {
 	ClientPathFormat string
 	Timeout          time.Duration
 	LoggerConfig     *zap.Config
-	ConfigParser     cwutils.ConfigParser
+	ConfigParser     common.ConfigParser
 }
 
 // NewClient Create a default etcd client
@@ -76,7 +76,7 @@ func NewClient(opts Options) (Client, error) {
 		opts.Node = []string{EtcdDefaultNode}
 	}
 	if opts.ConfigParser == nil {
-		opts.ConfigParser = cwutils.DefaultConfigParse()
+		opts.ConfigParser = common.DefaultConfigParse()
 	}
 	if opts.Prefix == "" {
 		opts.Prefix = EtcdDefaultConfigPrefix
@@ -121,15 +121,15 @@ func NewClient(opts Options) (Client, error) {
 	return c, nil
 }
 
-func (c *client) SetParser(parser cwutils.ConfigParser) {
+func (c *client) SetParser(parser common.ConfigParser) {
 	c.parser = parser
 }
 
-func (c *client) ClientConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
+func (c *client) ClientConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
 	return c.configParam(cpc, c.clientPathTemplate, cfs...)
 }
 
-func (c *client) ServerConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
+func (c *client) ServerConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
 	return c.configParam(cpc, c.serverPathTemplate, cfs...)
 }
 
@@ -138,7 +138,7 @@ func (c *client) ServerConfigParam(cpc *cwutils.ConfigParamConfig, cfs ...Custom
 //  1. Prefix: KitexConfig by default.
 //  2. ServerPath: {{.ServerServiceName}}/{{.Category}} by default.
 //     ClientPath: {{.ClientServiceName}}/{{.ServerServiceName}}/{{.Category}} by default.
-func (c *client) configParam(cpc *cwutils.ConfigParamConfig, t *template.Template, cfs ...CustomFunction) (Key, error) {
+func (c *client) configParam(cpc *common.ConfigParamConfig, t *template.Template, cfs ...CustomFunction) (Key, error) {
 	param := Key{}
 
 	var err error
@@ -157,7 +157,7 @@ func (c *client) configParam(cpc *cwutils.ConfigParamConfig, t *template.Templat
 	return param, nil
 }
 
-func (c *client) render(cpc *cwutils.ConfigParamConfig, t *template.Template) (string, error) {
+func (c *client) render(cpc *common.ConfigParamConfig, t *template.Template) (string, error) {
 	var tpl bytes.Buffer
 	err := t.Execute(&tpl, cpc)
 	if err != nil {
@@ -167,7 +167,7 @@ func (c *client) render(cpc *cwutils.ConfigParamConfig, t *template.Template) (s
 }
 
 // RegisterConfigCallback register the callback function to etcd client.
-func (c *client) RegisterConfigCallback(ctx context.Context, key string, uniqueID int64, callback func(bool, string, cwutils.ConfigParser)) {
+func (c *client) RegisterConfigCallback(ctx context.Context, key string, uniqueID int64, callback func(bool, string, common.ConfigParser)) {
 	go func() {
 		clientCtx, cancel := context.WithCancel(context.Background())
 		c.registerCancelFunc(key, uniqueID, cancel)

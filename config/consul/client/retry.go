@@ -15,9 +15,9 @@
 package client
 
 import (
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/consul/consul"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/consul/utils"
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -26,7 +26,7 @@ import (
 
 // WithRetryPolicy sets the retry policy from consul configuration center.
 func WithRetryPolicy(dest, src string, consulClient consul.Client, uniqueID int64, opts utils.Options) []client.Option {
-	param, err := consulClient.ClientConfigParam(&cwutils.ConfigParamConfig{
+	param, err := consulClient.ClientConfigParam(&common.ConfigParamConfig{
 		Category:          retryConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -51,14 +51,14 @@ func WithRetryPolicy(dest, src string, consulClient consul.Client, uniqueID int6
 	}
 }
 
-func initRetryContainer(configType cwutils.ConfigType, key, dest string,
+func initRetryContainer(configType common.ConfigType, key, dest string,
 	consulClient consul.Client, uniqueID int64,
 ) *retry.Container {
 	retryContainer := retry.NewRetryContainerWithPercentageLimit()
 
-	ts := cwutils.ThreadSafeSet{}
+	ts := common.ThreadSafeSet{}
 
-	onChangeCallback := func(data string, parser cwutils.ConfigParser) {
+	onChangeCallback := func(data string, parser common.ConfigParser) {
 		// the key is method name, wildcard "*" can match anything.
 		rcs := map[string]*retry.Policy{}
 		err := parser.Decode(configType, data, &rcs)
@@ -66,7 +66,7 @@ func initRetryContainer(configType cwutils.ConfigType, key, dest string,
 			klog.Warnf("[consul] %s client consul retry: unmarshal data %s failed: %s, skip...", key, data, err)
 			return
 		}
-		set := cwutils.Set{}
+		set := common.Set{}
 		for method, policy := range rcs {
 			set[method] = true
 			if policy.Enable && policy.BackupPolicy == nil && policy.FailurePolicy == nil {

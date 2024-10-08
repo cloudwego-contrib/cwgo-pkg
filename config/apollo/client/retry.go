@@ -17,7 +17,7 @@ package client
 import (
 	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/apollo"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/apollo/utils"
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/retry"
@@ -26,7 +26,7 @@ import (
 func WithRetryPolicy(dest, src string, apolloClient apollo.Client,
 	opts utils.Options,
 ) []client.Option {
-	param, err := apolloClient.ClientConfigParam(&cwutils.ConfigParamConfig{
+	param, err := apolloClient.ClientConfigParam(&common.ConfigParamConfig{
 		Category:          apollo.RetryConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -60,9 +60,9 @@ func initRetryContainer(param apollo.ConfigParam, dest string,
 ) *retry.Container {
 	retryContainer := retry.NewRetryContainerWithPercentageLimit()
 
-	ts := cwutils.ThreadSafeSet{}
+	ts := common.ThreadSafeSet{}
 
-	onChangeCallback := func(data string, parser cwutils.ConfigParser) {
+	onChangeCallback := func(data string, parser common.ConfigParser) {
 		// the key is method name, wildcard "*" can match anything.
 		rcs := map[string]*retry.Policy{}
 		err := parser.Decode(param.Type, data, &rcs)
@@ -71,7 +71,7 @@ func initRetryContainer(param apollo.ConfigParam, dest string,
 			return
 		}
 
-		set := cwutils.Set{}
+		set := common.Set{}
 		for method, policy := range rcs {
 			set[method] = true
 			if policy.BackupPolicy != nil && policy.FailurePolicy != nil {

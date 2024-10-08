@@ -15,16 +15,16 @@
 package client
 
 import (
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/consul/consul"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/consul/pkg/degradation"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/consul/utils"
-	cwutils "github.com/cloudwego-contrib/cwgo-pkg/config/utils"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 func WithDegradation(dest, src string, consulClient consul.Client, uniqueID int64, opts utils.Options) []client.Option {
-	param, err := consulClient.ClientConfigParam(&cwutils.ConfigParamConfig{
+	param, err := consulClient.ClientConfigParam(&common.ConfigParamConfig{
 		Category:          degradationConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -47,9 +47,9 @@ func WithDegradation(dest, src string, consulClient consul.Client, uniqueID int6
 	}
 }
 
-func initDegradationOptions(configType cwutils.ConfigType, key, dest string, uniqueID int64, consulClient consul.Client) *degradation.DegradationContainer {
+func initDegradationOptions(configType common.ConfigType, key, dest string, uniqueID int64, consulClient consul.Client) *degradation.DegradationContainer {
 	container := degradation.NewDegradationContainer()
-	onChangeCallback := func(data string, parser cwutils.ConfigParser) {
+	onChangeCallback := func(data string, parser common.ConfigParser) {
 		config := &degradation.DegradationConfig{}
 		err := parser.Decode(configType, data, config)
 		if err != nil {

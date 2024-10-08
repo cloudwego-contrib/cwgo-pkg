@@ -1,4 +1,4 @@
-module github.com/cloudwego-contrib/cwgo-pkg/config/utils
+module github.com/cloudwego-contrib/cwgo-pkg/config/common
 
 go 1.21
 
