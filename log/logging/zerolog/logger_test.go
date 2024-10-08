@@ -20,8 +20,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"testing"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

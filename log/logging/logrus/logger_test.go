@@ -16,8 +16,9 @@ package logrus_test
 
 import (
 	"context"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"testing"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	cwlogrus "github.com/cloudwego-contrib/cwgo-pkg/log/logging/logrus"
 

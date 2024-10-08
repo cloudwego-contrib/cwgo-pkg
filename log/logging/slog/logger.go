@@ -17,9 +17,10 @@ package slog
 import (
 	"context"
 	"fmt"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 	"log/slog"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 const (

@@ -19,8 +19,10 @@ package promprovider
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
 
@@ -28,7 +30,6 @@ import (
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var _ provider.Provider = &promProvider{}
@@ -36,46 +37,21 @@ var _ provider.Provider = &promProvider{}
 // promProvider Structure of promProvider, including Prometheus registry and HTTP server
 type promProvider struct {
 	registry *prometheus.Registry
-	server   *http.Server
 }
 
 // Shutdown Implement the Shutdown method for the Provider interface
 func (p *promProvider) Shutdown(ctx context.Context) error {
 	// close http server
-	if err := p.server.Shutdown(ctx); err != nil {
-		return err
-	}
-
 	return nil
 }
 
 // NewPromProvider Initialize and return a new promProvider instance
-func NewPromProvider(addr string, opts ...Option) *promProvider {
+func NewPromProvider(opts ...Option) *promProvider {
 	cfg := newConfig(opts)
 	registry := cfg.registry
 	if registry == nil {
 		registry = prometheus.NewRegistry()
 	}
-	server := &http.Server{
-		Addr: addr,
-	}
-	if cfg.serveMux != nil {
-		cfg.serveMux = http.DefaultServeMux
-	}
-	if !cfg.disableServer {
-		cfg.serveMux.Handle(cfg.path, promhttp.HandlerFor(registry, promhttp.HandlerOpts{
-			ErrorHandling: promhttp.ContinueOnError,
-			Registry:      registry,
-		}))
-		server.Handler = cfg.serveMux
-		go func() {
-			if err := server.ListenAndServe(); err != nil {
-				log.Fatalf("HTTP server ListenAndServe: %v", err)
-				return
-			}
-		}()
-	}
-
 	var measure metric.Measure
 	var metrics []metric.Option
 	if cfg.enableRPC {
@@ -118,7 +94,6 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 		)
 	}
 	if cfg.enableHTTP {
-
 		HttpCounterVec := prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Name: buildName(cfg.name, semantic.Counter),
@@ -153,8 +128,18 @@ func NewPromProvider(addr string, opts ...Option) *promProvider {
 
 	return &promProvider{
 		registry: registry,
-		server:   server,
 	}
+}
+
+func (p *promProvider) Serve(addr, path string) {
+	http.Handle(path, promhttp.HandlerFor(p.registry, promhttp.HandlerOpts{
+		ErrorHandling: promhttp.ContinueOnError,
+	}))
+	go func() {
+		if err := http.ListenAndServe(addr, nil); err != nil {
+			hlog.Fatalf("HERTZ: Unable to start a http server, err: %s", err.Error())
+		}
+	}()
 }
 
 func buildName(name, service string) string {

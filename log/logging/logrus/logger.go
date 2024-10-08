@@ -43,8 +43,9 @@ package logrus
 
 import (
 	"context"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"github.com/sirupsen/logrus"
 )

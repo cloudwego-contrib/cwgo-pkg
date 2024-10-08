@@ -19,12 +19,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"

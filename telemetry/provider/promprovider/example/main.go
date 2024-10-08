@@ -36,14 +36,12 @@ import (
 func main() {
 	registry := prometheus.NewRegistry()
 
-	mux := http.NewServeMux()
-
-	provider := promprovider.NewPromProvider(":9090",
+	provider := promprovider.NewPromProvider(
 		promprovider.WithRegistry(registry),
-		promprovider.WithServeMux(mux),
 		promprovider.WithHttpServer(),
 	)
-	defer provider.Shutdown(context.Background())
+
+	provider.Serve(":9090", "/metrics-demo")
 
 	labels := []label.CwLabel{
 		{Key: "http_method", Value: "/test"},
@@ -56,7 +54,7 @@ func main() {
 	measure.Add(context.Background(), semantic.HTTPCounter, 6, labels...)
 	measure.Record(context.Background(), semantic.HTTPLatency, float64(time.Second.Microseconds()), labels...)
 
-	promServerResp, err := http.Get("http://localhost:9090/prometheus")
+	promServerResp, err := http.Get("http://localhost:9090/metrics-demo")
 	if err != nil {
 		return
 	}
@@ -69,8 +67,8 @@ func main() {
 		return
 	}
 	respStr := string(bodyBytes)
-	if strings.Contains(respStr, `counter{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 6`) &&
-		strings.Contains(respStr, `latency_sum{http_method="/test",path="/cwgo/provider/promProvider",statusCode="200"} 1e+06`) {
+	if strings.Contains(respStr, `counter{http_method="/test",http_status_code="200",path="/cwgo/provider/promProvider"} 6`) &&
+		strings.Contains(respStr, `latency_sum{http_method="/test",http_status_code="200",path="/cwgo/provider/promProvider"} 1e+06`) {
 		fmt.Print("record and counter work correctly")
 	}
 }

@@ -16,8 +16,9 @@ package otelprovider
 
 import (
 	"context"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"time"
+
+	"github.com/cloudwego/kitex/pkg/klog"
 
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 

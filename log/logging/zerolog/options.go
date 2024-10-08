@@ -17,8 +17,9 @@
 package zerolog
 
 import (
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"github.com/rs/zerolog"
 )

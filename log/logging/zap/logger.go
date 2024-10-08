@@ -16,8 +16,9 @@ package zap
 
 import (
 	"context"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -69,9 +70,6 @@ func (l *Logger) PutExtraKeys(keys ...ExtraKey) {
 
 func (l *Logger) Log(level hlog.Level, kvs ...interface{}) {
 	sugar := l.l.Sugar()
-	if l.config.customFields != nil {
-		sugar.With(l.config.customFields)
-	}
 	switch level {
 	case hlog.LevelTrace, hlog.LevelDebug:
 		sugar.Debug(kvs...)

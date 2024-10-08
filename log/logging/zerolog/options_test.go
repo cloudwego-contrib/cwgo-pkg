@@ -18,11 +18,12 @@ package zerolog
 
 import (
 	"bytes"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"github.com/cloudwego/hertz/pkg/common/json"
 	"github.com/rs/zerolog"

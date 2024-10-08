@@ -17,8 +17,6 @@
 package promprovider
 
 import (
-	"net/http"
-
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -40,13 +38,9 @@ func (fn option) apply(cfg *config) {
 
 type config struct {
 	buckets  []float64
-	serveMux *http.ServeMux
 	registry *prometheus.Registry
 
-	disableServer bool
-	path          string
-	name          string
-
+	name       string
 	enableRPC  bool
 	enableHTTP bool
 }
@@ -63,13 +57,10 @@ func newConfig(opts []Option) *config {
 
 func defaultConfig() *config {
 	return &config{
-		buckets:       defaultBuckets,
-		registry:      prometheus.NewRegistry(),
-		serveMux:      http.DefaultServeMux,
-		disableServer: false,
-		enableHTTP:    false,
-		enableRPC:     false,
-		path:          "/prometheus",
+		buckets:    defaultBuckets,
+		registry:   prometheus.NewRegistry(),
+		enableHTTP: false,
+		enableRPC:  false,
 	}
 }
 
@@ -79,28 +70,6 @@ func WithRegistry(registry *prometheus.Registry) Option {
 		if registry != nil {
 			cfg.registry = registry
 		}
-	})
-}
-
-// WithServeMux define your custom serve mux
-func WithServeMux(serveMux *http.ServeMux) Option {
-	return option(func(cfg *config) {
-		if serveMux != nil {
-			cfg.serveMux = serveMux
-		}
-	})
-}
-
-// WithDisableServer disable prometheus server
-func WithDisableServer(disable bool) Option {
-	return option(func(cfg *config) {
-		cfg.disableServer = disable
-	})
-}
-
-func WithPath(path string) Option {
-	return option(func(cfg *config) {
-		cfg.path = path
 	})
 }
 

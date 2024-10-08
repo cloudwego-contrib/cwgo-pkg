@@ -20,9 +20,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 	"os"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"github.com/rs/zerolog"
 )

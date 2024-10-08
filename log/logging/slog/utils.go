@@ -15,8 +15,9 @@
 package slog
 
 import (
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"log/slog"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 // Adapt log level to otelslog level

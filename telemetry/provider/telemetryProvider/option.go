@@ -43,9 +43,9 @@ func WithOtel(opts ...otelprovider.Option) Option {
 	})
 }
 
-func WithProm(addr string, opts ...promprovider.Option) Option {
+func WithProm(opts ...promprovider.Option) Option {
 	return option(func(cfg *config) {
-		cfg.provider = promprovider.NewPromProvider(addr, opts...)
+		cfg.provider = promprovider.NewPromProvider(opts...)
 	})
 }
 

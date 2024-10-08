@@ -18,10 +18,11 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"log/slog"
 	"os"
 	"testing"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"github.com/stretchr/testify/assert"
 )

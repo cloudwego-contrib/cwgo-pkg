@@ -15,10 +15,11 @@
 package slog
 
 import (
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 	"log/slog"
 	"os"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 type Option interface {

@@ -37,11 +37,8 @@ import (
 func main() {
 	registry := prometheus.NewRegistry()
 
-	mux := http.NewServeMux()
-
-	provider := telemetryProvider.NewTelemetryProvider(telemetryProvider.WithProm(":9090",
+	provider := telemetryProvider.NewTelemetryProvider(telemetryProvider.WithProm(
 		promprovider.WithRegistry(registry),
-		promprovider.WithServeMux(mux),
 		promprovider.WithHttpServer()),
 	)
 	defer provider.Shutdown(context.Background())
