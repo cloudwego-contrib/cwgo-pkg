@@ -16,12 +16,13 @@ package metric
 
 import (
 	"context"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 

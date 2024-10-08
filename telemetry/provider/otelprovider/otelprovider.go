@@ -16,8 +16,9 @@ package otelprovider
 
 import (
 	"context"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"time"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/global"
 	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"

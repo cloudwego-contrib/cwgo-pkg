@@ -16,8 +16,9 @@ package otellogrus_test
 
 import (
 	"context"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"testing"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/otellogrus"
 

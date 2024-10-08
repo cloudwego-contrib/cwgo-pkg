@@ -17,8 +17,9 @@ package otelzap
 import (
 	"bytes"
 	"context"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"testing"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel"

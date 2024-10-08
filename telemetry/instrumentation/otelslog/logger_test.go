@@ -17,10 +17,11 @@ package otelslog
 import (
 	"bytes"
 	"context"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"log/slog"
 	"strings"
 	"testing"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	cwslog "github.com/cloudwego-contrib/cwgo-pkg/log/logging/slog"
 	"github.com/stretchr/testify/assert"

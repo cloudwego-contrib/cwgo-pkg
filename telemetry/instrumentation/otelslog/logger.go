@@ -15,9 +15,10 @@
 package otelslog
 
 import (
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"io"
 	"log/slog"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	cwslog "github.com/cloudwego-contrib/cwgo-pkg/log/logging/slog"
 )

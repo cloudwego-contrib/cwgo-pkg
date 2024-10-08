@@ -15,9 +15,9 @@
 package testutil
 
 import (
-	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
-
 	"os"
+
+	cwmetric "github.com/cloudwego-contrib/cwgo-pkg/telemetry/meter/metric"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/semantic"
 

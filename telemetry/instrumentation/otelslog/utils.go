@@ -15,9 +15,10 @@
 package otelslog
 
 import (
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"log/slog"
 	"strings"
+
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 // OtelSeverityText convert otelslog level to otel severityText

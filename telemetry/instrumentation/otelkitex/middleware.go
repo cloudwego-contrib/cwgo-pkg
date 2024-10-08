@@ -16,6 +16,7 @@ package otelkitex
 
 import (
 	"context"
+
 	"github.com/cloudwego/kitex/pkg/klog"
 
 	"github.com/bytedance/gopkg/cloud/metainfo"

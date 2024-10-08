@@ -17,6 +17,7 @@ package otelzap
 import (
 	"context"
 	"errors"
+
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 
 	cwzap "github.com/cloudwego-contrib/cwgo-pkg/log/logging/zap"

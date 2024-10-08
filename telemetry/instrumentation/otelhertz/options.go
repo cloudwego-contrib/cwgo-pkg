@@ -26,7 +26,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -60,7 +59,6 @@ type Config struct {
 	labelFunc func(c *app.RequestContext) []label.CwLabel
 
 	tracerProvider    trace.TracerProvider
-	meterProvider     metric.MeterProvider
 	textMapPropagator propagation.TextMapPropagator
 
 	recordSourceOperation bool
