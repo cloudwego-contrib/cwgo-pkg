@@ -1,4 +1,5 @@
 go 1.21
+
 use (
 	.
 	./log/logging/logrus
@@ -6,6 +7,10 @@ use (
 	./log/logging/zap
 	./log/logging/zerolog
 	telemetry
+	telemetry/instrumentation/otelzerolog
+	telemetry/instrumentation/otelzap
+	telemetry/instrumentation/otellogrus
+	telemetry/instrumentation/otelslog
 
 )
 
