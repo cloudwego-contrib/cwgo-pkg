@@ -38,8 +38,8 @@ func main() {
 
 	provider := promprovider.NewPromProvider(
 		promprovider.WithRegistry(registry),
-		promprovider.WithHttpServer(), //Activate Kitex monitoring
-		promprovider.WithRPCServer(),  //Activate Hertz monitoring
+		promprovider.WithHttpServer(), // Activate Kitex monitoring
+		promprovider.WithRPCServer(),  // Activate Hertz monitoring
 	)
 
 	provider.Serve(":9090", "/metrics-demo")
