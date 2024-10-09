@@ -41,8 +41,8 @@ func main() {
 		promprovider.WithHttpServer(), // Activate Kitex monitoring
 		promprovider.WithRPCServer(),  // Activate Hertz monitoring
 	)
-
 	provider.Serve(":9090", "/metrics-demo")
+	// promprovider.Server(":9090", "/metrics-demo", provider)
 
 	labels := []label.CwLabel{
 		{Key: "http_method", Value: "/test"},

@@ -38,6 +38,15 @@ type TraceHookConfig struct {
 	errorSpanLevel         logrus.Level
 }
 
+// NewTraceHookConfig Constructor, used to create TraceHookConfig
+func NewTraceHookConfig(recordStackTraceInSpan bool, enableLevels []logrus.Level, errorSpanLevel logrus.Level) *TraceHookConfig {
+	return &TraceHookConfig{
+		recordStackTraceInSpan: recordStackTraceInSpan,
+		enableLevels:           enableLevels,
+		errorSpanLevel:         errorSpanLevel,
+	}
+}
+
 // TraceHook trace hook
 type TraceHook struct {
 	cfg *TraceHookConfig

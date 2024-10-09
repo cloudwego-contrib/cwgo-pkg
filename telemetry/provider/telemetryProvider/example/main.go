@@ -43,6 +43,8 @@ func main() {
 	)
 	defer provider.Shutdown(context.Background())
 
+	promprovider.Server(":9090", "/prometheus", provider)
+
 	labels := []label.CwLabel{
 		{Key: "http_method", Value: "/test"},
 		{Key: "statusCode", Value: "200"},

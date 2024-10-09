@@ -148,3 +148,11 @@ func buildName(name, protocol, service string) string {
 	}
 	return fmt.Sprintf("%s_%s", protocol, service)
 }
+
+func Server(addr, path string, p provider.Provider) {
+	if promProv, ok := p.(*promProvider); ok {
+		promProv.Serve(addr, path)
+	} else {
+		hlog.Info("HERTZ: Server should put promProvider")
+	}
+}
