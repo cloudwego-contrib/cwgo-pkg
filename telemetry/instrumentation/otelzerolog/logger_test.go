@@ -64,7 +64,7 @@ func TestLogger(t *testing.T) {
 		cwzerolog.WithLevel(hlog.LevelDebug),
 	)
 	logger := NewLogger(
-		WithZeroLogger(Zerologer),
+		WithLogger(Zerologer),
 		WithTraceErrorSpanLevel(zerolog.WarnLevel),
 		WithRecordStackTraceInSpan(true),
 	)

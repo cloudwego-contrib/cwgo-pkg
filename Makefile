@@ -1,4 +1,4 @@
-TOOLS_SHELL="./hack/tools.sh"
+TOOLS_SHELL="chmod +x ./hack/tools.sh"
 
 .PHONY: test
 test:

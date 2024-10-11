@@ -65,7 +65,7 @@ func GetLogger() (Logger, error) {
 		return *logger, nil
 	}
 
-	return Logger{}, errors.New("cwlog.DefaultLogger is not a otelzerolog logger")
+	return Logger{}, errors.New("hlog.DefaultLogger is not a zerolog logger")
 }
 
 // SetLevel setting logging level for logger

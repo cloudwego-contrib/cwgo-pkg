@@ -18,7 +18,7 @@ package otelhertz
 
 // NewServerTracer provides tracer for server access, addr and path is the scrape_configs for prometheus server.
 func NewServerTracer(opts ...Option) *HertzTracer {
-	cfg := NewConfig(opts)
+	cfg := NewConfig(opts...)
 
 	return &HertzTracer{
 		measure: cfg.measure,

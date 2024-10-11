@@ -17,6 +17,8 @@ package otelkitex
 import (
 	"context"
 
+	"github.com/cloudwego/kitex/pkg/remote/trans/nphttp2/metadata"
+
 	"github.com/cloudwego/kitex/pkg/klog"
 
 	"github.com/bytedance/gopkg/cloud/metainfo"
@@ -45,6 +47,13 @@ func ClientMiddleware(cfg *Config) endpoint.Middleware {
 			md := injectPeerServiceToMetaInfo(ctx, readOnlySpan.Resource().Attributes())
 
 			Inject(ctx, cfg, md)
+
+			if cfg.enableGRPCMetadata {
+				grpcMd, ok := metadata.FromOutgoingContext(ctx)
+				if ok {
+					ctx = injectMetadata(ctx, cfg, grpcMd)
+				}
+			}
 
 			for k, v := range md {
 				ctx = metainfo.WithValue(ctx, k, v)
@@ -76,6 +85,13 @@ func ServerMiddleware(cfg *Config) endpoint.Middleware {
 
 			md := metainfo.GetAllValues(ctx)
 			peerServiceAttributes := extractPeerServiceAttributesFromMetaInfo(md)
+
+			if cfg.enableGRPCMetadata {
+				grpcMd, ok := metadata.FromOutgoingContext(ctx)
+				if ok {
+					ctx = injectMetadata(ctx, cfg, grpcMd)
+				}
+			}
 
 			bags, spanCtx := Extract(ctx, cfg, md)
 			ctx = baggage.ContextWithBaggage(ctx, bags)

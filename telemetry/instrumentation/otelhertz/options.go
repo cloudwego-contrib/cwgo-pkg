@@ -68,7 +68,7 @@ type Config struct {
 	measure               cwmetric.Measure
 }
 
-func NewConfig(opts []Option) *Config {
+func NewConfig(opts ...Option) *Config {
 	cfg := DefaultConfig()
 
 	for _, opt := range opts {

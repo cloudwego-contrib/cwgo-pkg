@@ -59,6 +59,8 @@ type config struct {
 	enableRPC  bool
 	enableHTTP bool
 
+	exportEnableCompression bool
+
 	instanceType string
 }
 
@@ -221,5 +223,12 @@ func WithServer() Option {
 func WithClient() Option {
 	return option(func(cfg *config) {
 		cfg.instanceType = "client"
+	})
+}
+
+// WithEnableCompression enable gzip transport compression
+func WithEnableCompression() Option {
+	return option(func(cfg *config) {
+		cfg.exportEnableCompression = true
 	})
 }

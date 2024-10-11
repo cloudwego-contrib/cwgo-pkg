@@ -55,15 +55,15 @@ func defaultConfig() *config {
 	}
 }
 
-// WithLogger configures logger
-func WithLogger(logger *zerolog.Logger) Option {
+// WithZeroLogger configures logger
+func WithZeroLogger(logger *zerolog.Logger) Option {
 	return option(func(cfg *config) {
 		cfg.zeroLogger = logger
 	})
 }
 
-// WithZeroLogger configures zeroLogger
-func WithZeroLogger(logger *cwzerolog.Logger) Option {
+// WithLogger configures zeroLogger
+func WithLogger(logger *cwzerolog.Logger) Option {
 	return option(func(cfg *config) {
 		cfg.logger = logger
 	})

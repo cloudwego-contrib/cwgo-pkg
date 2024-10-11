@@ -80,7 +80,7 @@ func TestInject(t *testing.T) {
 		ot.OT{},
 		propagation.Baggage{},
 		propagation.TraceContext{},
-	))})
+	))}...)
 
 	ctx := context.Background()
 

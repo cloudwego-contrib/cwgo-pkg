@@ -50,6 +50,7 @@ type Config struct {
 	textMapPropagator propagation.TextMapPropagator
 
 	recordSourceOperation bool
+	enableGRPCMetadata    bool
 
 	measure cwmetric.Measure
 }
@@ -105,5 +106,11 @@ func WithMeasure(measure cwmetric.Measure) Option {
 func WithLabelFunc(labelFunc func(info rpcinfo.RPCInfo) []label.CwLabel) Option {
 	return option(func(cfg *Config) {
 		cfg.labelFunc = labelFunc
+	})
+}
+
+func WithEnableGRPCMetadata() Option {
+	return option(func(cfg *Config) {
+		cfg.enableGRPCMetadata = true
 	})
 }

@@ -50,7 +50,7 @@ func (sh *StringHeader) Visit(f func(k, v string)) {
 }
 
 func ClientMiddleware(opts ...Option) client.Middleware {
-	cfg := NewConfig(opts)
+	cfg := NewConfig(opts...)
 
 	return func(next client.Endpoint) client.Endpoint {
 		return func(ctx context.Context, req *protocol.Request, resp *protocol.Response) (err error) {
