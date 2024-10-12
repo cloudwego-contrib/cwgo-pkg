@@ -18,48 +18,27 @@ package main
 
 import (
 	"context"
-	"errors"
-	"net"
+	"exampleprom/promWithkitex/kitex_gen/api"
+	"exampleprom/promWithkitex/kitex_gen/api/echo"
+	"math/rand"
+	"os"
+	"strconv"
 	"time"
-
-	"exampleotelkitex/kitex_gen/api/echo"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/otelkitex"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider/otelprovider"
-	"github.com/cloudwego/kitex/server"
-
-	"github.com/cloudwego/hertz-examples/opentelemetry/kitex/kitex_gen/api"
+	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
-
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
+	"go.opentelemetry.io/otel"
 )
-
-var _ api.Echo = &EchoImpl{}
-
-type EchoImpl struct{}
-
-// Echo implements the Echo interface.
-func (s *EchoImpl) Echo(ctx context.Context, req *api.Request) (resp *api.Response, err error) {
-	klog.CtxDebugf(ctx, "echo called: %s", req.GetMessage())
-	nowSec := time.Now().Second()
-	if nowSec%3 == 1 {
-		klog.CtxErrorf(ctx, "mock error with request message: %s", req.GetMessage())
-		return nil, errors.New("mock error")
-	}
-	if nowSec%3 == 2 {
-		klog.CtxErrorf(ctx, "mock panic with request message: %s", req.GetMessage())
-		panic("mock panic")
-	}
-	return &api.Response{Message: req.Message}, nil
-}
 
 func main() {
 	klog.SetLogger(kitexlogrus.NewLogger())
-	// set level as debug when needed, default level is info
 	klog.SetLevel(klog.LevelDebug)
 
-	serviceName := "echo"
+	serviceName := "echo-client"
 
 	p := otelprovider.NewOpenTelemetryProvider(
 		otelprovider.WithServiceName(serviceName),
@@ -70,17 +49,40 @@ func main() {
 	)
 	defer p.Shutdown(context.Background())
 
-	addr, err := net.ResolveTCPAddr("tcp", ":8181")
-	if err != nil {
-		panic(err)
+	demoServerAddr, ok := os.LookupEnv("DEMO_SERVER_ENDPOINT")
+	if !ok {
+		demoServerAddr = "0.0.0.0:8181"
 	}
-	svr := echo.NewServer(
-		new(EchoImpl),
-		server.WithServiceAddr(addr),
-		server.WithSuite(otelkitex.NewServerSuite()),
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: serviceName}),
+
+	c, err := echo.NewClient(
+		"echo",
+		client.WithHostPorts(demoServerAddr),
+		client.WithSuite(otelkitex.NewClientSuite()),
+		client.WithClientBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: serviceName}),
 	)
-	if err := svr.Run(); err != nil {
-		klog.Fatalf("server stopped with error:", err)
+	if err != nil {
+		klog.Fatal(err)
 	}
+
+	// Yields a constantly-changing number
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+	for {
+		call(c)
+		<-time.After(time.Second)
+	}
+}
+
+func call(c echo.Client) {
+	ctx, span := otel.Tracer("client").Start(context.Background(), "root")
+	defer span.End()
+
+	randomInt := rand.Intn(1000)
+	req := &api.Request{Message: "my request " + strconv.Itoa(randomInt)}
+
+	resp, err := c.Echo(ctx, req)
+	if err != nil {
+		klog.CtxErrorf(ctx, "err %v", err)
+	}
+
+	klog.CtxInfof(ctx, "req:%v, res:%v", req, resp)
 }

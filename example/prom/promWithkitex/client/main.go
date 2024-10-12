@@ -24,9 +24,10 @@ import (
 	"strconv"
 	"time"
 
+	"exampleprom/promWithkitex/kitex_gen/api"
+
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/otelkitex"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider/promprovider"
-	"github.com/cloudwego/hertz-examples/opentelemetry/kitex/kitex_gen/api"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"

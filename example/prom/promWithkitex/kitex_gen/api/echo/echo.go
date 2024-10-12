@@ -5,7 +5,8 @@ package echo
 import (
 	"context"
 
-	"github.com/cloudwego/hertz-examples/opentelemetry/kitex/kitex_gen/api"
+	"exampleprom/promWithkitex/kitex_gen/api"
+
 	"github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
 )

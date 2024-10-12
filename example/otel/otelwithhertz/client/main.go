@@ -18,22 +18,22 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/otelhertz"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider/otelprovider"
-	"github.com/cloudwego/hertz-examples/opentelemetry/kitex/kitex_gen/api"
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	hertzlogrus "github.com/hertz-contrib/obs-opentelemetry/logging/logrus"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 func main() {
 	hlog.SetLogger(hertzlogrus.NewLogger())
 	hlog.SetLevel(hlog.LevelDebug)
 
-	serviceName := "demo-hertz-server"
+	serviceName := "demo-hertz-client"
 
 	p := otelprovider.NewOpenTelemetryProvider(
 		otelprovider.WithServiceName(serviceName),
@@ -44,16 +44,23 @@ func main() {
 	)
 	defer p.Shutdown(context.Background())
 
-	tracer, cfg := otelhertz.NewServerOption()
-	h := server.Default(tracer)
-	h.Use(otelhertz.ServerMiddleware(cfg))
+	c, _ := client.NewClient()
+	c.Use(otelhertz.ClientMiddleware())
 
-	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
-		req := &api.Request{Message: "my request"}
+	for {
+		ctx, span := otel.Tracer("github.com/hertz-contrib/obs-opentelemetry").
+			Start(context.Background(), "loop")
 
-		hlog.CtxDebugf(c, "message received successfully: %s", req.Message)
-		ctx.JSON(consts.StatusOK, "resp")
-	})
+		_, b, err := c.Get(ctx, nil, "http://0.0.0.0:8888/ping?foo=bar")
+		if err != nil {
+			hlog.CtxErrorf(ctx, err.Error())
+		}
 
-	h.Spin()
+		span.SetAttributes(attribute.String("msg", string(b)))
+
+		hlog.CtxInfof(ctx, "hertz client %s", string(b))
+		span.End()
+
+		<-time.After(time.Second)
+	}
 }

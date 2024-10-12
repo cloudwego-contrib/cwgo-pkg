@@ -3,7 +3,8 @@
 package echo
 
 import (
-	"github.com/cloudwego/hertz-examples/opentelemetry/kitex/kitex_gen/api"
+	"exampleprom/promWithkitex/kitex_gen/api"
+
 	"github.com/cloudwego/kitex/server"
 )
 

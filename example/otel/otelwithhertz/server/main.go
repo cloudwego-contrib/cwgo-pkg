@@ -18,24 +18,22 @@ package main
 
 import (
 	"context"
-	"time"
+	"exampleprom/promWithkitex/kitex_gen/api"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/instrumentation/otelhertz"
 	"github.com/cloudwego-contrib/cwgo-pkg/telemetry/provider/otelprovider"
-
-	"github.com/cloudwego/hertz/pkg/app/client"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	hertzlogrus "github.com/hertz-contrib/obs-opentelemetry/logging/logrus"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
 )
 
 func main() {
 	hlog.SetLogger(hertzlogrus.NewLogger())
 	hlog.SetLevel(hlog.LevelDebug)
 
-	serviceName := "demo-hertz-client"
-
+	serviceName := "demo-hertz-server"
 	p := otelprovider.NewOpenTelemetryProvider(
 		otelprovider.WithServiceName(serviceName),
 		// Support setting ExportEndpoint via environment variables: OTEL_EXPORTER_OTLP_ENDPOINT
@@ -45,23 +43,16 @@ func main() {
 	)
 	defer p.Shutdown(context.Background())
 
-	c, _ := client.NewClient()
-	c.Use(otelhertz.ClientMiddleware())
+	tracer, cfg := otelhertz.NewServerOption()
+	h := server.Default(tracer)
+	h.Use(otelhertz.ServerMiddleware(cfg))
 
-	for {
-		ctx, span := otel.Tracer("github.com/hertz-contrib/obs-opentelemetry").
-			Start(context.Background(), "loop")
+	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
+		req := &api.Request{Message: "my request"}
 
-		_, b, err := c.Get(ctx, nil, "http://0.0.0.0:8888/ping?foo=bar")
-		if err != nil {
-			hlog.CtxErrorf(ctx, err.Error())
-		}
+		hlog.CtxDebugf(c, "message received successfully: %s", req.Message)
+		ctx.JSON(consts.StatusOK, "resp")
+	})
 
-		span.SetAttributes(attribute.String("msg", string(b)))
-
-		hlog.CtxInfof(ctx, "hertz client %s", string(b))
-		span.End()
-
-		<-time.After(time.Second)
-	}
+	h.Spin()
 }
