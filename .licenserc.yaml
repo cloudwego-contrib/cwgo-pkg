@@ -8,6 +8,6 @@ header:
     - '**/*.go'
     - '**/*.s'
   paths-ignore:
-    example/prom/promWithkitex/kitex_gen/**
+    - example/prom/promWithkitex/kitex_gen/**
 
   comment: on-failure
