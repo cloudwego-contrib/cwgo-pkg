@@ -213,11 +213,13 @@ func NewOpenTelemetryProvider(opts ...Option) provider.Provider {
 		global.SetTracerMeasure(measure)
 
 		err = runtimemetrics.Start()
-		if cfg.enableHTTP {
-			handleInitErrh(err, "Failed to start runtime meter collector")
-		}
-		if cfg.enableRPC {
-			handleInitErrk(err, "Failed to start runtime meter collector")
+		if err != nil {
+			if cfg.enableHTTP {
+				handleInitErrh(err, "Failed to start runtime meter collector")
+			}
+			if cfg.enableRPC {
+				handleInitErrk(err, "Failed to start runtime meter collector")
+			}
 		}
 
 	}

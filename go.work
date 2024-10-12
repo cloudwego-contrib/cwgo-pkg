@@ -2,15 +2,18 @@ go 1.21
 
 use (
 	.
+	./example/otel/otelhertz
+	./example/otel/otelkitex
 	./log/logging/logrus
 	./log/logging/slog
 	./log/logging/zap
 	./log/logging/zerolog
 	./telemetry
-	./telemetry/instrumentation/otelzerolog
-	./telemetry/instrumentation/otelzap
 	./telemetry/instrumentation/otellogrus
 	./telemetry/instrumentation/otelslog
+	./telemetry/instrumentation/otelzap
+	./telemetry/instrumentation/otelzerolog
+	example/prom
 
 )
 
