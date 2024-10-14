@@ -175,11 +175,18 @@ func NewOpenTelemetryProvider(opts ...Option) provider.Provider {
 				instrumentationNameKitex,
 				otelmetric.WithInstrumentationVersion(semantic.SemVersion()),
 			)
+			serverRequestCountMeasure, err := meter.Int64Counter(
+				semantic.BuildMetricName("rpc", cfg.instanceType, semantic.RequestCount),
+				otelmetric.WithUnit("count"),
+				otelmetric.WithDescription("measures Incoming request count total"),
+			)
+			HandleErr(err)
 			serverDurationMeasure, err := meter.Float64Histogram(semantic.BuildMetricName("rpc", cfg.instanceType, semantic.ServerDuration))
 			HandleErr(err)
 			serverRetryMeasure, err := meter.Float64Histogram(semantic.BuildMetricName("rpc", cfg.instanceType, semantic.ServerRetry))
 			HandleErr(err)
 			metrics = append(metrics,
+				cwmetric.WithCounter(semantic.RPCCounter, cwmetric.NewOtelCounter(serverRequestCountMeasure)),
 				cwmetric.WithRecorder(semantic.RPCLatency, cwmetric.NewOtelRecorder(serverDurationMeasure)),
 				cwmetric.WithRecorder(semantic.RPCRetry, cwmetric.NewOtelRecorder(serverRetryMeasure)),
 			)

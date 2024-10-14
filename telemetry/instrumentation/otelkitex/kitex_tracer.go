@@ -138,7 +138,7 @@ func (s *KitexTracer) Finish(ctx context.Context) {
 	}
 
 	// measure
-	//s.measure.Inc(ctx, semantic.RPCCounter, labels...)
+	s.measure.Inc(ctx, semantic.RPCCounter, labels...)
 	s.measure.Record(ctx, semantic.RPCLatency, elapsedTime, labels...)
 }
 
