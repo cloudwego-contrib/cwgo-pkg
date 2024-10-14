@@ -17,14 +17,15 @@ package zookeeper
 import (
 	"bytes"
 	"context"
-	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
-	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/go-zookeeper/zk"
 	"html/template"
 	"runtime/debug"
 	"strconv"
 	"sync"
 	"time"
+
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
+	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/go-zookeeper/zk"
 )
 
 // Client the wrapper of zookeeper client.
@@ -73,7 +74,7 @@ func NewClient(opts Options) (Client, error) {
 		opts.CustomLogger = NewCustomZookeeperLogger()
 	}
 	if opts.ConfigParser == nil {
-		opts.ConfigParser = common.DefaultConfigParser()
+		opts.ConfigParser = common.DefaultConfigParse()
 	}
 	if opts.ServerPathFormat == "" {
 		opts.ServerPathFormat = ZookeeperDefaultServerPath
@@ -167,7 +168,7 @@ func (c *client) DeregisterConfig(path string, uniqueID int64) {
 }
 
 // RegisterConfigCallback register the callback function to zookeeper client.
-func (c *client) RegisterConfigCallback(ctx context.Context, path string, uniqueID int64, callback func(bool, string, ConfigParser)) {
+func (c *client) RegisterConfigCallback(ctx context.Context, path string, uniqueID int64, callback func(bool, string, common.ConfigParser)) {
 	clientCtx, cancel := context.WithCancel(context.Background())
 	go func() {
 		defer func() {
