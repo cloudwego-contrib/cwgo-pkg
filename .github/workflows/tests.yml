@@ -15,5 +15,3 @@ jobs:
       - name: Unit Test
         run: make test
 
-      - name: Benchmark
-        run: go test -bench=. -benchmem -run=none ./...
