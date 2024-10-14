@@ -1,0 +1,20 @@
+go 1.21
+
+use (
+	.
+	./log/logging/logrus
+	./log/logging/slog
+	./log/logging/zap
+	./log/logging/zerolog
+	telemetry
+	./telemetry/instrumentation/otellogrus
+	./telemetry/instrumentation/otelslog
+	./telemetry/instrumentation/otelzap
+	./telemetry/instrumentation/otelzerolog
+	example/prom
+	example/otel/otelwithhertz
+	example/otel/otelwithkitex
+
+)
+
+replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
