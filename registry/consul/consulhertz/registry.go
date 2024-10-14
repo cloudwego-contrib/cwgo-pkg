@@ -45,18 +45,6 @@ type consulRegistry struct {
 
 var _ registry.Registry = (*consulRegistry)(nil)
 
-/*type options struct {
-	check *api.AgentServiceCheck
-}
-
-// Option is the option of Consul.
-type Option func(o *options)
-
-// WithCheck is consul registry-hertz option to set AgentServiceCheck.
-func WithCheck(check *api.AgentServiceCheck) Option {
-	return func(o *options) { o.check = check }
-}*/
-
 // NewConsulRegister create a new registry-hertz using consul.
 func NewConsulRegister(consulClient *api.Client, opts ...options.Option) registry.Registry {
 	op := options.Options{

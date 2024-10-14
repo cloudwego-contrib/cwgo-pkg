@@ -25,7 +25,13 @@ import (
 )
 
 const (
-	NACOS_ENV_TAGS = "KITEX_NACOS_ENV_TAGS"
+	NACOS_ENV_TAGS            = "KITEX_NACOS_ENV_TAGS"
+	NACOS_ENV_SERVER_ADDR     = "serverAddr"
+	NACOS_ENV_PORT            = "serverPort"
+	NACOS_ENV_NAMESPACE_ID    = "namespace"
+	NACOS_DEFAULT_SERVER_ADDR = "127.0.0.1"
+	NACOS_DEFAULT_PORT        = 8848
+	NACOS_DEFAULT_REGIONID    = "cn-hangzhou"
 )
 
 // Tags providers the default tags to inject nacos.
@@ -64,4 +70,18 @@ func NacosPort() int64 {
 		return common.NacosDefaultPort
 	}
 	return port
+}
+
+// NacosAddr Get Nacos addr from environment variables
+func NacosAddr() string {
+	addr := os.Getenv(NACOS_ENV_SERVER_ADDR)
+	if len(addr) == 0 {
+		return NACOS_DEFAULT_SERVER_ADDR
+	}
+	return addr
+}
+
+// NacosNameSpaceId Get Nacos namespace id from environment variables
+func NacosNameSpaceId() string {
+	return os.Getenv(NACOS_ENV_NAMESPACE_ID)
 }

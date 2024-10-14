@@ -17,28 +17,28 @@ package zookeeper
 import (
 	"bytes"
 	"context"
+	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
+	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/go-zookeeper/zk"
 	"html/template"
 	"runtime/debug"
 	"strconv"
 	"sync"
 	"time"
-
-	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/go-zookeeper/zk"
 )
 
 // Client the wrapper of zookeeper client.
 type Client interface {
-	SetParser(ConfigParser)
-	ClientConfigParam(cpc *ConfigParamConfig) (ConfigParam, error)
-	ServerConfigParam(cpc *ConfigParamConfig) (ConfigParam, error)
-	RegisterConfigCallback(context.Context, string, int64, func(bool, string, ConfigParser))
+	SetParser(common.ConfigParser)
+	ClientConfigParam(cpc *common.ConfigParamConfig) (ConfigParam, error)
+	ServerConfigParam(cpc *common.ConfigParamConfig) (ConfigParam, error)
+	RegisterConfigCallback(context.Context, string, int64, func(bool, string, common.ConfigParser))
 	DeregisterConfig(string, int64)
 }
 type client struct {
 	zConn *zk.Conn
 	// support customise parser
-	parser             ConfigParser
+	parser             common.ConfigParser
 	serverPathTemplate *template.Template
 	clientPathTemplate *template.Template
 	prefixTemplate     *template.Template
@@ -58,7 +58,7 @@ type Options struct {
 	ServerPathFormat string
 	ClientPathFormat string
 	CustomLogger     zk.Logger
-	ConfigParser     ConfigParser
+	ConfigParser     common.ConfigParser
 }
 
 // NewClient Create a default Zookeeper client
@@ -73,7 +73,7 @@ func NewClient(opts Options) (Client, error) {
 		opts.CustomLogger = NewCustomZookeeperLogger()
 	}
 	if opts.ConfigParser == nil {
-		opts.ConfigParser = defaultConfigParser()
+		opts.ConfigParser = common.DefaultConfigParser()
 	}
 	if opts.ServerPathFormat == "" {
 		opts.ServerPathFormat = ZookeeperDefaultServerPath
@@ -118,11 +118,11 @@ type cancelFuncHolder struct {
 }
 
 // SetParser support customise parser
-func (c *client) SetParser(parser ConfigParser) {
+func (c *client) SetParser(parser common.ConfigParser) {
 	c.parser = parser
 }
 
-func (c *client) render(cpc *ConfigParamConfig, t *template.Template) (string, error) {
+func (c *client) render(cpc *common.ConfigParamConfig, t *template.Template) (string, error) {
 	var tpl bytes.Buffer
 	err := t.Execute(&tpl, cpc)
 	if err != nil {
@@ -132,12 +132,12 @@ func (c *client) render(cpc *ConfigParamConfig, t *template.Template) (string, e
 }
 
 // ServerConfigParam render server config parameters
-func (c *client) ServerConfigParam(cpc *ConfigParamConfig) (ConfigParam, error) {
+func (c *client) ServerConfigParam(cpc *common.ConfigParamConfig) (ConfigParam, error) {
 	return c.configParam(cpc, c.serverPathTemplate)
 }
 
 // ClientConfigParam render client config parameters
-func (c *client) ClientConfigParam(cpc *ConfigParamConfig) (ConfigParam, error) {
+func (c *client) ClientConfigParam(cpc *common.ConfigParamConfig) (ConfigParam, error) {
 	return c.configParam(cpc, c.clientPathTemplate)
 }
 
@@ -146,7 +146,7 @@ func (c *client) ClientConfigParam(cpc *ConfigParamConfig) (ConfigParam, error) 
 //  1. Prefix: /KitexConfig by default.
 //  2. ServerPath: {{.ServerServiceName}}/{{.Category}} by default.
 //     ClientPath: {{.ClientServiceName}}/{{.ServerServiceName}}/{{.Category}} by default.
-func (c *client) configParam(cpc *ConfigParamConfig, t *template.Template) (ConfigParam, error) {
+func (c *client) configParam(cpc *common.ConfigParamConfig, t *template.Template) (ConfigParam, error) {
 	param := ConfigParam{}
 	var err error
 	param.Path, err = c.render(cpc, t)

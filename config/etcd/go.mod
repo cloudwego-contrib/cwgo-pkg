@@ -67,3 +67,5 @@ require (
 )
 
 replace github.com/apache/thrift v0.19.0 => github.com/apache/thrift v0.13.0
+
+replace github.com/cloudwego-contrib/cwgo-pkg/config/common => ../common
