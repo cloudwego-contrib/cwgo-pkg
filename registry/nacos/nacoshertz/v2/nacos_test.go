@@ -271,6 +271,7 @@ func TestDefaultNacosRegistry(t *testing.T) {
 
 // TestResolverDifferentGroup test NewResolver WithCluster option
 func TestResolverDifferentGroup(t *testing.T) {
+	namingClient = getNamingClient()
 	var opts1 []config.Option
 	var opts2 []config.Option
 
