@@ -3,7 +3,7 @@
 # find all go mod path
 # returns an array contains mod path
 function util::find_modules() {
-	find .  -mindepth 2 -not \( \
+	find . -mindepth 2 -not \( \
 		\( \
 		-path './output' \
 		-o -path './.git' \

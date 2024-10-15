@@ -54,11 +54,8 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.18
-
+          go-version: "1.21"
 
       - name: Unit Test
         run: make test
 
-      - name: Benchmark
-        run: go test -bench=. -benchmem -run=none ./...
