@@ -159,7 +159,7 @@ func TestSCMultipleInstances(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	time.Sleep(time.Second)
+	time.Sleep(5 * time.Second)
 	err = got.Deregister(&registry.Info{
 		ServiceName: ServiceName,
 		Addr:        &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8083},
