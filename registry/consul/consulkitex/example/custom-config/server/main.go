@@ -18,6 +18,7 @@ package main
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 	"log"
 
 	consul "github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex"
@@ -43,7 +44,7 @@ func main() {
 		Address: "127.0.0.1:8500",
 		Token:   "TEST-MY-TOKEN",
 	}
-	r, err := consul.NewConsulRegisterWithConfig(&consulConfig, consul.WithCheck(&consulapi.AgentServiceCheck{
+	r, err := consul.NewConsulRegisterWithConfig(&consulConfig, options.WithCheck(&consulapi.AgentServiceCheck{
 		Interval:                       "7s",
 		Timeout:                        "5s",
 		DeregisterCriticalServiceAfter: "15s",

@@ -16,6 +16,7 @@ package main
 
 import (
 	"context"
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 	"log"
 	"net"
 	"sync"
@@ -56,7 +57,7 @@ func main() {
 		DeregisterCriticalServiceAfter: "15s",
 	}
 	r := consulhertz.NewConsulRegister(consulClient,
-		consulhertz.WithCheck(check),
+		options.WithCheck(check),
 	)
 
 	wg.Add(2)
