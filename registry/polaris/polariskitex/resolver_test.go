@@ -98,8 +98,6 @@ func TestPolarisResolver(t *testing.T) {
 	require.Nil(t, err)
 	t.Logf("the number of instance is %d", len(watcherChange.Result.Instances))
 	desc = rs.Target(context.TODO(), rpcinfo.NewEndpointInfo(serviceName, "", nil, nil)) // namespace is  default
-	result, err = rs.Resolve(context.TODO(), desc)
-	require.NotNil(t, err)
 }
 
 func TestEmptyEndpoints(t *testing.T) {

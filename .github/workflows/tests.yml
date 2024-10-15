@@ -14,7 +14,7 @@ jobs:
       polaris:
         image: 'polarismesh/polaris-server:latest'
         ports:
-          - '8090:8090'
+          - '8091:8091'
       zookeeper:
         image: 'zookeeper:3.7.0'
         ports:
