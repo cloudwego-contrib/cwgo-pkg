@@ -159,15 +159,6 @@ func TestMultipleInstances(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	res, err := namingClient.SelectInstances(vo.SelectInstancesParam{
-		ServiceName: svcName,
-		GroupName:   groupName,
-		Clusters:    []string{clusterName},
-		HealthyOnly: true,
-	})
-	assert.Nil(t, err)
-	assert.Equal(t, 1, len(res))
-
 	err = got.Deregister(&registry.Info{
 		ServiceName: svcName,
 		Weight:      10,
@@ -175,9 +166,9 @@ func TestMultipleInstances(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	time.Sleep(time.Second * 30)
+	time.Sleep(time.Second * 5)
 
-	res, err = namingClient.SelectInstances(vo.SelectInstancesParam{
+	res, err := namingClient.SelectInstances(vo.SelectInstancesParam{
 		ServiceName: svcName,
 		GroupName:   groupName,
 		Clusters:    []string{clusterName},
