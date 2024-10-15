@@ -8,7 +8,6 @@ require (
 	github.com/bytedance/gopkg v0.1.1 // indirect
 	github.com/bytedance/mockey v1.2.7 // indirect
 	github.com/bytedance/sonic v1.12.2 // indirect
-	github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/options v0.0.0-00010101000000-000000000000
 	github.com/cloudwego/hertz v0.9.2
 	github.com/cloudwego/netpoll v0.6.4 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
