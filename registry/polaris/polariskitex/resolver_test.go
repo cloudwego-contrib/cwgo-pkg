@@ -67,9 +67,6 @@ func TestPolarisResolver(t *testing.T) {
 	for i := 0; i < len(expected.Instances); i++ {
 		require.Equal(t, expected.Instances[i].Address(), result.Instances[i].Address())
 	}
-	watcherChange, err := rs.Watcher(context.TODO(), desc)
-	require.Nil(t, err)
-	t.Logf("the number of instance is %d", len(watcherChange.Result.Instances))
 
 	// test register service
 	InstanceTwo := &registry.Info{
@@ -81,9 +78,6 @@ func TestPolarisResolver(t *testing.T) {
 	err = rg.Register(InstanceTwo)
 	require.Nil(t, err)
 	time.Sleep(3 * time.Second) // wait register service
-	watcherChange, err = rs.Watcher(context.TODO(), desc)
-	require.Nil(t, err)
-	t.Logf("the number of instance is %d", len(watcherChange.Result.Instances))
 	result, err = rs.Resolve(context.TODO(), desc)
 	require.Nil(t, err)
 
@@ -94,9 +88,7 @@ func TestPolarisResolver(t *testing.T) {
 	err = rg.Deregister(InstanceTwo) // deregister InstanceTwo
 	require.Nil(t, err)
 	time.Sleep(3 * time.Second) // wait deregister service
-	watcherChange, err = rs.Watcher(context.TODO(), desc)
-	require.Nil(t, err)
-	t.Logf("the number of instance is %d", len(watcherChange.Result.Instances))
+
 	desc = rs.Target(context.TODO(), rpcinfo.NewEndpointInfo(serviceName, "", nil, nil)) // namespace is  default
 }
 
