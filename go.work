@@ -29,6 +29,7 @@ use (
 	config/file
 	config/nacos
 	config/zookeeper
+	config/nacos/v2
 
 )
 

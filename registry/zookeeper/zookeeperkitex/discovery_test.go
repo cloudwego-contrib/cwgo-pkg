@@ -35,10 +35,6 @@ const (
 )
 
 func TestZookeeperDiscovery(t *testing.T) {
-	// start test server
-	testServer := startTestServer(t)
-	defer testServer.Stop()
-
 	// register
 	r, err := zkregistry.NewZookeeperRegistry([]string{"127.0.0.1:2181"}, 40*time.Second)
 	assert.Nil(t, err)
@@ -89,10 +85,6 @@ func TestZookeeperDiscovery(t *testing.T) {
 }
 
 func TestZookeeperResolverWithAuth(t *testing.T) {
-	// start test server
-	testServer := startTestServer(t)
-	defer testServer.Stop()
-
 	// register
 	r, err := zkregistry.NewZookeeperRegistryWithAuth([]string{"127.0.0.1:2181"}, 40*time.Second, "horizon", "horizon")
 	assert.Nil(t, err)
@@ -140,31 +132,4 @@ func TestZookeeperResolverWithAuth(t *testing.T) {
 	// resolve again
 	result, err = res.Resolve(context.Background(), target)
 	assert.EqualError(t, err, "no instance remains for product")
-}
-
-func startTestServer(t *testing.T) *server {
-	testServer, err := NewIntegrationTestServer(t, testConfigName, nil, nil)
-	requireNoError(t, err)
-	requireNoError(t, testServer.Start())
-	// wait server start
-	var ok bool
-	for i := 0; i < 10; i++ {
-		_, err := net.Dial("tcp", "127.0.0.1:2181")
-		if err == nil {
-			ok = true
-			break
-		}
-		time.Sleep(30 * time.Second)
-	}
-	if !ok {
-		panic("zookeeper server start failed")
-	}
-	return testServer
-}
-
-func requireNoError(t *testing.T, err error, msgAndArgs ...interface{}) {
-	if err != nil {
-		t.Logf("received unexpected cwerror: %v", err)
-		t.Fatal(msgAndArgs...)
-	}
 }

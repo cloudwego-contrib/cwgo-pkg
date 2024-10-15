@@ -15,6 +15,7 @@
 package registry
 
 import (
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/options"
 	"net"
 	"testing"
 	"time"
@@ -48,7 +49,7 @@ func TestNewDefaultSCRegistry(t *testing.T) {
 	if err != nil {
 		t.Errorf("err:%v", err)
 	}
-	got := NewSCRegistry(client, WithAppId(AppId), WithVersionRule(Version))
+	got := NewSCRegistry(client, options.WithAppId(AppId), options.WithVersionRule(Version))
 	assert.NotNil(t, got)
 }
 
@@ -83,7 +84,7 @@ func TestSCRegistryRegister(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := NewSCRegistry(tt.fields.cli, WithAppId(AppId), WithVersionRule(Version), WithHostName(HostName))
+			n := NewSCRegistry(tt.fields.cli, options.WithAppId(AppId), options.WithVersionRule(Version), options.WithHostName(HostName))
 			if err := n.Register(tt.args.info); (err != nil) != tt.wantErr {
 				t.Errorf("Register() cwerror = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -121,7 +122,7 @@ func TestSCRegistryDeregister(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := NewSCRegistry(tt.fields.cli, WithAppId(AppId), WithVersionRule(Version), WithHostName(HostName))
+			n := NewSCRegistry(tt.fields.cli, options.WithAppId(AppId), options.WithVersionRule(Version), options.WithHostName(HostName))
 			if err := n.Deregister(tt.args.info); (err != nil) != tt.wantErr {
 				t.Errorf("Deregister() cwerror = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -134,7 +135,7 @@ func TestSCMultipleInstances(t *testing.T) {
 	client, err := getSCClient()
 	assert.Nil(t, err)
 	time.Sleep(time.Second)
-	got := NewSCRegistry(client, WithAppId(AppId), WithVersionRule(Version), WithHostName(HostName), WithHeartbeatInterval(5))
+	got := NewSCRegistry(client, options.WithAppId(AppId), options.WithVersionRule(Version), options.WithHostName(HostName), options.WithHeartbeatInterval(5))
 	if !assert.NotNil(t, got) {
 		t.Errorf("err: new registry fail")
 		return
