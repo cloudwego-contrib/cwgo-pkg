@@ -2,6 +2,7 @@ go 1.21
 
 use (
 	.
+	./opensergo
 	./log/logging/logrus
 	./log/logging/slog
 	./log/logging/zap
