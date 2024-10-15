@@ -141,6 +141,8 @@ func TestRegistryAndDeregister(t *testing.T) {
 
 // TestMultipleInstances test registry-hertz multiple service,then deregister one
 func TestMultipleInstances(t *testing.T) {
+	namingClient = getNamingClient()
+
 	var (
 		svcName     = "_MultipleInstances"
 		clusterName = "TheCluster"
