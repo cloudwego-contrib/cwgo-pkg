@@ -15,10 +15,11 @@
 package registry
 
 import (
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/options"
 	"net"
 	"testing"
 	"time"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/options"
 
 	"github.com/go-chassis/sc-client"
 

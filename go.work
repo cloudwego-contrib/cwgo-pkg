@@ -30,6 +30,8 @@ use (
 	config/nacos
 	config/zookeeper
 	config/nacos/v2
+	registry/nacos/nacoskitex/v2
+	registry/nacos/nacoshertz/v2
 
 )
 

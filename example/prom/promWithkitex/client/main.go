@@ -18,11 +18,12 @@ package main
 
 import (
 	"context"
-	"exampleprom/promWithkitex/kitex_gen/api/echo"
 	"math/rand"
 	"os"
 	"strconv"
 	"time"
+
+	"exampleprom/promWithkitex/kitex_gen/api/echo"
 
 	"exampleprom/promWithkitex/kitex_gen/api"
 
