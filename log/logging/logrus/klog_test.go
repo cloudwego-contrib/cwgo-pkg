@@ -21,7 +21,6 @@ import (
 	"testing"
 
 	cwlogrus "github.com/cloudwego-contrib/cwgo-pkg/log/logging/logrus"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/sirupsen/logrus"
 )
@@ -54,10 +53,10 @@ func TestKLogger(t *testing.T) {
 	klog.Warnf("log level: %s", "warn")
 	klog.Errorf("log level: %s", "error")
 
-	hlog.CtxTracef(ctx, "log level: %s", "trace")
-	hlog.CtxDebugf(ctx, "log level: %s", "debug")
-	hlog.CtxInfof(ctx, "log level: %s", "info")
-	hlog.CtxNoticef(ctx, "log level: %s", "notice")
-	hlog.CtxWarnf(ctx, "log level: %s", "warn")
-	hlog.CtxErrorf(ctx, "log level: %s", "error")
+	klog.CtxTracef(ctx, "log level: %s", "trace")
+	klog.CtxDebugf(ctx, "log level: %s", "debug")
+	klog.CtxInfof(ctx, "log level: %s", "info")
+	klog.CtxNoticef(ctx, "log level: %s", "notice")
+	klog.CtxWarnf(ctx, "log level: %s", "warn")
+	klog.CtxErrorf(ctx, "log level: %s", "error")
 }
