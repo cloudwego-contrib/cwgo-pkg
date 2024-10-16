@@ -19,11 +19,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/cloudwego/kitex/pkg/klog"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"

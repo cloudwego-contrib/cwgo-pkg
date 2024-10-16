@@ -18,11 +18,12 @@ package logrus_test
 
 import (
 	"context"
+	"testing"
+
 	cwlogrus "github.com/cloudwego-contrib/cwgo-pkg/log/logging/logrus"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/sirupsen/logrus"
-	"testing"
 )
 
 func TestKLogger(t *testing.T) {

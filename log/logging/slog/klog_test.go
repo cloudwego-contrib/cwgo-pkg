@@ -22,10 +22,11 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/stretchr/testify/assert"
 )
 
 const (

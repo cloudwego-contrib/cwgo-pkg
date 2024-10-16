@@ -20,10 +20,10 @@ package main
 import (
 	"context"
 
+	"github.com/cloudwego-contrib/cwgo-pkg/log/accesslog"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/utils"
-	"github.com/hertz-contrib/logger/accesslog"
 )
 
 func main() {
