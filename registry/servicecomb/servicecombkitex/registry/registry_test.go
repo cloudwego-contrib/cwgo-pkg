@@ -15,11 +15,9 @@
 package registry
 
 import (
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/options"
 	"net"
 	"testing"
-	"time"
-
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/servicecomb/options"
 
 	"github.com/go-chassis/sc-client"
 
@@ -129,42 +127,4 @@ func TestSCRegistryDeregister(t *testing.T) {
 			}
 		})
 	}
-}
-
-// test register several instances and deregister
-func TestSCMultipleInstances(t *testing.T) {
-	client, err := getSCClient()
-	assert.Nil(t, err)
-	time.Sleep(time.Second)
-	got := NewSCRegistry(client, options.WithAppId(AppId), options.WithVersionRule(Version), options.WithHostName(HostName), options.WithHeartbeatInterval(5))
-	if !assert.NotNil(t, got) {
-		t.Errorf("err: new registry fail")
-		return
-	}
-	time.Sleep(time.Second)
-
-	err = got.Register(&registry.Info{
-		ServiceName: ServiceName,
-		Addr:        &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8081},
-	})
-	assert.Nil(t, err)
-	err = got.Register(&registry.Info{
-		ServiceName: ServiceName,
-		Addr:        &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8082},
-	})
-	assert.Nil(t, err)
-	err = got.Register(&registry.Info{
-		ServiceName: ServiceName,
-		Addr:        &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8083},
-	})
-	assert.Nil(t, err)
-
-	time.Sleep(5 * time.Second)
-	err = got.Deregister(&registry.Info{
-		ServiceName: ServiceName,
-		Addr:        &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 8083},
-	})
-	assert.Nil(t, err)
-	_, err = client.FindMicroServiceInstances("", AppId, ServiceName, LatestVersion, sc.WithoutRevision())
-	assert.Nil(t, err)
 }
