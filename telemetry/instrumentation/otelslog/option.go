@@ -15,6 +15,7 @@
 package otelslog
 
 import (
+	"io"
 	"log/slog"
 
 	cwslog "github.com/cloudwego-contrib/cwgo-pkg/log/logging/slog"
@@ -33,6 +34,7 @@ func (fn option) apply(cfg *config) {
 type config struct {
 	logger      *cwslog.Logger
 	traceConfig *traceConfig
+	options     []cwslog.Option
 }
 
 // defaultConfig default config
@@ -42,8 +44,27 @@ func defaultConfig() *config {
 			recordStackTraceInSpan: true,
 			errorSpanLevel:         slog.LevelError,
 		},
-		logger: cwslog.NewLogger(),
 	}
+}
+
+func WithHandlerOptions(opt *slog.HandlerOptions) Option {
+	return option(func(cfg *config) {
+		cfg.options = append(cfg.options, cwslog.WithHandlerOptions(opt))
+	})
+}
+
+// WithOutput slog writer
+func WithOutput(iow io.Writer) Option {
+	return option(func(cfg *config) {
+		cfg.options = append(cfg.options, cwslog.WithOutput(iow))
+	})
+}
+
+// WithLevel slog level
+func WithLevel(lvl *slog.LevelVar) Option {
+	return option(func(cfg *config) {
+		cfg.options = append(cfg.options, cwslog.WithLevel(lvl))
+	})
 }
 
 // WithLogger configures logger

@@ -20,11 +20,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"testing"
+
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestKFrom(t *testing.T) {

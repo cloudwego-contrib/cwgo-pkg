@@ -20,6 +20,8 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+type ExtraKey = cwzap.ExtraKey
+
 type Option interface {
 	apply(cfg *config)
 }
@@ -36,18 +38,11 @@ type traceConfig struct {
 }
 
 // cwZap is for compatibility with Kitex otel log
-type cwZap struct {
-	customFields []interface{}
-	extraKeys    []cwzap.ExtraKey
-	coreConfig   cwzap.CoreConfig
-	zapOpts      []zap.Option
-}
 
 type config struct {
 	logger      *cwzap.Logger
 	traceConfig *traceConfig
-	cwZap       cwZap
-	hasCwZap    bool
+	options     []cwzap.Option
 }
 
 // defaultConfig default config
@@ -57,47 +52,41 @@ func defaultConfig() *config {
 			recordStackTraceInSpan: true,
 			errorSpanLevel:         zapcore.ErrorLevel,
 		},
-		logger: cwzap.NewLogger(),
 	}
 }
 
 // WithCoreEnc zapcore encoder
 func WithCoreEnc(enc zapcore.Encoder) Option {
 	return option(func(cfg *config) {
-		cfg.cwZap.coreConfig.Enc = enc
-		cfg.hasCwZap = true
+		cfg.options = append(cfg.options, cwzap.WithCoreEnc(enc))
 	})
 }
 
 // WithCoreWs zapcore write syncer
 func WithCoreWs(ws zapcore.WriteSyncer) Option {
 	return option(func(cfg *config) {
-		cfg.cwZap.coreConfig.Ws = ws
-		cfg.hasCwZap = true
+		cfg.options = append(cfg.options, cwzap.WithCoreWs(ws))
 	})
 }
 
 // WithCoreLevel zapcore log level
 func WithCoreLevel(lvl zap.AtomicLevel) Option {
 	return option(func(cfg *config) {
-		cfg.cwZap.coreConfig.Lvl = lvl
-		cfg.hasCwZap = true
+		cfg.options = append(cfg.options, cwzap.WithCoreLevel(lvl))
 	})
 }
 
 // WithCustomFields record log with the key-value pair.
 func WithCustomFields(kv ...interface{}) Option {
 	return option(func(cfg *config) {
-		cfg.cwZap.customFields = append(cfg.cwZap.customFields, kv...)
-		cfg.hasCwZap = true
+		cfg.options = append(cfg.options, cwzap.WithCustomFields(kv...))
 	})
 }
 
 // WithZapOptions add origin zap option
 func WithZapOptions(opts ...zap.Option) Option {
 	return option(func(cfg *config) {
-		cfg.cwZap.zapOpts = append(cfg.cwZap.zapOpts, opts...)
-		cfg.hasCwZap = true
+		cfg.options = append(cfg.options, cwzap.WithZapOptions(opts...))
 	})
 }
 
@@ -120,5 +109,16 @@ func WithTraceErrorSpanLevel(level zapcore.Level) Option {
 func WithRecordStackTraceInSpan(recordStackTraceInSpan bool) Option {
 	return option(func(cfg *config) {
 		cfg.traceConfig.recordStackTraceInSpan = recordStackTraceInSpan
+	})
+}
+func WithExtraKeys(keys []ExtraKey) Option {
+	return option(func(cfg *config) {
+		cfg.options = append(cfg.options, cwzap.WithExtraKeys(keys))
+	})
+}
+
+func WithExtraKeyAsStr() Option {
+	return option(func(cfg *config) {
+		cfg.options = append(cfg.options, cwzap.WithExtraKeyAsStr())
 	})
 }

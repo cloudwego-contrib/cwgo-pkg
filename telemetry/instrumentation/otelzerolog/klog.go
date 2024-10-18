@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package zerolog
+package otelzerolog
 
 import (
-	"errors"
-
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/rs/zerolog"
 )
 
 var _ klog.FullLogger = (*KLogger)(nil)
@@ -42,7 +39,8 @@ func (l *KLogger) SetLevel(level klog.Level) {
 	case klog.LevelWarn:
 		lv = hlog.LevelWarn
 	case klog.LevelNotice:
-		lv = hlog.LevelNotice
+		lv = hlog.LevelWarn
+
 	case klog.LevelError:
 		lv = hlog.LevelError
 	case klog.LevelFatal:
@@ -53,21 +51,8 @@ func (l *KLogger) SetLevel(level klog.Level) {
 	l.Logger.SetLevel(lv)
 }
 
-func NewK(options ...Opt) *KLogger {
-	return &KLogger{New(options...)}
-}
+func NewKLogger(opts ...Option) *KLogger {
+	logger := NewLogger(opts...)
 
-// From returns a new Logger instance using an existing logger
-func FromK(log zerolog.Logger, options ...Opt) *KLogger {
-	return &KLogger{From(log, options...)}
-}
-
-func GetKLogger() (KLogger, error) {
-	defaultLogger := klog.DefaultLogger()
-
-	if logger, ok := defaultLogger.(*KLogger); ok {
-		return *logger, nil
-	}
-
-	return KLogger{}, errors.New("klog.DefaultLogger is not a zerolog logger")
+	return &KLogger{logger}
 }

@@ -47,3 +47,12 @@ func OtelSeverityText(lv zapcore.Level) string {
 	}
 	return s
 }
+
+func inArray(key ExtraKey, arr []ExtraKey) bool {
+	for _, k := range arr {
+		if k == key {
+			return true
+		}
+	}
+	return false
+}
