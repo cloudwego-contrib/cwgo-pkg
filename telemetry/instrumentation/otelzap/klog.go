@@ -20,6 +20,8 @@ import (
 	cwzap "github.com/cloudwego-contrib/cwgo-pkg/log/logging/zap"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var _ klog.FullLogger = (*KLogger)(nil)
@@ -57,8 +59,33 @@ func NewKLogger(opts ...Option) *KLogger {
 	for _, opt := range opts {
 		opt.apply(cfg)
 	}
+	if cfg.customFields != nil {
+		cfg.options = append(cfg.options, cwzap.WithZapOptions(CustomFields(convertToZapFields(cfg.customFields)...)))
+	}
 	if cfg.logger == nil {
 		opts = append(opts, WithLogger(cwzap.NewLogger(cfg.options...)))
 	}
 	return &KLogger{NewLogger(opts...)}
+}
+
+func convertToZapFields(customFields []interface{}) []zap.Field {
+	fields := make([]zap.Field, 0, len(customFields))
+
+	for i, field := range customFields {
+		if i%2 == 0 {
+			key, ok := field.(string)
+			if ok && i+1 < len(customFields) {
+				value := customFields[i+1]
+				fields = append(fields, zap.Any(key, value))
+			}
+		}
+	}
+
+	return fields
+}
+
+func CustomFields(fields ...zap.Field) zap.Option {
+	return zap.WrapCore(func(core zapcore.Core) zapcore.Core {
+		return core.With(fields)
+	})
 }

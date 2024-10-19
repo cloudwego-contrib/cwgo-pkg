@@ -72,11 +72,8 @@ func (l *Logger) CtxLogf(level hlog.Level, ctx context.Context, format string, k
 		ctx = context.WithValue(ctx, cwzap.ExtraKey(traceIDKey), span.SpanContext().TraceID())
 		ctx = context.WithValue(ctx, cwzap.ExtraKey(spanIDKey), span.SpanContext().SpanID())
 		ctx = context.WithValue(ctx, cwzap.ExtraKey(traceFlagsKey), span.SpanContext().TraceFlags())
-
-		l.Logger.CtxLogf(level, ctx, format, kvs...)
-	} else {
-		l.Logger.Logf(level, format, kvs...)
 	}
+	l.Logger.CtxLogf(level, ctx, format, kvs...)
 
 	if !span.IsRecording() {
 		return

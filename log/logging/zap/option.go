@@ -43,7 +43,6 @@ type config struct {
 	extraKeys     []ExtraKey
 	coreConfigs   []CoreConfig
 	zapOpts       []zap.Option
-	customFields  []interface{}
 	extraKeyAsStr bool
 }
 
@@ -126,12 +125,5 @@ func WithExtraKeys(keys []ExtraKey) Option {
 func WithExtraKeyAsStr() Option {
 	return option(func(cfg *config) {
 		cfg.extraKeyAsStr = true
-	})
-}
-
-// WithCustomFields record log with the key-value pair.
-func WithCustomFields(kv ...interface{}) Option {
-	return option(func(cfg *config) {
-		cfg.customFields = append(cfg.customFields, kv...)
 	})
 }

@@ -40,9 +40,10 @@ type traceConfig struct {
 // cwZap is for compatibility with Kitex otel log
 
 type config struct {
-	logger      *cwzap.Logger
-	traceConfig *traceConfig
-	options     []cwzap.Option
+	logger       *cwzap.Logger
+	traceConfig  *traceConfig
+	options      []cwzap.Option
+	customFields []interface{}
 }
 
 // defaultConfig default config
@@ -79,7 +80,7 @@ func WithCoreLevel(lvl zap.AtomicLevel) Option {
 // WithCustomFields record log with the key-value pair.
 func WithCustomFields(kv ...interface{}) Option {
 	return option(func(cfg *config) {
-		cfg.options = append(cfg.options, cwzap.WithCustomFields(kv...))
+		cfg.customFields = append(cfg.customFields, kv...)
 	})
 }
 
