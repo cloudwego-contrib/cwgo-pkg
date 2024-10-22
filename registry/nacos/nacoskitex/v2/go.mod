@@ -81,3 +81,4 @@ require (
 
 replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 
+replace github.com/nacos-group/nacos-sdk-go/v2 => github.com/nacos-group/nacos-sdk-go/v2 v2.2.0
