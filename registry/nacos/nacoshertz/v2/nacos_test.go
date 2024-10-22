@@ -185,7 +185,7 @@ func TestResolverResolve(t *testing.T) {
 	h := server.Default(
 		server.WithHostPorts("127.0.0.1:8080"),
 		server.WithRegistry(NewNacosRegistry(namingClient), &registry.Info{
-			ServiceName: "demo.hertz-contrib.local",
+			ServiceName: "demo.hertz-contrib.local.v2",
 			Addr:        utils.NewNetAddr("tcp", "127.0.0.1:8080"),
 			Weight:      10,
 		}),
@@ -215,7 +215,7 @@ func TestResolverResolve(t *testing.T) {
 			name: "common",
 			args: args{
 				ctx:  context.Background(),
-				desc: "demo.hertz-contrib.local",
+				desc: "demo.hertz-contrib.local.v2",
 			},
 			fields: fields{cli: namingClient},
 		},
@@ -246,7 +246,7 @@ func TestResolverResolve(t *testing.T) {
 	}
 
 	err := NewNacosRegistry(namingClient).Deregister(&registry.Info{
-		ServiceName: "demo.hertz-contrib.local",
+		ServiceName: "demo.hertz-contrib.local.v2",
 		Addr:        utils.NewNetAddr("tcp", "127.0.0.1:8080"),
 		Weight:      10,
 	})

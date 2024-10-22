@@ -28,24 +28,6 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
 )
 
-/*type options struct {
-	cluster string
-	group   string
-}
-
-// Option is nacos option.
-type Option func(o *options)
-
-// WithCluster with cluster option.
-func WithCluster(cluster string) Option {
-	return func(o *options) { o.cluster = cluster }
-}
-
-// WithGroup with group option.
-func WithGroup(group string) Option {
-	return func(o *options) { o.group = group }
-}*/
-
 type nacosRegistry struct {
 	cli  naming_client.INamingClient
 	opts options.Options
