@@ -26,6 +26,3 @@ require (
 	golang.org/x/arch v0.2.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
 )
-
-
-replace github.com/nacos-group/nacos-sdk-go/v2 v2.2.7 => github.com/nacos-group/nacos-sdk-go/v2 v2.2.0
