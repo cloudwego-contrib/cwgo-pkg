@@ -17,8 +17,6 @@ package client
 import (
 	"context"
 
-	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
-
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/utils"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/zookeeper"
 	"github.com/cloudwego/kitex/client"
@@ -29,7 +27,7 @@ import (
 
 // WithRPCTimeout sets the RPC timeout policy from zookeeper configuration center.
 func WithRPCTimeout(dest, src string, zookeeperClient zookeeper.Client, opts utils.Options) []client.Option {
-	param, err := zookeeperClient.ClientConfigParam(&common.ConfigParamConfig{
+	param, err := zookeeperClient.ClientConfigParam(&zookeeper.ConfigParamConfig{
 		Category:          rpcTimeoutConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -58,10 +56,10 @@ func WithRPCTimeout(dest, src string, zookeeperClient zookeeper.Client, opts uti
 func initRPCTimeoutContainer(path string, uniqueID int64, dest string, zookeeperClient zookeeper.Client) rpcinfo.TimeoutProvider {
 	rpcTimeoutContainer := rpctimeout.NewContainer()
 
-	onChangeCallback := func(restoreDefault bool, data string, parser common.ConfigParser) {
+	onChangeCallback := func(restoreDefault bool, data string, parser zookeeper.ConfigParser) {
 		configs := map[string]*rpctimeout.RPCTimeout{}
 		if !restoreDefault {
-			err := parser.Decode(common.JSON, data, &configs)
+			err := parser.Decode(data, &configs)
 			if err != nil {
 				klog.Warnf("[zookeeper] %s client zookeeper rpc timeout: unmarshal data %s failed: %s, skip...", path, data, err)
 				return

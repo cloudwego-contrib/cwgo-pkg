@@ -17,8 +17,6 @@ package client
 import (
 	"context"
 
-	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
-
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/pkg/degradation"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/utils"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/zookeeper"
@@ -27,7 +25,7 @@ import (
 )
 
 func WithDegradation(dest, src string, zookeeperClient zookeeper.Client, opts utils.Options) []client.Option {
-	param, err := zookeeperClient.ClientConfigParam(&common.ConfigParamConfig{
+	param, err := zookeeperClient.ClientConfigParam(&zookeeper.ConfigParamConfig{
 		Category:          degradationConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -55,10 +53,10 @@ func WithDegradation(dest, src string, zookeeperClient zookeeper.Client, opts ut
 
 func initDegradation(path string, uniqueID int64, dest string, zookeeperClient zookeeper.Client) *degradation.Container {
 	container := degradation.NewContainer()
-	onChangeCallback := func(restoreDefault bool, data string, parser common.ConfigParser) {
+	onChangeCallback := func(restoreDefault bool, data string, parser zookeeper.ConfigParser) {
 		config := &degradation.Config{}
 		if !restoreDefault {
-			err := parser.Decode(common.JSON, data, config)
+			err := parser.Decode(data, config)
 			if err != nil {
 				klog.Warnf("[zookeeper] %s server zookeeper degradation config: unmarshal data %s failed: %s, skip...", path, data, err)
 				return

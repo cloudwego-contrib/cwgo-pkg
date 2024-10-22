@@ -18,8 +18,6 @@ import (
 	"context"
 	"sync/atomic"
 
-	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
-
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/utils"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/zookeeper/zookeeper"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -30,7 +28,7 @@ import (
 
 // WithLimiter sets the limiter config from zookeeper configuration center.
 func WithLimiter(dest string, zookeeperClient zookeeper.Client, opts utils.Options) server.Option {
-	param, err := zookeeperClient.ServerConfigParam(&common.ConfigParamConfig{
+	param, err := zookeeperClient.ServerConfigParam(&zookeeper.ConfigParamConfig{
 		Category:          limiterConfigName,
 		ServerServiceName: dest,
 	})
@@ -57,10 +55,10 @@ func initLimitOptions(path string, uniqueID int64, dest string, zookeeperClient 
 		u.UpdateLimit(opt)
 		updater.Store(u)
 	}
-	onChangeCallback := func(restoreDefault bool, data string, parser common.ConfigParser) {
+	onChangeCallback := func(restoreDefault bool, data string, parser zookeeper.ConfigParser) {
 		lc := &limiter.LimiterConfig{}
 		if !restoreDefault && data != "" {
-			err := parser.Decode(common.JSON, data, lc)
+			err := parser.Decode(data, lc)
 			if err != nil {
 				klog.Warnf("[zookeeper] %s server zookeeper config: unmarshal data %s failed: %s, skip...", dest, data, err)
 				return

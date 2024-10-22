@@ -190,7 +190,7 @@ func TestNacosMultipleInstancesWithDefaultNacosRegistry(t *testing.T) {
 		HealthyOnly: true,
 	})
 	if err != nil {
-		assert.Equal(t, "instance list is empty", err.Error())
+		assert.Equal(t, "instance list is empty!", err.Error())
 	} else {
 		assert.Equal(t, 0, len(res))
 	}

@@ -30,7 +30,7 @@ import (
 
 // WithCircuitBreaker sets the circuit breaker policy from zookeeper configuration center.
 func WithCircuitBreaker(dest, src string, zookeeperClient zookeeper.Client, opts utils.Options) []client.Option {
-	param, err := zookeeperClient.ClientConfigParam(&common.ConfigParamConfig{
+	param, err := zookeeperClient.ClientConfigParam(&zookeeper.ConfigParamConfig{
 		Category:          circuitBreakerConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -85,12 +85,12 @@ func initCircuitBreaker(path string, uniqueID int64, dest string, zookeeperClien
 	cb := circuitbreak.NewCBSuite(genServiceCBKeyWithRPCInfo)
 	lcb := common.ThreadSafeSet{}
 
-	onChangeCallback := func(restoreDefault bool, data string, parser common.ConfigParser) {
+	onChangeCallback := func(restoreDefault bool, data string, parser zookeeper.ConfigParser) {
 		set := common.Set{}
 		configs := map[string]circuitbreak.CBConfig{}
 
 		if !restoreDefault {
-			err := parser.Decode(common.JSON, data, &configs)
+			err := parser.Decode(data, &configs)
 			if err != nil {
 				klog.Warnf("[zookeeper] %s client zookeeper circuit breaker: unmarshal data %s failed: %s, skip...", path, data, err)
 				return
