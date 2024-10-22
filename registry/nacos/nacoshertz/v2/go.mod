@@ -1,6 +1,6 @@
 module github.com/cloudwego-contrib/cwgo-pkg/registry/nacos/nacoshertz/v2
 
-go 1.16
+go 1.21
 
 require (
 	github.com/alibabacloud-go/debug v1.0.0 // indirect
@@ -28,4 +28,4 @@ require (
 )
 
 
-replace github.com/nacos-group/nacos-sdk-go/v2 => github.com/nacos-group/nacos-sdk-go/v2 v2.2.0
+replace github.com/nacos-group/nacos-sdk-go/v2 v2.2.7 => github.com/nacos-group/nacos-sdk-go/v2 v2.2.0
