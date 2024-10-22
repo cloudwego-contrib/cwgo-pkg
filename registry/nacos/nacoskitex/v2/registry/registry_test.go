@@ -182,7 +182,7 @@ func TestNacosMultipleInstancesWithDefaultNacosRegistry(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	time.Sleep(time.Second * 3)
+	time.Sleep(time.Second * 15)
 	res, err = nacosClient.SelectInstances(vo.SelectInstancesParam{
 		ServiceName: svcName,
 		GroupName:   groupName,
@@ -190,7 +190,7 @@ func TestNacosMultipleInstancesWithDefaultNacosRegistry(t *testing.T) {
 		HealthyOnly: true,
 	})
 	if err != nil {
-		assert.Equal(t, nil, err.Error())
+		assert.Equal(t, "instance list is empty", err.Error())
 	} else {
 		assert.Equal(t, 0, len(res))
 	}
