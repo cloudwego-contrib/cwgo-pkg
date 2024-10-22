@@ -28,3 +28,4 @@ require (
 )
 
 
+replace github.com/nacos-group/nacos-sdk-go/v2 => github.com/nacos-group/nacos-sdk-go/v2 v2.2.0
