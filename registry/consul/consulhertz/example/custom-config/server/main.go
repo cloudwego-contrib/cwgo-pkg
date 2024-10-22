@@ -16,10 +16,11 @@ package main
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 	"log"
 	"net"
 	"sync"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 
 	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulhertz"
 

@@ -26,7 +26,7 @@ import (
 
 // WithRetryPolicy sets the retry policy from consul configuration center.
 func WithRetryPolicy(dest, src string, consulClient consul.Client, uniqueID int64, opts utils.Options) []client.Option {
-	param, err := consulClient.ClientConfigParam(&common.ConfigParamConfig{
+	param, err := consulClient.ClientConfigParam(&consul.ConfigParamConfig{
 		Category:          retryConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -51,14 +51,14 @@ func WithRetryPolicy(dest, src string, consulClient consul.Client, uniqueID int6
 	}
 }
 
-func initRetryContainer(configType common.ConfigType, key, dest string,
+func initRetryContainer(configType consul.ConfigType, key, dest string,
 	consulClient consul.Client, uniqueID int64,
 ) *retry.Container {
 	retryContainer := retry.NewRetryContainerWithPercentageLimit()
 
 	ts := common.ThreadSafeSet{}
 
-	onChangeCallback := func(data string, parser common.ConfigParser) {
+	onChangeCallback := func(data string, parser consul.ConfigParser) {
 		// the key is method name, wildcard "*" can match anything.
 		rcs := map[string]*retry.Policy{}
 		err := parser.Decode(configType, data, &rcs)

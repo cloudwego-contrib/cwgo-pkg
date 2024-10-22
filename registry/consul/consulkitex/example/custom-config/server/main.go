@@ -18,8 +18,9 @@ package main
 
 import (
 	"context"
-	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 	"log"
+
+	"github.com/cloudwego-contrib/cwgo-pkg/registry/consul/options"
 
 	consul "github.com/cloudwego-contrib/cwgo-pkg/registry/consul/consulkitex"
 	consulapi "github.com/hashicorp/consul/api"

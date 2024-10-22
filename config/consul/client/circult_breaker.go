@@ -30,7 +30,7 @@ import (
 
 // WithCircuitBreaker sets the circuit breaker policy from consul configuration center.
 func WithCircuitBreaker(dest, src string, consulClient consul.Client, uniqueID int64, opts utils.Options) []client.Option {
-	param, err := consulClient.ClientConfigParam(&common.ConfigParamConfig{
+	param, err := consulClient.ClientConfigParam(&consul.ConfigParamConfig{
 		Category:          circuitBreakerConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -78,13 +78,13 @@ func genServiceCBKey(toService, method string) string {
 	return buf.String()
 }
 
-func initCircuitBreaker(configType common.ConfigType, key, dest, src string,
+func initCircuitBreaker(configType consul.ConfigType, key, dest, src string,
 	consulClient consul.Client, uniqueID int64,
 ) *circuitbreak.CBSuite {
 	cb := circuitbreak.NewCBSuite(genServiceCBKeyWithRPCInfo)
 	lcb := common.ThreadSafeSet{}
 
-	onChangeCallback := func(data string, parser common.ConfigParser) {
+	onChangeCallback := func(data string, parser consul.ConfigParser) {
 		set := common.Set{}
 		configs := map[string]circuitbreak.CBConfig{}
 		err := parser.Decode(configType, data, &configs)

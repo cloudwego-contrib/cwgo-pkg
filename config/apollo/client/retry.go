@@ -26,7 +26,7 @@ import (
 func WithRetryPolicy(dest, src string, apolloClient apollo.Client,
 	opts utils.Options,
 ) []client.Option {
-	param, err := apolloClient.ClientConfigParam(&common.ConfigParamConfig{
+	param, err := apolloClient.ClientConfigParam(&apollo.ConfigParamConfig{
 		Category:          apollo.RetryConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -62,7 +62,7 @@ func initRetryContainer(param apollo.ConfigParam, dest string,
 
 	ts := common.ThreadSafeSet{}
 
-	onChangeCallback := func(data string, parser common.ConfigParser) {
+	onChangeCallback := func(data string, parser apollo.ConfigParser) {
 		// the key is method name, wildcard "*" can match anything.
 		rcs := map[string]*retry.Policy{}
 		err := parser.Decode(param.Type, data, &rcs)

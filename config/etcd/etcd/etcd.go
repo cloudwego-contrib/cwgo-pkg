@@ -22,8 +22,6 @@ import (
 	"text/template"
 	"time"
 
-	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
-
 	"go.etcd.io/etcd/api/v3/mvccpb"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -38,17 +36,17 @@ type Key struct {
 }
 
 type Client interface {
-	SetParser(common.ConfigParser)
-	ClientConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
-	ServerConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
-	RegisterConfigCallback(ctx context.Context, key string, clientId int64, callback func(restoreDefault bool, data string, parser common.ConfigParser))
+	SetParser(ConfigParser)
+	ClientConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error)
+	ServerConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error)
+	RegisterConfigCallback(ctx context.Context, key string, clientId int64, callback func(restoreDefault bool, data string, parser ConfigParser))
 	DeregisterConfig(key string, uniqueId int64)
 }
 
 type client struct {
 	ecli *clientv3.Client
 	// support customise parser
-	parser             common.ConfigParser
+	parser             ConfigParser
 	etcdTimeout        time.Duration
 	prefixTemplate     *template.Template
 	serverPathTemplate *template.Template
@@ -65,7 +63,7 @@ type Options struct {
 	ClientPathFormat string
 	Timeout          time.Duration
 	LoggerConfig     *zap.Config
-	ConfigParser     common.ConfigParser
+	ConfigParser     ConfigParser
 }
 
 // NewClient Create a default etcd client
@@ -76,7 +74,7 @@ func NewClient(opts Options) (Client, error) {
 		opts.Node = []string{EtcdDefaultNode}
 	}
 	if opts.ConfigParser == nil {
-		opts.ConfigParser = common.DefaultConfigParse()
+		opts.ConfigParser = defaultConfigParse()
 	}
 	if opts.Prefix == "" {
 		opts.Prefix = EtcdDefaultConfigPrefix
@@ -121,15 +119,15 @@ func NewClient(opts Options) (Client, error) {
 	return c, nil
 }
 
-func (c *client) SetParser(parser common.ConfigParser) {
+func (c *client) SetParser(parser ConfigParser) {
 	c.parser = parser
 }
 
-func (c *client) ClientConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
+func (c *client) ClientConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
 	return c.configParam(cpc, c.clientPathTemplate, cfs...)
 }
 
-func (c *client) ServerConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
+func (c *client) ServerConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
 	return c.configParam(cpc, c.serverPathTemplate, cfs...)
 }
 
@@ -138,7 +136,7 @@ func (c *client) ServerConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomF
 //  1. Prefix: KitexConfig by default.
 //  2. ServerPath: {{.ServerServiceName}}/{{.Category}} by default.
 //     ClientPath: {{.ClientServiceName}}/{{.ServerServiceName}}/{{.Category}} by default.
-func (c *client) configParam(cpc *common.ConfigParamConfig, t *template.Template, cfs ...CustomFunction) (Key, error) {
+func (c *client) configParam(cpc *ConfigParamConfig, t *template.Template, cfs ...CustomFunction) (Key, error) {
 	param := Key{}
 
 	var err error
@@ -157,7 +155,7 @@ func (c *client) configParam(cpc *common.ConfigParamConfig, t *template.Template
 	return param, nil
 }
 
-func (c *client) render(cpc *common.ConfigParamConfig, t *template.Template) (string, error) {
+func (c *client) render(cpc *ConfigParamConfig, t *template.Template) (string, error) {
 	var tpl bytes.Buffer
 	err := t.Execute(&tpl, cpc)
 	if err != nil {
@@ -167,7 +165,7 @@ func (c *client) render(cpc *common.ConfigParamConfig, t *template.Template) (st
 }
 
 // RegisterConfigCallback register the callback function to etcd client.
-func (c *client) RegisterConfigCallback(ctx context.Context, key string, uniqueID int64, callback func(bool, string, common.ConfigParser)) {
+func (c *client) RegisterConfigCallback(ctx context.Context, key string, uniqueID int64, callback func(bool, string, ConfigParser)) {
 	go func() {
 		clientCtx, cancel := context.WithCancel(context.Background())
 		c.registerCancelFunc(key, uniqueID, cancel)

@@ -31,7 +31,7 @@ import (
 func WithCircuitBreaker(dest, src string, apolloClient apollo.Client,
 	opts utils.Options,
 ) []client.Option {
-	param, err := apolloClient.ClientConfigParam(&common.ConfigParamConfig{
+	param, err := apolloClient.ClientConfigParam(&apollo.ConfigParamConfig{
 		Category:          apollo.CircuitBreakerConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -86,7 +86,7 @@ func initCircuitBreaker(param apollo.ConfigParam, dest, src string,
 	cb := circuitbreak.NewCBSuite(genServiceCBKeyWithRPCInfo)
 	lcb := common.ThreadSafeSet{}
 
-	onChangeCallback := func(data string, parser common.ConfigParser) {
+	onChangeCallback := func(data string, parser apollo.ConfigParser) {
 		set := common.Set{}
 		configs := map[string]circuitbreak.CBConfig{}
 		err := parser.Decode(param.Type, data, &configs)

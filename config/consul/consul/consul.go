@@ -22,8 +22,6 @@ import (
 	"sync"
 	"time"
 
-	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
-
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/hashicorp/consul/api"
 	"github.com/hashicorp/consul/api/watch"
@@ -33,7 +31,7 @@ import (
 const WatchByKey = "key"
 
 type Key struct {
-	Type   common.ConfigType
+	Type   ConfigType
 	Prefix string
 	Path   string
 }
@@ -47,10 +45,10 @@ type ListenConfig struct {
 	Partition  string
 }
 type Client interface {
-	SetParser(configParser common.ConfigParser)
-	ClientConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
-	ServerConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error)
-	RegisterConfigCallback(key string, uniqueID int64, callback func(string, common.ConfigParser))
+	SetParser(configParser ConfigParser)
+	ClientConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error)
+	ServerConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error)
+	RegisterConfigCallback(key string, uniqueID int64, callback func(string, ConfigParser))
 	DeregisterConfig(key string, uniqueID int64)
 }
 
@@ -65,13 +63,13 @@ type Options struct {
 	Token            string
 	Partition        string
 	LoggerConfig     *zap.Config
-	ConfigParser     common.ConfigParser
+	ConfigParser     ConfigParser
 }
 
 type client struct {
 	consulCli          *api.Client
 	lconfig            *ListenConfig
-	parser             common.ConfigParser
+	parser             ConfigParser
 	consulTimeout      time.Duration
 	prefixTemplate     *template.Template
 	serverPathTemplate *template.Template
@@ -88,7 +86,7 @@ func NewClient(opts Options) (Client, error) {
 		opts.Prefix = ConsulDefaultConfiGPrefix
 	}
 	if opts.ConfigParser == nil {
-		opts.ConfigParser = common.DefaultConfigParse()
+		opts.ConfigParser = defaultConfigParse()
 	}
 	if opts.TimeOut == 0 {
 		opts.TimeOut = ConsulDefaultTimeout
@@ -146,15 +144,15 @@ func NewClient(opts Options) (Client, error) {
 }
 
 // SetParser support customise parser
-func (c *client) SetParser(parser common.ConfigParser) {
+func (c *client) SetParser(parser ConfigParser) {
 	c.parser = parser
 }
 
-func (c *client) ClientConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
+func (c *client) ClientConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
 	return c.configParam(cpc, c.clientPathTemplate, cfs...)
 }
 
-func (c *client) ServerConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
+func (c *client) ServerConfigParam(cpc *ConfigParamConfig, cfs ...CustomFunction) (Key, error) {
 	return c.configParam(cpc, c.serverPathTemplate, cfs...)
 }
 
@@ -163,8 +161,8 @@ func (c *client) ServerConfigParam(cpc *common.ConfigParamConfig, cfs ...CustomF
 //  1. Prefix: KitexConfig by default.
 //  2. ServerPath: {{.ServerServiceName}}/{{.Category}} by default.
 //     ClientPath: {{.ClientServiceName}}/{{.ServerServiceName}}/{{.Category}} by default.
-func (c *client) configParam(cpc *common.ConfigParamConfig, t *template.Template, cfs ...CustomFunction) (Key, error) {
-	param := Key{Type: common.JSON}
+func (c *client) configParam(cpc *ConfigParamConfig, t *template.Template, cfs ...CustomFunction) (Key, error) {
+	param := Key{Type: JSON}
 	var err error
 	param.Path, err = c.render(cpc, t)
 	if err != nil {
@@ -181,7 +179,7 @@ func (c *client) configParam(cpc *common.ConfigParamConfig, t *template.Template
 	return param, nil
 }
 
-func (c *client) render(cpc *common.ConfigParamConfig, t *template.Template) (string, error) {
+func (c *client) render(cpc *ConfigParamConfig, t *template.Template) (string, error) {
 	var tpl bytes.Buffer
 	err := t.Execute(&tpl, cpc)
 	if err != nil {
@@ -191,7 +189,7 @@ func (c *client) render(cpc *common.ConfigParamConfig, t *template.Template) (st
 }
 
 // RegisterConfigCallback register the callback function to consul client.
-func (c *client) RegisterConfigCallback(key string, uniqueID int64, callback func(string, common.ConfigParser)) {
+func (c *client) RegisterConfigCallback(key string, uniqueID int64, callback func(string, ConfigParser)) {
 	go func() {
 		clientCtx, cancel := context.WithCancel(context.Background())
 		params := make(map[string]interface{})
