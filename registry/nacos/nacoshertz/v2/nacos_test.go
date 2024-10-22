@@ -301,7 +301,7 @@ func TestResolverDifferentGroup(t *testing.T) {
 	go srv1.Spin()
 	go srv2.Spin()
 
-	time.Sleep(2 * time.Second)
+	time.Sleep(4 * time.Second)
 
 	cli, err := client.NewClient()
 	if err != nil {
