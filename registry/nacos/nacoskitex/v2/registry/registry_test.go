@@ -147,7 +147,7 @@ func TestNacosRegistryDeregister(t *testing.T) {
 // TestNacosMultipleInstancesWithDefaultNacosRegistry use DefaultNacosRegistry to test registry multiple service,then deregister one
 func TestNacosMultipleInstancesWithDefaultNacosRegistry(t *testing.T) {
 	var (
-		svcName     = "MultipleInstances"
+		svcName     = "MultipleInstances_V2"
 		clusterName = "TheCluster"
 		groupName   = "TheGroup"
 	)
