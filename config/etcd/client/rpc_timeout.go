@@ -17,8 +17,6 @@ package client
 import (
 	"context"
 
-	common "github.com/cloudwego-contrib/cwgo-pkg/config/common"
-
 	"github.com/cloudwego-contrib/cwgo-pkg/config/etcd/etcd"
 	"github.com/cloudwego-contrib/cwgo-pkg/config/etcd/utils"
 	"github.com/cloudwego/kitex/client"
@@ -29,7 +27,7 @@ import (
 
 // WithRPCTimeout sets the RPC timeout policy from etcd configuration center.
 func WithRPCTimeout(dest, src string, etcdClient etcd.Client, uniqueID int64, opts utils.Options) []client.Option {
-	param, err := etcdClient.ClientConfigParam(&common.ConfigParamConfig{
+	param, err := etcdClient.ClientConfigParam(&etcd.ConfigParamConfig{
 		Category:          rpcTimeoutConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -57,10 +55,10 @@ func initRPCTimeoutContainer(key, dest string,
 ) rpcinfo.TimeoutProvider {
 	rpcTimeoutContainer := rpctimeout.NewContainer()
 
-	onChangeCallback := func(restoreDefault bool, data string, parser common.ConfigParser) {
+	onChangeCallback := func(restoreDefault bool, data string, parser etcd.ConfigParser) {
 		configs := map[string]*rpctimeout.RPCTimeout{}
 		if !restoreDefault {
-			err := parser.Decode(common.JSON, data, &configs)
+			err := parser.Decode(data, &configs)
 			if err != nil {
 				klog.Warnf("[etcd] %s client etcd rpc timeout: unmarshal data %s failed: %s, skip...", key, data, err)
 				return

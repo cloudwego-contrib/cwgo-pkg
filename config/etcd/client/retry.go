@@ -28,7 +28,7 @@ import (
 
 // WithRetryPolicy sets the retry policy from etcd configuration center.
 func WithRetryPolicy(dest, src string, etcdClient etcd.Client, uniqueID int64, opts utils.Options) []client.Option {
-	param, err := etcdClient.ClientConfigParam(&common.ConfigParamConfig{
+	param, err := etcdClient.ClientConfigParam(&etcd.ConfigParamConfig{
 		Category:          retryConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -60,12 +60,12 @@ func initRetryContainer(key, dest string,
 
 	ts := common.ThreadSafeSet{}
 
-	onChangeCallback := func(restoreDefault bool, data string, parser common.ConfigParser) {
+	onChangeCallback := func(restoreDefault bool, data string, parser etcd.ConfigParser) {
 		// the key is method name, wildcard "*" can match anything.
 		rcs := map[string]*retry.Policy{}
 
 		if !restoreDefault {
-			err := parser.Decode(common.JSON, data, &rcs)
+			err := parser.Decode(data, &rcs)
 			if err != nil {
 				klog.Warnf("[etcd] %s client etcd retry: unmarshal data %s failed: %s, skip...", key, data, err)
 				return

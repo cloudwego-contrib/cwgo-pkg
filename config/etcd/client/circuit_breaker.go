@@ -31,7 +31,7 @@ import (
 
 // WithCircuitBreaker sets the circuit breaker policy from etcd configuration center.
 func WithCircuitBreaker(dest, src string, etcdClient etcd.Client, uniqueID int64, opts utils.Options) []client.Option {
-	param, err := etcdClient.ClientConfigParam(&common.ConfigParamConfig{
+	param, err := etcdClient.ClientConfigParam(&etcd.ConfigParamConfig{
 		Category:          circuitBreakerConfigName,
 		ServerServiceName: dest,
 		ClientServiceName: src,
@@ -85,12 +85,12 @@ func initCircuitBreaker(key, dest, src string,
 	cb := circuitbreak.NewCBSuite(genServiceCBKeyWithRPCInfo)
 	lcb := common.ThreadSafeSet{}
 
-	onChangeCallback := func(restoreDefault bool, data string, parser common.ConfigParser) {
+	onChangeCallback := func(restoreDefault bool, data string, parser etcd.ConfigParser) {
 		set := common.Set{}
 		configs := map[string]circuitbreak.CBConfig{}
 
 		if !restoreDefault {
-			err := parser.Decode(common.JSON, data, &configs)
+			err := parser.Decode(data, &configs)
 			if err != nil {
 				klog.Warnf("[etcd] %s client etcd circuit breaker: unmarshal data %s failed: %s, skip...", key, data, err)
 				return
