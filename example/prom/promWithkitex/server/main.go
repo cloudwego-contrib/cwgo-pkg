@@ -19,9 +19,10 @@ package main
 import (
 	"context"
 	"errors"
-	"exampleprom/promWithkitex/kitex_gen/api/echo"
 	"net"
 	"time"
+
+	"exampleprom/promWithkitex/kitex_gen/api/echo"
 
 	"exampleprom/promWithkitex/kitex_gen/api"
 

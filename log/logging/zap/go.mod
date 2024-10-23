@@ -3,7 +3,7 @@ module github.com/cloudwego-contrib/cwgo-pkg/log/logging/zap
 go 1.21
 
 require (
-	github.com/cloudwego/hertz v0.9.2
+	github.com/cloudwego/hertz v0.9.3
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.24.0
 )

@@ -1,4 +1,4 @@
-go 1.21
+go 1.21.12
 
 use (
 	.
@@ -6,14 +6,33 @@ use (
 	./log/logging/slog
 	./log/logging/zap
 	./log/logging/zerolog
-	telemetry
 	./telemetry/instrumentation/otellogrus
 	./telemetry/instrumentation/otelslog
 	./telemetry/instrumentation/otelzap
 	./telemetry/instrumentation/otelzerolog
-	example/prom
 	example/otel/otelwithhertz
 	example/otel/otelwithkitex
+	example/prom
+	telemetry
+	registry/consul
+	registry/etcd
+	registry/eureka
+	registry/nacos
+	registry/nacos/options
+	registry/polaris
+	registry/redis
+	registry/servicecomb
+	registry/zookeeper
+	config/apollo
+	config/common
+	config/consul
+	config/etcd
+	config/file
+	config/nacos
+	config/zookeeper
+	config/nacos/v2
+	registry/nacos/nacoskitex/v2
+	registry/nacos/nacoshertz/v2
 
 )
 

@@ -9,5 +9,5 @@ header:
     - '**/*.s'
   paths-ignore:
     - example/prom/promWithkitex/kitex_gen/**
-
+    - registry/**/kitex_gen/**
   comment: on-failure
