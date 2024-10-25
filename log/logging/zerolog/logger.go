@@ -57,6 +57,10 @@ func From(log zerolog.Logger, options ...Opt) *Logger {
 	return newLogger(log, options)
 }
 
+func (l *Logger) Logger() *zerolog.Logger {
+	return &l.log
+}
+
 // GetLogger returns the default logger instance
 func GetLogger() (Logger, error) {
 	defaultLogger := hlog.DefaultLogger()

@@ -30,31 +30,31 @@ const (
 	traceFlagsKey = "trace_flags"
 )
 
-type traceConfig struct {
+type TraceConfig struct {
 	recordStackTraceInSpan bool
 	errorSpanLevel         slog.Level
 }
 
-type traceHandler struct {
+type TraceHandler struct {
 	slog.Handler
-	tcfg *traceConfig
+	tcfg *TraceConfig
 }
 
-func NewTraceHandler(w io.Writer, opts *slog.HandlerOptions, traceConfig *traceConfig) *traceHandler {
+func NewTraceHandler(w io.Writer, opts *slog.HandlerOptions, traceConfig *TraceConfig) *TraceHandler {
 	if opts == nil {
 		opts = &slog.HandlerOptions{}
 	}
-	return &traceHandler{
+	return &TraceHandler{
 		slog.NewJSONHandler(w, opts),
 		traceConfig,
 	}
 }
 
-func (t *traceHandler) Enabled(ctx context.Context, level slog.Level) bool {
+func (t *TraceHandler) Enabled(ctx context.Context, level slog.Level) bool {
 	return t.Handler.Enabled(ctx, level)
 }
 
-func (t *traceHandler) Handle(ctx context.Context, record slog.Record) error {
+func (t *TraceHandler) Handle(ctx context.Context, record slog.Record) error {
 	// trace span add
 	span := trace.SpanFromContext(ctx)
 	if span.SpanContext().TraceID().IsValid() {
@@ -81,10 +81,10 @@ func (t *traceHandler) Handle(ctx context.Context, record slog.Record) error {
 	return t.Handler.Handle(ctx, record)
 }
 
-func (t *traceHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+func (t *TraceHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	return t.Handler.WithAttrs(attrs)
 }
 
-func (t *traceHandler) WithGroup(name string) slog.Handler {
+func (t *TraceHandler) WithGroup(name string) slog.Handler {
 	return t.Handler.WithGroup(name)
 }

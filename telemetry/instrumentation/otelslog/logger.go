@@ -40,6 +40,9 @@ func NewLogger(opts ...Option) *Logger {
 	for _, opt := range opts {
 		opt.apply(cfg)
 	}
+	if cfg.logger == nil {
+		cfg.logger = cwslog.NewLogger()
+	}
 	logger := &Logger{
 		Logger: *cfg.logger,
 		config: cfg,

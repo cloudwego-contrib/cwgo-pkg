@@ -17,6 +17,9 @@ package otelzap
 import (
 	"context"
 	"errors"
+	"fmt"
+
+	"github.com/cloudwego/kitex/pkg/klog"
 
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 
@@ -48,12 +51,11 @@ func NewLogger(opts ...Option) *Logger {
 	for _, opt := range opts {
 		opt.apply(config)
 	}
-	logger := *config.logger
-	if config.hasCwZap {
-		options := GetOptions(config.cwZap)
-		logger = *cwzap.NewLogger(options...)
-		extraKeys = append(extraKeys, config.cwZap.extraKeys...)
+	if config.logger == nil {
+		config.logger = cwzap.NewLogger()
 	}
+	logger := *config.logger
+
 	logger.PutExtraKeys(extraKeys...)
 
 	return &Logger{
@@ -70,11 +72,8 @@ func (l *Logger) CtxLogf(level hlog.Level, ctx context.Context, format string, k
 		ctx = context.WithValue(ctx, cwzap.ExtraKey(traceIDKey), span.SpanContext().TraceID())
 		ctx = context.WithValue(ctx, cwzap.ExtraKey(spanIDKey), span.SpanContext().SpanID())
 		ctx = context.WithValue(ctx, cwzap.ExtraKey(traceFlagsKey), span.SpanContext().TraceFlags())
-
-		l.Logger.CtxLogf(level, ctx, format, kvs...)
-	} else {
-		l.Logger.Logf(level, format, kvs...)
 	}
+	l.Logger.CtxLogf(level, ctx, format, kvs...)
 
 	if !span.IsRecording() {
 		return
@@ -131,14 +130,54 @@ func (l *Logger) CtxFatalf(ctx context.Context, format string, v ...interface{})
 	l.CtxLogf(hlog.LevelFatal, ctx, format, v...)
 }
 
-func GetOptions(cwZap cwZap) []cwzap.Option {
-	opions := []cwzap.Option{}
-	opions = append(opions, cwzap.WithCores(cwzap.CoreConfig{
-		Enc: cwZap.coreConfig.Enc,
-		Lvl: cwZap.coreConfig.Lvl,
-		Ws:  cwZap.coreConfig.Ws,
-	}))
-	opions = append(opions, cwzap.WithZapOptions(cwZap.zapOpts...))
-	opions = append(opions, cwzap.WithCustomFields(cwZap.customFields))
-	return opions
+func (l *Logger) CtxKVLog(ctx context.Context, level klog.Level, format string, kvs ...interface{}) {
+	if len(kvs) == 0 || len(kvs)%2 != 0 {
+		l.Warn(fmt.Sprint("Keyvalues must appear in pairs:", kvs))
+		return
+	}
+
+	span := trace.SpanFromContext(ctx)
+	if span.SpanContext().TraceID().IsValid() {
+		kvs = append(kvs, traceIDKey, span.SpanContext().TraceID())
+	}
+	if span.SpanContext().SpanID().IsValid() {
+		kvs = append(kvs, spanIDKey, span.SpanContext().SpanID())
+	}
+	if span.SpanContext().TraceFlags().IsSampled() {
+		kvs = append(kvs, traceFlagsKey, span.SpanContext().TraceFlags())
+	}
+
+	var zlevel zapcore.Level
+	zl := l.Logger.Logger().Sugar().With()
+	switch level {
+	case klog.LevelDebug, klog.LevelTrace:
+		zlevel = zap.DebugLevel
+		zl.Debugw(format, kvs...)
+	case klog.LevelInfo:
+		zlevel = zap.InfoLevel
+		zl.Infow(format, kvs...)
+	case klog.LevelNotice, klog.LevelWarn:
+		zlevel = zap.WarnLevel
+		zl.Warnw(format, kvs...)
+	case klog.LevelError:
+		zlevel = zap.ErrorLevel
+		zl.Errorw(format, kvs...)
+	case klog.LevelFatal:
+		zlevel = zap.FatalLevel
+		zl.Fatalw(format, kvs...)
+	default:
+		zlevel = zap.WarnLevel
+		zl.Warnw(format, kvs...)
+	}
+
+	if !span.IsRecording() {
+		return
+	}
+
+	// set span status
+	if zlevel >= l.config.traceConfig.errorSpanLevel {
+		msg := getMessage(format, kvs)
+		span.SetStatus(codes.Error, "")
+		span.RecordError(errors.New(msg), trace.WithStackTrace(l.config.traceConfig.recordStackTraceInSpan))
+	}
 }
