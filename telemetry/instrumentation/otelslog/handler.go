@@ -30,17 +30,17 @@ const (
 	traceFlagsKey = "trace_flags"
 )
 
-type traceConfig struct {
+type TraceConfig struct {
 	recordStackTraceInSpan bool
 	errorSpanLevel         slog.Level
 }
 
 type TraceHandler struct {
 	slog.Handler
-	tcfg *traceConfig
+	tcfg *TraceConfig
 }
 
-func NewTraceHandler(w io.Writer, opts *slog.HandlerOptions, traceConfig *traceConfig) *TraceHandler {
+func NewTraceHandler(w io.Writer, opts *slog.HandlerOptions, traceConfig *TraceConfig) *TraceHandler {
 	if opts == nil {
 		opts = &slog.HandlerOptions{}
 	}

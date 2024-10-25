@@ -33,14 +33,14 @@ func (fn option) apply(cfg *config) {
 
 type config struct {
 	logger      *cwslog.Logger
-	traceConfig *traceConfig
+	traceConfig *TraceConfig
 	options     []cwslog.Option
 }
 
 // defaultConfig default config
 func defaultConfig() *config {
 	return &config{
-		traceConfig: &traceConfig{
+		traceConfig: &TraceConfig{
 			recordStackTraceInSpan: true,
 			errorSpanLevel:         slog.LevelError,
 		},
